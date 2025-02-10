@@ -1,0 +1,50 @@
+
+ymaps.ready(init);
+function init() {
+    // Initialize the map
+    const map = new ymaps.Map("map", {
+        center: [55.7558, 37.6173], // Center on Moscow
+        zoom: 12,
+        controls: []
+    });
+
+    // Example data for wires
+    const wires = [
+        { label: 'Wire 1', points: [[55.7558, 37.6173], [55.7658, 37.6343]] },
+        { label: 'Wire 2', points: [[55.7658, 37.6343], [55.7858, 37.6513]] },
+        { label: 'Wire 3', points: [[55.7858, 37.6513], [55.7958, 37.6683]] },
+    ];
+
+    createGraph(map, wires);
+}
+
+function createGraph(map, wires) {
+    wires.forEach((wire) => {
+        // Create a polyline for each wire
+        const line = new ymaps.Polyline(
+            wire.points,
+            {
+                preset: 'islands#blueLine', // Line style
+                draggable: false,
+            },
+            {
+                strokeWidth: 4,
+                strokeColor: "#0000FF",
+            }
+        );
+
+        // Add the polyline to the map
+        map.geoObjects.add(line);
+
+        // Create a label for the wire
+        const label = new ymaps.Placemark(wire.points[0], {
+            balloonContent: wire.label,
+        }, {
+            preset: 'islands#icon',
+            iconColor: '#FF0000',
+        });
+
+        // Add the label to the map
+        map.geoObjects.add(label);
+    });
+}
