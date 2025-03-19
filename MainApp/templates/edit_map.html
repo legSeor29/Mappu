@@ -17,25 +17,27 @@
 <body>
 
 <h1>Добавить точку или ребро</h1>
-<div>
-    <button id="add-node">Добавить узел</button>
-    <button id="add-edge">Добавить ребро</button>
-</div>
 
-<div id="node-form" style="display:none;">
+
+<div id="node-form" style="">
     <h2>Форма для узла</h2>
     <form method="POST">
         {% csrf_token %}
-        {{ node_form.as_p }}
+         Название: <input class="title">
+         Широта: <input class="latitude" type=number step=any>
+         Долгота: <input class="longitude" type=number step=any>
+         Описание: <input class="description">
+         Z-координата: <input class="z-coord" type="number">
         <button type="submit" name="node_submit">Добавить вершину</button>
     </form>
 </div>
 
-<div id="edge-form" style="display:none;">
+<div id="edge-form" style="">
     <h2>Форма для ребра</h2>
     <form method="POST">
         {% csrf_token %}
-        {{ edge_form.as_p }}
+        Начало: <input class="node1">
+        Конец: <input class="node2">
        <button type="submit" name="edge_submit">Добавить ребро</button>
     </form>
 </div>

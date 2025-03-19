@@ -1,8 +1,3 @@
-
-
-let lat_inp = document.querySelector('.latitude')
-let lon_inp = document.querySelector('.longitude')
-
 async function initMap() {
     await ymaps3.ready;
 
@@ -47,18 +42,12 @@ async function initMap() {
         onClick: (_, event) => {
             if (!event) return;
             console.log(event.coordinates)
-            markerElement = createImageMarker('https://cdn.animaapp.com/projects/6761c31b315a42798e3ee7e6/releases/67db012a45e0bcae5c95cfd1/img/placeholder-1.png')
             const marker = new YMapMarker({
                 coordinates: event.coordinates,
                 source: 'my-markers' // Используем тот же источник
-            }, markerElement);
-            markerElement.addEventListener('click', (e) => {
-                e.stopPropagation();
-                menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-            });
+            }, createImageMarker('/static/IMAGES/image.png'));
+
             map.addChild(marker);
-            lat_inp.value = event.coordinates[0]
-            lon_inp.value = event.coordinates[1]
         }
     }));
 }
@@ -74,6 +63,5 @@ function createImageMarker(src) {
     `;
     return element;
 }
-
 
 initMap();
