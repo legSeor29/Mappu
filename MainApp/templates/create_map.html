@@ -1,7 +1,104 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h2 class="mb-4 text-center">Создание новой карты</h2>
+            
+            <form method="post" class="card border-0 shadow p-4">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
-{{ form.as_p }}
+                <!-- Поле названия -->
+                <div class="mb-3">
+                    <label for="id_title" class="form-label">Название карты</label>
+                    <input 
+                        type="text" 
+                        name="title" 
+                        id="id_title" 
+                        class="form-control {% if form.title.errors %}is-invalid{% endif %}"
+                        value="{{ form.title.value|default_if_none:'' }}">
+                    {% if form.title.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.title.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
 
+                <!-- Поле описания -->
+                <div class="mb-3">
+                    <label for="id_description" class="form-label">Описание</label>
+                    <textarea 
+                        name="description" 
+                        id="id_description" 
+                        class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                        rows="3">{{ form.description.value|default_if_none:'' }}</textarea>
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.description.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Координаты -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="id_center_latitude" class="form-label">Широта центра</label>
+                        <input 
+                            type="number" 
+                            name="center_latitude" 
+                            id="id_center_latitude" 
+                            step="any"
+                            class="form-control {% if form.center_latitude.errors %}is-invalid{% endif %}"
+                            value="{{ form.center_latitude.value|default_if_none:55.921708 }}">
+                        {% if form.center_latitude.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.center_latitude.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="id_center_longitude" class="form-label">Долгота центра</label>
+                        <input 
+                            type="number" 
+                            name="center_longitude" 
+                            id="id_center_longitude" 
+                            step="any"
+                            class="form-control {% if form.center_longitude.errors %}is-invalid{% endif %}"
+                            value="{{ form.center_longitude.value|default_if_none:37.814387 }}">
+                        {% if form.center_longitude.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.center_longitude.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Кнопка отправки -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        Создать карту
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

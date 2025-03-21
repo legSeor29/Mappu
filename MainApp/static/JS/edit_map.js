@@ -5,8 +5,25 @@ class FormHandler {
     constructor() {
         this.latitudeInput = document.querySelector('.latitude');
         this.longitudeInput = document.querySelector('.longitude');
-        this.node1Input = document.querySelector('.node1');
-        this.node2Input = document.querySelector('.node2');
+        this.node1Select = document.querySelector('select[name="node1"]');
+        this.node2Select = document.querySelector('select[name="node2"]');
+    }
+
+    addNodeOption(node) {
+        const option = document.createElement('option');
+        option.value = node.id;
+        option.textContent = node.name || `Узел ${node.id}`;
+        
+        this.node1Select.appendChild(option.cloneNode(true));
+        this.node2Select.appendChild(option);
+    }
+
+    removeNodeOption(nodeId) {
+        const options = this.node1Select.querySelectorAll(`option[value="${nodeId}"]`);
+        options.forEach(option => option.remove());
+        
+        const options2 = this.node2Select.querySelectorAll(`option[value="${nodeId}"]`);
+        options2.forEach(option => option.remove());
     }
 
     setNodeCoords(coords) {
@@ -14,37 +31,19 @@ class FormHandler {
         this.latitudeInput.value = coords[1].toFixed(6);
     }
 
-    setEdgeNodes(node1, node2) {
-        this.node1Input.value = node1;
-        this.node2Input.value = node2;
-    }
-
-    clearNodeInputs() {
-        this.node1Input.value = '';
-        this.node2Input.value = '';
-    }
-
     setFirstAvailableNode(nodeId) {
-        const nodeIdStr = String(nodeId);
-        const currentValues = [
-            this.node1Input.value.trim(),
-            this.node2Input.value.trim()
-        ];
-
-        // Проверяем, есть ли такой ID уже в полях
-        if (currentValues.includes(nodeIdStr)) {
-            return;
-        }
-
-        // Заполняем первое свободное поле
-        if (!this.node1Input.value) {
-            this.node1Input.value = nodeIdStr;
-        } else if (!this.node2Input.value) {
-            this.node2Input.value = nodeIdStr;
-        } else {
-            // Если оба заполнены - перезаписываем первое поле
-            this.node1Input.value = nodeIdStr;
-            this.node2Input.value = '';
+        // Проверяем первый select
+        if (!this.node1Select.value) {
+            this.node1Select.value = nodeId;
+        } 
+        // Проверяем второй select
+        else if (!this.node2Select.value) {
+            this.node2Select.value = nodeId;
+        } 
+        // Если оба заполнены - сбрасываем и заполняем первый
+        else {
+            this.node1Select.value = nodeId;
+            this.node2Select.value = '';
         }
     }
 }
@@ -57,6 +56,8 @@ class Node {
         this.ymaps3 = ymaps3; // Сохраняем ссылку на API
         this.formHandler = formHandler;
         this.marker = null;
+        this.menuVisible = false; // Добавляем флаг видимости меню
+        this.formHandler.addNodeOption(this); // Добавляем в список
         this.placeholderUrl = 'https://cdn.animaapp.com/projects/6761c31b315a42798e3ee7e6/releases/67db012a45e0bcae5c95cfd1/img/placeholder-1.png'
     }
 
@@ -64,16 +65,39 @@ class Node {
         const markerElement = this.createImageMarker(this.placeholderUrl);
         const menu = this.createMenu();
         const container = document.createElement('div');
+        
+        // Добавляем стиль для обработки событий
+        container.style.pointerEvents = 'auto';
         container.append(markerElement, menu);
 
+        // Обработчик правой кнопки мыши
+        container.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Right click detected'); // Логирование
+            this.menuVisible = !this.menuVisible;
+            menu.style.display = this.menuVisible ? 'block' : 'none';
+            return false;
+        });
+
+        // Обработчик левой кнопки мыши
         container.addEventListener('click', (e) => {
-            e.stopPropagation(); // Блокируем всплытие события
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-
+            if (e.button !== 0) return; // Проверяем именно левую кнопку
+            e.stopPropagation();
             this.formHandler.setFirstAvailableNode(this.id);
-        })
+            this.menuVisible = false;
+            menu.style.display = 'none';
+        });
 
-        // Используем YMapMarker из переданного API
+        // Закрытие меню при клике вне элемента
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                this.menuVisible = false;
+                menu.style.display = 'none';
+            }
+        });
+
+        // Создание маркера
         this.marker = new this.ymaps3.YMapMarker({
             coordinates: this.coordinates,
             source: 'my-markers'
@@ -90,6 +114,7 @@ class Node {
             height: 40px;
             cursor: pointer;
             transform: translate(-50%, -100%);
+            pointer-events: auto; // Разрешаем события мыши
         `;
         return element;
     }
@@ -98,11 +123,13 @@ class Node {
         const menu = document.createElement('div');
         menu.style.display = 'none';
         menu.className = 'node-menu';
-        menu.innerHTML = 'Нажмите, чтобы вернуться <button class="delete">Удалить</button>';
+        menu.innerHTML = 'Нажмите, чтобы вернуться <button class="delete btn btn-danger btn-sm">Удалить</button>';
+        
         menu.querySelector('.delete').addEventListener('click', (e) => {
             e.stopPropagation();
             this.delete();
         });
+        
         return menu;
     }
 
@@ -112,12 +139,7 @@ class Node {
         if (index !== -1) nodes.splice(index, 1);
 
         // Очищаем поля формы если удаляемый ID был в них
-        if (this.formHandler.node1Input.value == this.id) {
-            this.formHandler.node1Input.value = '';
-        }
-        if (this.formHandler.node2Input.value == this.id) {
-            this.formHandler.node2Input.value = '';
-        }
+        this.formHandler.removeNodeOption(this.id);
     }
 }
 
@@ -155,6 +177,7 @@ class MapInteraction {
         const markerLayer = new this.YMapLayer({
             type: 'markers',
             source: 'my-markers',
+            pointerEvents: 'auto',
             zIndex: 3500
         });
 

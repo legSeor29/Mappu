@@ -9,17 +9,7 @@ class UserRegistrationForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
-class CreateMapForm(forms.Form):
-    # title = forms.CharField(
-    #     max_length=100,
-    #     required=True
-    # )
-    # description = forms.CharField(
-    #     widget=forms.Textarea(attrs={ 'rows': 5, 'cols': 50}),
-    #     label='Описание карты',
-    #     required=False,
-    #     help_text='Пожалуйста, введите ваш текст здесь.'
-    # )
+class CreateMapForm(forms.ModelForm):
     class Meta:
         model = Map
         fields = ['title', 'description', 'center_latitude', 'center_longitude']

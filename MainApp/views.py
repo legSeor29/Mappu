@@ -22,19 +22,15 @@ def profile(request):
     pass
 
 def create_map(request):
-    errors = []
-    form = CreateMapForm()
     if request.method == 'POST':
         form = CreateMapForm(request.POST)
         if form.is_valid():
-            title = form.cleaned_data['title']
-            description = form.cleaned_data['description']
-            map = Map(title=title, description=description)
-            map.save()
-        else:
-            errors.append('invalid form')
-
-    return render(request, 'create_map.html', {'form' : form, 'errors' : errors})
+            new_map = form.save()  # Сохраняем через форму
+            return redirect('main')
+    else:
+        form = CreateMapForm()
+    
+    return render(request, 'create_map.html', {'form': form})
 
 def edit_map(request, map_id):
     node_form = NodeForm()
@@ -42,6 +38,7 @@ def edit_map(request, map_id):
     errors = []
 
     if request.method == 'POST':
+        print(request.POST)
         if 'node_submit' in request.POST:
             node_form = NodeForm(request.POST)
             if node_form.is_valid():
