@@ -60,6 +60,7 @@ def edit_map(request, map_id):
     return render(request, 'edit_map.html', {
         'node_form': node_form,
         'edge_form': edge_form,
+        'map_id': map_id,
         'errors': errors,
     })
 def maps_gallery(request):

@@ -1,5 +1,7 @@
-nodes = []
-edges = []
+let nodes = [];
+let edges = [];
+const mapId = document.getElementById('mapId').innerText
+ 
 
 class FormHandler {
     constructor() {
@@ -7,6 +9,7 @@ class FormHandler {
         this.longitudeInput = document.querySelector('.longitude');
         this.node1Select = document.querySelector('select[name="node1"]');
         this.node2Select = document.querySelector('select[name="node2"]');
+        this.edgeSubmit = document.querySelector('.edge_submit'); 
     }
 
     addNodeOption(node) {
@@ -46,6 +49,7 @@ class FormHandler {
             this.node2Select.value = '';
         }
     }
+
 }
 
 class Node {
@@ -134,12 +138,127 @@ class Node {
     }
 
     delete() {
+        edges = edges.filter(edge => {
+            if (edge.node1.id === this.id || edge.node2.id === this.id) {
+                edge.delete();
+                return false;
+            }
+            return true;
+        });
+
+
         this.map.removeChild(this.marker);
         const index = nodes.findIndex(n => n.id === this.id);
         if (index !== -1) nodes.splice(index, 1);
 
         // Очищаем поля формы если удаляемый ID был в них
         this.formHandler.removeNodeOption(this.id);
+    }
+}
+class Edge {
+    constructor(id, node1, node2, map, ymaps3, formHandler) {
+        
+        this.node1 = node1;
+        this.node2 = node2;
+        this.map = map;
+        this.ymaps3 = ymaps3;
+        this.formHandler = formHandler;
+        this.feature = null;
+        this.menuVisible = false;
+        this.id = id;
+       
+        this.createFeature();
+    }
+
+    createFeature() {
+        const coordinates = [
+            this.node1.coordinates,
+            this.node2.coordinates
+        ];
+
+        // Создаем элемент линии
+        const lineElement = document.createElement('div');
+        const menu = this.createMenu();
+        
+        // Основной элемент для линии и меню
+        const container = document.createElement('div');
+        container.append(lineElement, menu);
+
+        // Создаем саму линию
+        this.feature = new this.ymaps3.YMapFeature({
+            geometry: {
+                type: 'LineString',
+                coordinates: coordinates
+            },
+            style: {
+                stroke: [{width: 3, color: "#1DA1F2"}],
+                cursor: 'pointer'
+            },
+            source: 'edges'
+        }, container);
+
+        // Обработчики событий
+        container.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.menuVisible = !this.menuVisible;
+            menu.style.display = this.menuVisible ? 'block' : 'none';
+        });
+
+        container.addEventListener('click', (e) => {
+            if (e.button !== 0) return;
+            this.formHandler.setCurrentEdge(this.id);
+            this.menuVisible = false;
+            menu.style.display = 'none';
+        });
+
+        // Закрытие меню при клике вне элемента
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                this.menuVisible = false;
+                menu.style.display = 'none';
+            }
+        });
+
+        this.map.addChild(this.feature);
+    }
+
+    createMenu() {
+        const menu = document.createElement('div');
+        menu.style = `
+            display: none;
+            position: absolute;
+            background: white;
+            padding: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1000;
+        `;
+        menu.innerHTML = `
+            <button class="delete-edge btn btn-danger btn-sm">
+                Удалить связь
+            </button>
+        `;
+
+        menu.querySelector('.delete-edge').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.delete();
+        });
+
+        return menu;
+    }
+
+    delete() {
+        this.map.removeChild(this.feature);
+        const index = edges.findIndex(e => e.id === this.id);
+        if (index !== -1) edges.splice(index, 1);
+    }
+
+    updatePosition() {
+        this.feature.update({
+            geometry: {
+                type: 'LineString',
+                coordinates: [this.node1.coordinates, this.node2.coordinates]
+            }
+        });
     }
 }
 
@@ -153,11 +272,10 @@ class MapInteraction {
         this.YMapLayer = ymaps3.YMapLayer;
         this.YMapFeatureDataSource = ymaps3.YMapFeatureDataSource;
         this.YMapListener = ymaps3.YMapListener;
-
+        this.nodes = nodes 
+        this.edges = edges
         this.formHandler = formHandler;
-        this.nodes = nodes;
-        this.edges = edges;
-        
+        console.log('FormHandler initialized');
         // Инициализация карты
         this.map = new this.YMap(document.getElementById('map'), {
             location: {
@@ -170,10 +288,12 @@ class MapInteraction {
     init() {
         this.initSourcesAndLayers();
         this.initClickListener();
+        this.EdgeFormSubmitEventHandler()
     }
 
     initSourcesAndLayers() {
-        const dataSource = new this.YMapFeatureDataSource({ id: 'my-markers' });
+        // Для узлов
+        const markerSource = new this.YMapFeatureDataSource({ id: 'my-markers' });
         const markerLayer = new this.YMapLayer({
             type: 'markers',
             source: 'my-markers',
@@ -181,10 +301,20 @@ class MapInteraction {
             zIndex: 3500
         });
 
+         // Для рёбер
+        const edgeSource = new this.YMapFeatureDataSource({ id: 'edges' });
+        const edgeLayer = new this.YMapLayer({
+            type: 'features',
+            source: 'edges',
+            zIndex: 3000
+        });
+        
         this.map.addChild(new this.YMapDefaultSchemeLayer());
         this.map.addChild(new this.YMapDefaultFeaturesLayer());
-        this.map.addChild(dataSource);
+        this.map.addChild(markerSource);
         this.map.addChild(markerLayer);
+        this.map.addChild(edgeSource);
+        this.map.addChild(edgeLayer);
     }
 
     initClickListener() {
@@ -199,14 +329,54 @@ class MapInteraction {
         if (!event) return;
         
         // Передаем API в конструктор Node
-        const newNode = new Node(event.coordinates, this.nodes.length, this.map, this.ymaps3, this.formHandler);
+        const newNode = new Node(event.coordinates, nodes.length, this.map, this.ymaps3, this.formHandler);
         newNode.createMarker();
         this.nodes.push(newNode);
 
-        console.log(nodes)
+        console.log(this.nodes)
         
         // Используем FormHandler для обновления формы
         this.formHandler.setNodeCoords(event.coordinates);
+    }
+
+    EdgeFormSubmitEventHandler() {
+        this.formHandler.edgeSubmit.addEventListener('click', (e) => {
+            e.stopPropagation()
+            e.preventDefault();
+            console.log('Начало обработки');
+        
+            console.log('Значения select:', {
+                node1: this.formHandler.node1Select.value,
+                node2: this.formHandler.node2Select.value
+            });
+            const node1Id = parseInt(this.formHandler.node1Select.value);
+            const node2Id = parseInt(this.formHandler.node2Select.value);
+            const node1 = this.nodes.find(n => n.id === node1Id);
+            const node2 = this.nodes.find(n => n.id === node2Id);
+    
+            if (!node1 || !node2) {
+                alert('Выберите два узла!');
+                return;
+            }
+    
+            if (node1.id === node2.id) {
+                alert('Нельзя соединить узел сам с собой!');
+                return;
+            }
+    
+            const newEdge = new Edge(
+                this.edges.length,
+                node1,
+                node2,
+                this.map,
+                this.ymaps3,
+                this.formHandler
+            );
+    
+            this.edges.push(newEdge);
+            console.log('Создано новое ребро:', newEdge);
+            console.log('Конец обработки');
+        });
     }
 
     destroy() {
@@ -217,7 +387,10 @@ class MapInteraction {
     }
 }
 
+ 
+ 
 async function initMap() {
+    console.log("initMap called");
     await ymaps3.ready;
 
     const formHandler = new FormHandler();
