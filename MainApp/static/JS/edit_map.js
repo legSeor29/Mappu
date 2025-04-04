@@ -1,7 +1,25 @@
 let nodes = [];
 let edges = [];
 const mapId = document.getElementById('mapId').innerText
- 
+
+class DatabaseController {
+
+    GetCurrentData() {
+        console.log('Поиск карты...')
+        fetch(`/api/maps/${mapId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            return response.json();
+        })
+        .then(data => {
+            console.log('Данные объекта:', data);
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
+    }
+
+}
 
 class FormHandler {
     constructor() {
@@ -9,7 +27,7 @@ class FormHandler {
         this.longitudeInput = document.querySelector('.longitude');
         this.node1Select = document.querySelector('select[name="node1"]');
         this.node2Select = document.querySelector('select[name="node2"]');
-        this.edgeSubmit = document.querySelector('.edge_submit'); 
+        this.edgeSubmit = document.querySelector('button[name="edge_submit"]'); 
     }
 
     addNodeOption(node) {
@@ -138,8 +156,10 @@ class Node {
     }
 
     delete() {
+        console.log('удалена вершину')
         edges = edges.filter(edge => {
             if (edge.node1.id === this.id || edge.node2.id === this.id) {
+                console.log(`ребро ${edge.id} удалилось из-за удаления одной из вершин`)
                 edge.delete();
                 return false;
             }
@@ -247,6 +267,7 @@ class Edge {
     }
 
     delete() {
+        console.log(`вы удалили ребро ${this.id}`)
         this.map.removeChild(this.feature);
         const index = edges.findIndex(e => e.id === this.id);
         if (index !== -1) edges.splice(index, 1);
@@ -392,7 +413,8 @@ class MapInteraction {
 async function initMap() {
     console.log("initMap called");
     await ymaps3.ready;
-
+    Controller = new DatabaseController();
+    Controller.GetCurrentData();
     const formHandler = new FormHandler();
     
     // Передаем зависимости в MapInteraction

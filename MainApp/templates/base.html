@@ -23,6 +23,10 @@
         .content {
             flex: 1; /* Занимает оставшееся пространство */
         }
+        .avatar {
+            height: 50px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -49,8 +53,9 @@
         </ul>
             {% if user.is_authenticated %}
           <span class="navbar-text">
-            User: {{ user.get_username }}
+            {{ user.get_username }}
           </span>
+            <img src="{% static 'IMAGES/avatar.png' %}" class="avatar">
             {% endif %}
         </div>
       </div>
