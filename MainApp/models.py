@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 
 class Node(models.Model):
     name = models.CharField(max_length=100)
@@ -17,10 +19,21 @@ class Edge(models.Model):
         return f"{self.node1} -> {self.node2}"
 
 class Map(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, null=True)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='maps',
+    )
     description = models.TextField(blank=True, null=True)
-    center_latitude = models.FloatField()
-    center_longitude = models.FloatField()
+    center_latitude = models.FloatField(
+        default=55.921708,
+        validators=[MinValueValidator(-90), MaxValueValidator(90)]
+    )
+    center_longitude = models.FloatField(
+        default=37.814387,
+        validators=[MinValueValidator(-180), MaxValueValidator(180)]
+    )
     nodes = models.ManyToManyField(Node, related_name='maps')
     edges = models.ManyToManyField(Edge, related_name='maps')
 
