@@ -74,6 +74,9 @@ class Node {
     constructor(coordinates, id, map, ymaps3, formHandler) {  
         this.id = id;
         this.coordinates = coordinates;
+        this.name = 'None'
+        this.description = 'None'
+        this.z_coordinate = 0
         this.map = map;
         this.ymaps3 = ymaps3; // Сохраняем ссылку на API
         this.formHandler = formHandler;
@@ -81,6 +84,7 @@ class Node {
         this.menuVisible = false; // Добавляем флаг видимости меню
         this.formHandler.addNodeOption(this); // Добавляем в список
         this.placeholderUrl = 'https://cdn.animaapp.com/projects/6761c31b315a42798e3ee7e6/releases/67db012a45e0bcae5c95cfd1/img/placeholder-1.png'
+        this.createMarker();
     }
 
     createMarker() {
@@ -98,7 +102,12 @@ class Node {
             e.stopPropagation();
             console.log('Right click detected'); // Логирование
             this.menuVisible = !this.menuVisible;
-            menu.style.display = this.menuVisible ? 'block' : 'none';
+            if (this.menuVisible) {
+                this.updateMenu(menu)
+                menu.style.display = 'block'
+            } else {
+                menu.style.display = 'none'
+            }
             return false;
         });
 
@@ -107,8 +116,8 @@ class Node {
             if (e.button !== 0) return; // Проверяем именно левую кнопку
             e.stopPropagation();
             this.formHandler.setFirstAvailableNode(this.id);
-            this.menuVisible = false;
-            menu.style.display = 'none';
+            //this.menuVisible = false;
+            //menu.style.display = 'none';
         });
 
         // Закрытие меню при клике вне элемента
@@ -145,8 +154,15 @@ class Node {
         const menu = document.createElement('div');
         menu.style.display = 'none';
         menu.className = 'node-menu';
-        menu.innerHTML = 'Нажмите, чтобы вернуться <button class="delete btn btn-danger btn-sm">Удалить</button>';
-        
+        this.updateMenu(menu)
+         
+        menu.querySelector(`.node_save`).addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('Сохранение данных о вершине...')
+            this.name = menu.querySelector('.node-name').value; 
+            this.description = menu.querySelector('.node-desc').value;
+            this.z_coordinate = menu.querySelector('.node-z_cord').value; 
+        });
         menu.querySelector('.delete').addEventListener('click', (e) => {
             e.stopPropagation();
             this.delete();
@@ -154,9 +170,34 @@ class Node {
         
         return menu;
     }
+    
+    updateMenu(menu) {
+        menu.innerHTML = `
+        <form class="node-form">
+            <div class="mb-3">
+                <label class="form-label">Название вершины</label>
+                <input type="text" class="form-control node-name" value="${this.name}">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Описание</label>
+                <textarea class="form-control node-desc">${this.description}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Высота (Z)</label>
+                <input type="number" 
+                        class="form-control node-z_cord" 
+                        name="z_coordinate"
+                        step="any" value="${this.z_coordinate}">
+            </div>
+            
+            <button type="button" class="btn btn-primary btn-sm node_save">Сохранить</button>
+            <button class="delete btn btn-danger btn-sm">Удалить</button>
+        </form>
+    `;
+    }
 
     delete() {
-        console.log('удалена вершину')
+        console.log(`удалена вершина ${this.id}`)
         edges = edges.filter(edge => {
             if (edge.node1.id === this.id || edge.node2.id === this.id) {
                 console.log(`ребро ${edge.id} удалилось из-за удаления одной из вершин`)
@@ -351,7 +392,6 @@ class MapInteraction {
         
         // Передаем API в конструктор Node
         const newNode = new Node(event.coordinates, nodes.length, this.map, this.ymaps3, this.formHandler);
-        newNode.createMarker();
         this.nodes.push(newNode);
 
         console.log(this.nodes)
