@@ -1,5 +1,6 @@
 let nodes = [];
 let edges = [];
+let selectedNodes = [];
 const mapId = document.getElementById('mapId').innerText
 
 class DatabaseController {
@@ -23,8 +24,12 @@ class DatabaseController {
 
 class FormHandler {
     constructor() {
+        this.nodeName = document.querySelector('input[name="node_name"]')
         this.latitudeInput = document.querySelector('.latitude');
         this.longitudeInput = document.querySelector('.longitude');
+        this.nodeDesc = document.querySelector('textarea[name="node_description"]')
+        this.nodeZ_coord = document.querySelector('input[name="node_z_coordinate"]')
+        this.nodeSubmit = document.querySelector('button[name="node_submit"]')
         this.node1Select = document.querySelector('select[name="node1"]');
         this.node2Select = document.querySelector('select[name="node2"]');
         this.edgeSubmit = document.querySelector('button[name="edge_submit"]'); 
@@ -52,6 +57,14 @@ class FormHandler {
         this.latitudeInput.value = coords[1].toFixed(6);
     }
 
+    updateNodeOptions(node) {
+        const options = this.node1Select.querySelectorAll(`option[value="${node.id}"]`);
+        options.forEach(option => option.textContent = node.name || `Узел ${node.id}`);
+
+        const options2 = this.node2Select.querySelectorAll(`option[value="${node.id}"]`);
+        options2.forEach(option => option.textContent = node.name || `Узел ${node.id}`);
+    }
+
     setFirstAvailableNode(nodeId) {
         // Проверяем первый select
         if (!this.node1Select.value) {
@@ -68,15 +81,17 @@ class FormHandler {
         }
     }
 
+    addNOd
+
 }
 
 class Node {
-    constructor(coordinates, id, map, ymaps3, formHandler) {  
+    constructor(coordinates, id, map, ymaps3, formHandler, name = null, description = null, z_coordinate = 0) {  
         this.id = id;
         this.coordinates = coordinates;
-        this.name = 'None'
-        this.description = 'None'
-        this.z_coordinate = 0
+        this.name = name 
+        this.description = description
+        this.z_coordinate = z_coordinate
         this.map = map;
         this.ymaps3 = ymaps3; // Сохраняем ссылку на API
         this.formHandler = formHandler;
@@ -97,7 +112,7 @@ class Node {
         container.append(markerElement, menu);
 
         // Обработчик правой кнопки мыши
-        container.addEventListener('contextmenu', (e) => {
+        markerElement.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
             console.log('Right click detected'); // Логирование
@@ -112,13 +127,48 @@ class Node {
         });
 
         // Обработчик левой кнопки мыши
-        container.addEventListener('click', (e) => {
+        markerElement.addEventListener('click', (e) => {
             if (e.button !== 0) return; // Проверяем именно левую кнопку
             e.stopPropagation();
             this.formHandler.setFirstAvailableNode(this.id);
             //this.menuVisible = false;
             //menu.style.display = 'none';
         });
+
+        markerElement.addEventListener("mousedown", (e) => {
+            console.log('Обработка нажатия колесика мыши...'); 
+            e.stopPropagation();
+            e.preventDefault();
+            if (e.button === 1) {
+                selectedNodes.push(this);
+                console.log(selectedNodes);
+                if (selectedNodes.length == 2) {
+                    console.log('Создается новое ребро...')
+                    let newEdgeId;
+                    if (edges.length == 0) {
+                        newEdgeId = 0;
+                    } else {
+                        newEdgeId = edges[edges.length - 1].id + 1;
+                    }
+                    const newEdge = new Edge(
+                        newEdgeId,
+                        selectedNodes[0],
+                        selectedNodes[1],
+                        this.map,
+                        this.ymaps3,
+                        this.formHandler
+                    );
+            
+                    edges.push(newEdge);
+                    console.log('Создано новое ребро:', newEdge);
+                    selectedNodes = [];
+                }
+            }
+        });
+
+        menu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        })
 
         // Закрытие меню при клике вне элемента
         document.addEventListener('click', (e) => {
@@ -127,6 +177,7 @@ class Node {
                 menu.style.display = 'none';
             }
         });
+
 
         // Создание маркера
         this.marker = new this.ymaps3.YMapMarker({
@@ -152,17 +203,39 @@ class Node {
 
     createMenu() {
         const menu = document.createElement('div');
+        menu.innerHTML = `
+            <form class="node-form">
+                <div class="mb-3">
+                    <label class="form-label">Название вершины</label>
+                    <input type="text" class="form-control node-name" value="${this.name || ''}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Описание</label>
+                    <textarea class="form-control node-desc">${this.description || ''}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Высота (Z)</label>
+                    <input type="number" 
+                            class="form-control node-z_cord" 
+                            name="z_coordinate"
+                            step="any" value="${this.z_coordinate}">
+                </div>
+                
+                <button type="button" class="btn btn-primary btn-sm node_save">Сохранить</button>
+                <button type="button" class="delete btn btn-danger btn-sm">Удалить</button>
+            </form>
+        `;
         menu.style.display = 'none';
         menu.className = 'node-menu';
-        this.updateMenu(menu)
-         
         menu.querySelector(`.node_save`).addEventListener('click', (e) => {
-            e.stopPropagation();
+            //e.stopPropagation();
             console.log('Сохранение данных о вершине...')
             this.name = menu.querySelector('.node-name').value; 
             this.description = menu.querySelector('.node-desc').value;
             this.z_coordinate = menu.querySelector('.node-z_cord').value; 
+            this.formHandler.updateNodeOptions(this);
         });
+        
         menu.querySelector('.delete').addEventListener('click', (e) => {
             e.stopPropagation();
             this.delete();
@@ -172,40 +245,32 @@ class Node {
     }
     
     updateMenu(menu) {
-        menu.innerHTML = `
-        <form class="node-form">
-            <div class="mb-3">
-                <label class="form-label">Название вершины</label>
-                <input type="text" class="form-control node-name" value="${this.name}">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Описание</label>
-                <textarea class="form-control node-desc">${this.description}</textarea>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Высота (Z)</label>
-                <input type="number" 
-                        class="form-control node-z_cord" 
-                        name="z_coordinate"
-                        step="any" value="${this.z_coordinate}">
-            </div>
-            
-            <button type="button" class="btn btn-primary btn-sm node_save">Сохранить</button>
-            <button class="delete btn btn-danger btn-sm">Удалить</button>
-        </form>
-    `;
+        menu.querySelector('.node-name').value = this.name || '';
+        menu.querySelector('.node-desc').innerText = this.description || '';
+        menu.querySelector('.node-z_cord').value = this.z_coordinate;
     }
 
     delete() {
         console.log(`удалена вершина ${this.id}`)
-        edges = edges.filter(edge => {
-            if (edge.node1.id === this.id || edge.node2.id === this.id) {
-                console.log(`ребро ${edge.id} удалилось из-за удаления одной из вершин`)
-                edge.delete();
-                return false;
-            }
-            return true;
+        // Удаление всех связанных ребер
+        const relatedEdges = edges.filter(e => 
+            e.node1.id === this.id || e.node2.id === this.id
+        );
+        
+        relatedEdges.forEach(edge => {
+            edge.delete(); // Используем новый метод delete
         });
+        // edges = edges.filter(edge => {
+        //     console.log(edge.node1.id, edge.node2.id);
+        //     const edgeNode1Id = parseInt(edge.node1.id);  
+        //     const edgeNode2Id = parseInt(edge.node2.id);
+        //     if (edgeNode1Id === this.id || edgeNode2Id === this.id) {
+        //         console.log(`ребро ${edge.id} удалилось из-за удаления одной из вершин`)
+        //         edge.delete();
+        //         return false;
+        //     }
+        //     return true;
+        // });
 
 
         this.map.removeChild(this.marker);
@@ -325,7 +390,7 @@ class Edge {
 }
 
 class MapInteraction {
-    constructor(ymaps3, formHandler, nodes, edges) {  
+    constructor(ymaps3, formHandler) {  
         // Сохраняем необходимые компоненты API
         this.ymaps3 = ymaps3;
         this.YMap = ymaps3.YMap;
@@ -334,8 +399,6 @@ class MapInteraction {
         this.YMapLayer = ymaps3.YMapLayer;
         this.YMapFeatureDataSource = ymaps3.YMapFeatureDataSource;
         this.YMapListener = ymaps3.YMapListener;
-        this.nodes = nodes 
-        this.edges = edges
         this.formHandler = formHandler;
         console.log('FormHandler initialized');
         // Инициализация карты
@@ -351,6 +414,7 @@ class MapInteraction {
         this.initSourcesAndLayers();
         this.initClickListener();
         this.EdgeFormSubmitEventHandler()
+        this.NodeFormSubmitEventHandler()
     }
 
     initSourcesAndLayers() {
@@ -391,10 +455,16 @@ class MapInteraction {
         if (!event) return;
         
         // Передаем API в конструктор Node
-        const newNode = new Node(event.coordinates, nodes.length, this.map, this.ymaps3, this.formHandler);
-        this.nodes.push(newNode);
+        let newNodeId;
+        if (nodes.length == 0) {
+            newNodeId = 0;
+        } else {
+            newNodeId = nodes[nodes.length - 1].id + 1;
+        }
+        const newNode = new Node(event.coordinates, newNodeId, this.map, this.ymaps3, this.formHandler);
+        nodes.push(newNode);
 
-        console.log(this.nodes)
+        console.log(nodes)
         
         // Используем FormHandler для обновления формы
         this.formHandler.setNodeCoords(event.coordinates);
@@ -412,8 +482,8 @@ class MapInteraction {
             });
             const node1Id = parseInt(this.formHandler.node1Select.value);
             const node2Id = parseInt(this.formHandler.node2Select.value);
-            const node1 = this.nodes.find(n => n.id === node1Id);
-            const node2 = this.nodes.find(n => n.id === node2Id);
+            const node1 = nodes.find(n => n.id === node1Id);
+            const node2 = nodes.find(n => n.id === node2Id);
     
             if (!node1 || !node2) {
                 alert('Выберите два узла!');
@@ -424,9 +494,15 @@ class MapInteraction {
                 alert('Нельзя соединить узел сам с собой!');
                 return;
             }
-    
+
+            let newEdgeId;
+            if (edges.length == 0) {
+                newEdgeId = 0;
+            } else {
+                newEdgeId = edges[edges.length - 1].id + 1;
+            }
             const newEdge = new Edge(
-                this.edges.length,
+                newEdgeId,
                 node1,
                 node2,
                 this.map,
@@ -434,10 +510,44 @@ class MapInteraction {
                 this.formHandler
             );
     
-            this.edges.push(newEdge);
+            edges.push(newEdge);
             console.log('Создано новое ребро:', newEdge);
             console.log('Конец обработки');
         });
+    }
+    NodeFormSubmitEventHandler() {
+        this.formHandler.nodeSubmit.addEventListener('click', (e) => {
+            e.stopPropagation()
+            e.preventDefault();
+            console.log('Начало обработки');
+        
+             
+            const name = this.formHandler.nodeName.value
+            const lat = this.formHandler.latitudeInput.value
+            const lon = this.formHandler.longitudeInput.value
+            const desc = this.formHandler.nodeDesc.innerText
+            const z_coord = this.formHandler.nodeZ_coord.value
+    
+            let newNodeId;
+            if (nodes.length == 0) {
+                newNodeId = 0;
+            } else {
+                newNodeId = nodes[nodes.length - 1].id + 1;
+            }
+            const newNode = new Node(
+                [lat, lon], 
+                newNodeId, 
+                this.map, 
+                this.ymaps3, 
+                this.formHandler,
+                name,
+                desc,
+                z_coord,
+            );
+            nodes.push(newNode);
+
+            console.log(nodes)
+            });
     }
 
     destroy() {
