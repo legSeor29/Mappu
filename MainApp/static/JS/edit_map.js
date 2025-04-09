@@ -260,19 +260,6 @@ class Node {
         relatedEdges.forEach(edge => {
             edge.delete(); // Используем новый метод delete
         });
-        // edges = edges.filter(edge => {
-        //     console.log(edge.node1.id, edge.node2.id);
-        //     const edgeNode1Id = parseInt(edge.node1.id);  
-        //     const edgeNode2Id = parseInt(edge.node2.id);
-        //     if (edgeNode1Id === this.id || edgeNode2Id === this.id) {
-        //         console.log(`ребро ${edge.id} удалилось из-за удаления одной из вершин`)
-        //         edge.delete();
-        //         return false;
-        //     }
-        //     return true;
-        // });
-
-
         this.map.removeChild(this.marker);
         const index = nodes.findIndex(n => n.id === this.id);
         if (index !== -1) nodes.splice(index, 1);
