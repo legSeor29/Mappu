@@ -1,22 +1,97 @@
-let nodes = [];
-let edges = [];
+let nodes = {};
+let edges = {};
 let selectedNodes = [];
 const mapId = document.getElementById('mapId').innerText
 
 class DatabaseController {
-
+    constructor(formHandler) {   
+        this.formHandler = formHandler;
+        this.map = null;  
+        this.ymaps3 = null;
+    }
     GetCurrentData() {
         console.log('Поиск карты...')
-        fetch(`/api/maps/${mapId}`)
+        fetch(`/api/v1/maps/${mapId}`)
         .then(response => {
             if (!response.ok) throw new Error('Ошибка загрузки');
             return response.json();
         })
         .then(data => {
             console.log('Данные объекта:', data);
+            this.ArrayFilling(data);
         })
         .catch(error => {
             console.error('Ошибка:', error);
+        });
+    }
+
+    ArrayFilling(data) {
+        console.log(data.nodes);  
+        console.log(data.edges);  
+        data.nodes.forEach(node => {
+            const newNode = new Node(
+                [node.longitude, node.latitude], 
+                node.id, 
+                this.map, 
+                this.ymaps3, 
+                this.formHandler,
+                node.name,
+                node.description,
+                node.z_coordinate,
+            );
+            nodes[newNode.id] = newNode;
+        })
+
+        data.edges.forEach(edge => {
+            const newEdge = new Edge(
+                edge.id,
+                nodes[edge.node1],
+                nodes[edge.node2],
+                this.map,
+                this.ymaps3,
+                this.formHandler
+            );
+            edges[newEdge.id] = newEdge
+        })
+        console.log('Текущие данные заполнены')
+        console.log(nodes, edges)
+    }
+
+    UpdateData() {
+        const dataToSend = {
+            nodes: Object.values(nodes).map(node => ({
+                id: node.id,
+                longitude: node.coordinates[0],
+                latitude: node.coordinates[1],
+                name: node.name,
+                description: node.description,
+                z_coordinate: node.z_coordinate
+            })),
+            edges: Object.values(edges).map(edge => ({
+                id: edge.id,
+                node1: edge.node1.id,
+                node2: edge.node2.id
+            }))
+        };
+
+        fetch(`/api/v1/maps/${mapId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка обновления данных');
+            return response.json();
+        })
+        .then(updatedData => {
+            console.log('Данные успешно обновлены:', updatedData);
+            // Опционально: Перезагрузить данные после обновления
+            // this.ArrayFilling(updatedData);
+        })
+        .catch(error => {
+            console.error('Ошибка при обновлении:', error);
         });
     }
 
@@ -81,8 +156,6 @@ class FormHandler {
         }
     }
 
-    addNOd
-
 }
 
 class Node {
@@ -144,12 +217,8 @@ class Node {
                 console.log(selectedNodes);
                 if (selectedNodes.length == 2) {
                     console.log('Создается новое ребро...')
-                    let newEdgeId;
-                    if (edges.length == 0) {
-                        newEdgeId = 0;
-                    } else {
-                        newEdgeId = edges[edges.length - 1].id + 1;
-                    }
+                    const existingEdgeIds = Object.keys(edges).map(id => parseInt(id, 10));
+                    const newEdgeId = existingEdgeIds.length > 0 ? Math.max(...existingEdgeIds) + 1 : 1;
                     const newEdge = new Edge(
                         newEdgeId,
                         selectedNodes[0],
@@ -159,7 +228,7 @@ class Node {
                         this.formHandler
                     );
             
-                    edges.push(newEdge);
+                    edges[newEdge.id] = newEdge;
                     console.log('Создано новое ребро:', newEdge);
                     selectedNodes = [];
                 }
@@ -253,7 +322,7 @@ class Node {
     delete() {
         console.log(`удалена вершина ${this.id}`)
         // Удаление всех связанных ребер
-        const relatedEdges = edges.filter(e => 
+        const relatedEdges = Object.values(edges).filter(e => 
             e.node1.id === this.id || e.node2.id === this.id
         );
         
@@ -261,9 +330,9 @@ class Node {
             edge.delete(); // Используем новый метод delete
         });
         this.map.removeChild(this.marker);
-        const index = nodes.findIndex(n => n.id === this.id);
-        if (index !== -1) nodes.splice(index, 1);
-
+        // const index = nodes.findIndex(n => n.id === this.id);
+        // if (index !== -1) nodes.splice(index, 1);
+        delete nodes[this.id];
         // Очищаем поля формы если удаляемый ID был в них
         this.formHandler.removeNodeOption(this.id);
     }
@@ -362,8 +431,7 @@ class Edge {
     delete() {
         console.log(`вы удалили ребро ${this.id}`)
         this.map.removeChild(this.feature);
-        const index = edges.findIndex(e => e.id === this.id);
-        if (index !== -1) edges.splice(index, 1);
+        delete edges[this.id];
     }
 
     updatePosition() {
@@ -442,14 +510,10 @@ class MapInteraction {
         if (!event) return;
         
         // Передаем API в конструктор Node
-        let newNodeId;
-        if (nodes.length == 0) {
-            newNodeId = 0;
-        } else {
-            newNodeId = nodes[nodes.length - 1].id + 1;
-        }
+        const existingNodeIds = Object.keys(nodes).map(id => parseInt(id, 10));
+        const newNodeId = existingNodeIds.length > 0 ? Math.max(...existingNodeIds) + 1 : 0;
         const newNode = new Node(event.coordinates, newNodeId, this.map, this.ymaps3, this.formHandler);
-        nodes.push(newNode);
+        nodes[newNode.id] = newNode;
 
         console.log(nodes)
         
@@ -482,12 +546,8 @@ class MapInteraction {
                 return;
             }
 
-            let newEdgeId;
-            if (edges.length == 0) {
-                newEdgeId = 0;
-            } else {
-                newEdgeId = edges[edges.length - 1].id + 1;
-            }
+            const existingEdgeIds = Object.keys(edges).map(id => parseInt(id, 10));
+            const newEdgeId = existingEdgeIds.length > 0 ? Math.max(...existingEdgeIds) + 1 : 1;
             const newEdge = new Edge(
                 newEdgeId,
                 node1,
@@ -497,7 +557,7 @@ class MapInteraction {
                 this.formHandler
             );
     
-            edges.push(newEdge);
+            edges[newEdge.id] = newEdge;
             console.log('Создано новое ребро:', newEdge);
             console.log('Конец обработки');
         });
@@ -514,15 +574,12 @@ class MapInteraction {
             const lon = this.formHandler.longitudeInput.value
             const desc = this.formHandler.nodeDesc.innerText
             const z_coord = this.formHandler.nodeZ_coord.value
-    
-            let newNodeId;
-            if (nodes.length == 0) {
-                newNodeId = 0;
-            } else {
-                newNodeId = nodes[nodes.length - 1].id + 1;
-            }
+             
+            const existingNodeIds = Object.keys(nodes).map(id => parseInt(id, 10));
+            const newNodeId = existingNodeIds.length > 0 ? Math.max(...existingNodeIds) + 1 : 0;
+             
             const newNode = new Node(
-                [lat, lon], 
+                [lon, lat], 
                 newNodeId, 
                 this.map, 
                 this.ymaps3, 
@@ -531,7 +588,7 @@ class MapInteraction {
                 desc,
                 z_coord,
             );
-            nodes.push(newNode);
+            nodes[newNode.id + 1]= newNode
 
             console.log(nodes)
             });
@@ -550,13 +607,19 @@ class MapInteraction {
 async function initMap() {
     console.log("initMap called");
     await ymaps3.ready;
-    Controller = new DatabaseController();
-    Controller.GetCurrentData();
+     
     const formHandler = new FormHandler();
     
     // Передаем зависимости в MapInteraction
     const interaction = new MapInteraction(ymaps3, formHandler, nodes, edges);
+    Controller = new DatabaseController(formHandler);
     interaction.init();
+    Controller.map = interaction.map;
+    Controller.ymaps3 = interaction.ymaps3;
+    Controller.GetCurrentData();
+    document.querySelector('button[name="save_changes"]').addEventListener('click', (e) => {
+        Controller.UpdateData();
+    })
 }
 
 initMap();

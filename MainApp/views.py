@@ -21,58 +21,6 @@ class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
             raise PermissionDenied("Вы не можете изменять эту карту")
         serializer.save()
 
-def api_data(request, map_id):
-    map_obj = get_object_or_404(
-        Map.objects.prefetch_related('nodes', 'edges'),
-        pk=map_id
-    )
-    max_node_id = Node.objects.aggregate(Max('id'))['id__max'] or 0
-    max_edge_id = Edge.objects.aggregate(Max('id'))['id__max'] or 0
-
-    # Сериализуем узлы
-    nodes_data = [
-        {
-            'id': node.id,
-            'name': node.name,
-            'lat': node.latitude,
-            'lng': node.longitude,
-            'z': node.z_coordinate,
-            'description': node.description
-        }
-        for node in map_obj.nodes.all()
-    ]
-
-    # Сериализуем связи
-    edges_data = [
-        {
-            'id': edge.id,
-            'from': edge.node1_id,
-            'to': edge.node2_id,
-            'description': edge.description
-        }
-        for edge in map_obj.edges.all()
-    ]
-
-    # Собираем общий контекст
-    data = {
-        'map': {
-            'title': map_obj.title,
-            'center': {
-                'lat': map_obj.center_latitude,
-                'lng': map_obj.center_longitude
-            }
-        },
-        'nodes': nodes_data,
-        'edges': edges_data,
-
-        'max_ids': {
-            'node': max_node_id,
-            'edge': max_edge_id
-        }
-    }
-
-    return JsonResponse(data, safe=False)
-
 @login_required
 def main_page(request):
     return render(request, 'main_page.html')
