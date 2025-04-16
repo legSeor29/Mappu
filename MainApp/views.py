@@ -9,6 +9,10 @@ from django.db.models import Max
 from .serializers import MapSerializer
 from .permissions import IsMapOwner
 from rest_framework import generics
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+
+
 
 class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Map.objects.all()
@@ -175,6 +179,14 @@ def user_maps(request):
 
     return render(request, 'my_maps.html', context)
 
+
+@login_required
+def delete_map(request, map_id):
+    map_obj = get_object_or_404(Map, id=map_id, owner=request.user)
+    if request.method == 'POST':
+        map_obj.delete()
+        return redirect('user_maps')  # Перенаправляем обратно на список карт
+    return redirect('user_maps')
 
 
 def maps_gallery(request):

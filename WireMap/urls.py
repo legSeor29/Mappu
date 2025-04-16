@@ -15,5 +15,6 @@ urlpatterns = [
     path('create_map/', create_map, name='create_map'),
     path('api/maps/<int:pk>/', MapDetailAPI.as_view(), name='map-detail'),
     path('maps/my-maps/', views.user_maps, name='user_maps'),
+    path('delete-map/<int:map_id>/', views.delete_map, name='delete_map'),
 
 ]
