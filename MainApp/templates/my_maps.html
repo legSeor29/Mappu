@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% for map in maps %}
+<div class="map-card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+    <h3 style="margin-top: 0;">{{ map.title|default:"Без названия" }}</h3>
+    <p>{{ map.description|default:"Описание отсутствует" }}</p>
+    <p>Центр: {{ map.center_latitude }}, {{ map.center_longitude }}</p>
+    <p>Узлов: {{ map.nodes_count }} | Ребер: {{ map.edges_count }}</p>
+    <a href="{% url 'edit_map' map.id %}" style="display: inline-block; padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+        Редактировать
+    </a>
+</div>
+{% empty %}
+<p style="padding: 15px; background: #f8f9fa; border-radius: 5px;">
+    Вы ещё не создали ни одной карты.
+</p>
+{% endfor %}

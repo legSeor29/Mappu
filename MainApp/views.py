@@ -149,5 +149,33 @@ def edit_map(request, map_id):
         'map_id': map_id,
         'errors': errors,
     })
+
+
+def user_maps(request):
+    maps = Map.objects.filter(owner=request.user).prefetch_related('nodes', 'edges')
+
+    # Создаем список карт с дополнительной информацией
+    maps_with_stats = []
+    for map_obj in maps:
+        maps_with_stats.append({
+            'id': map_obj.id,
+            'title': map_obj.title,
+            'description': map_obj.description,
+            'center_latitude': map_obj.center_latitude,
+            'center_longitude': map_obj.center_longitude,
+            'nodes_count': map_obj.nodes.count(),
+            'edges_count': map_obj.edges.count(),
+            'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
+        })
+
+    context = {
+        'maps': maps_with_stats,
+        'title': 'Мои карты'
+    }
+
+    return render(request, 'my_maps.html', context)
+
+
+
 def maps_gallery(request):
     pass
