@@ -1,183 +1,159 @@
 {% extends "base.html" %}
 {% block content %}
- 
+
 <style>
     :root {
-        --primary-blue: #1976d2;
-        --light-blue: #e3f2fd;
-        --medium-blue: #64b5f6;
+        --primary-blue: #1a73e8;
+        --light-blue: #e8f0fe;
+        --medium-blue: #4285f4;
         --dark-blue: #0d47a1;
         --accent-blue: #bbdefb;
-        --error-red: #f44336;
-        --warning-orange: #ff9800;
-        --info-blue: #2196f3;
     }
- 
-    .auth-container {
+
+    body {
         background: linear-gradient(135deg, #f5f9ff 0%, #e3f2fd 100%);
         min-height: 100vh;
-        padding: 2rem 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
- 
-    .auth-card {
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(25, 118, 210, 0.15);
-        border: none;
-        overflow: hidden;
-        max-width: 450px;
-        margin: 0 auto;
-    }
- 
-    .auth-card-header {
-        background: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
-        color: white;
-        font-weight: 600;
-        font-size: 1.5rem;
-        padding: 1.2rem;
-        text-align: center;
-        border-bottom: 1px solid var(--accent-blue);
-    }
- 
-    .auth-card-body {
-        padding: 2rem;
+
+    .container {
         background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(66, 133, 244, 0.15);
+        padding: 2.5rem;
+        margin-top: 3rem;
+        border: 1px solid var(--accent-blue);
+        max-width: 500px;
     }
- 
-    .alert {
-        border-radius: 8px;
-        max-width: 450px;
-        margin: 0 auto 1.5rem auto;
-        border: none;
-    }
- 
-    .alert-danger {
-        background-color: #ffebee;
-        color: var(--error-red);
-        border-left: 4px solid var(--error-red);
-    }
- 
-    .alert-warning {
-        background-color: #fff8e1;
-        color: var(--warning-orange);
-        border-left: 4px solid var(--warning-orange);
-    }
- 
-    .alert-info {
-        background-color: var(--light-blue);
-        color: var(--info-blue);
-        border-left: 4px solid var(--info-blue);
-    }
- 
-    .form-group label {
+
+    h2 {
         color: var(--dark-blue);
-        font-weight: 500;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.8rem;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 0.5rem;
     }
- 
-    .form-control {
+
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
+        border-radius: 3px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-blue);
+        border: none;
+        padding: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background-image: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--primary-blue);
+        border: 1px solid var(--primary-blue);
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--light-blue);
+        color: var(--dark-blue);
+    }
+
+    .form-group p {
+        margin-bottom: 1.5rem;
+    }
+
+    input, select, textarea {
         border: 1px solid #d2e3fc !important;
         border-radius: 8px !important;
         padding: 0.75rem 1rem !important;
         transition: all 0.3s ease;
     }
- 
-    .form-control:focus {
+
+    input:focus, select:focus, textarea:focus {
         border-color: var(--primary-blue) !important;
-        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15) !important;
+        box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.15) !important;
     }
- 
-    .btn-primary {
-        background: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
-        border: none;
-        padding: 0.75rem;
+
+    label {
+        color: var(--dark-blue);
         font-weight: 500;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        display: block;
     }
- 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+
+    .text-center.mt-3 {
+        margin-top: 1.8rem !important;
     }
- 
-    .forgot-password {
-        text-align: right;
-        margin-top: 0.5rem;
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
     }
- 
-    .forgot-password a {
-        color: var(--medium-blue);
-        font-size: 0.9rem;
-        text-decoration: none;
-    }
- 
-    .forgot-password a:hover {
-        text-decoration: underline;
-        color: var(--primary-blue);
-    }
- 
+
     @media (max-width: 576px) {
-        .auth-container {
-            padding: 1rem;
-        }
- 
-        .auth-card-body {
+        .container {
             padding: 1.5rem;
+            margin-top: 1.5rem;
         }
     }
 </style>
- 
-<div class="auth-container">
-    <div class="container mt-3">
-        {% if form.errors %}
-            <div class="alert alert-danger" role="alert">
-                <i class="fas fa-exclamation-circle"></i> Вы ввели неправильное имя или пароль. Пожалуйста, попробуйте ещё раз.
-            </div>
-        {% endif %}
- 
-        {% if next %}
-            {% if user.is_authenticated %}
-                <div class="alert alert-warning" role="alert">
-                    <i class="fas fa-exclamation-triangle"></i> У вас нет доступа к этой странице.
-                </div>
-            {% else %}
-                <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i> Пожалуйста, войдите чтобы продолжить.
-                </div>
-            {% endif %}
-        {% endif %}
- 
-        <div class="auth-card">
-            <div class="auth-card-header">Авторизация</div>
-            <div class="auth-card-body">
-                <form method="POST" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <div class="form-group mb-4">
-                        <label for="id_username">Имя пользователя</label>
-                        <input type="text" name="username" class="form-control" id="id_username" required>
-                    </div>
- 
-                    <div class="form-group mb-4">
-                        <label for="id_password">Пароль</label>
-                        <input type="password" name="password" class="form-control" id="id_password" required>
-                        <div class="forgot-password">
-                            <a href="{% url 'password_reset' %}">Забыли пароль?</a>
-                        </div>
-                    </div>
- 
-                    <button class="btn btn-primary btn-block" type="submit">Войти</button>
-                    <input type="hidden" name="next" value="{{ next }}" />
- 
-                    {% if not user.is_authenticated %}
-                    <div class="text-center mt-3">
-                        <p>Нет аккаунта? <a href="{% url 'register' %}" style="color: var(--primary-blue);">Зарегистрируйтесь</a></p>
-                    </div>
-                    {% endif %}
-                </form>
-            </div>
+
+<div class="container mt-5">
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            Вы ввели неправильное имя или пароль. Пожалуйста, попробуйте ещё раз.
         </div>
+    {% endif %}
+
+    {% if next %}
+        {% if user.is_authenticated %}
+            <div class="alert alert-warning" role="alert">
+                У вас нет доступа к этой странице.
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                Пожалуйста, войдите чтобы продолжить.
+            </div>
+        {% endif %}
+    {% endif %}
+    
+    <h2 class="text-center">Вход</h2>
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_username">Имя пользователя</label>
+            <input type="text" name="username" id="id_username" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password">Пароль</label>
+            <input type="password" name="password" id="id_password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Войти</button>
+        <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+
+    <div class="text-center mt-3">
+        <p>Ещё нет аккаунта?</p>
+        <a href="{% url 'register' %}" class="btn btn-secondary">Зарегистрироваться</a>
     </div>
 </div>
- 
+
 {% endblock %}
