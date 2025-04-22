@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.response import Response
+from rest_framework import status
 from .forms import UserRegistrationForm, NodeForm, EdgeForm, CreateMapForm
 from .models import Node, Edge, Map
 from django.http import JsonResponse, HttpResponseForbidden
@@ -9,16 +11,46 @@ from django.db.models import Max
 from .serializers import MapSerializer
 from .permissions import IsMapOwner
 from rest_framework import generics
+import logging
+
+logger = logging.getLogger(__name__)
 
 class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Map.objects.all()
     serializer_class = MapSerializer
     permission_classes = [IsMapOwner]
 
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            logger.info(f"Запрос на обновление карты ID: {instance.id}")
+            logger.debug(f"Данные запроса: {request.data}")
+            
+            # Проверка прав доступа
+            if instance.owner != request.user:
+                logger.warning(f"Отказ в доступе: пользователь {request.user} пытается редактировать карту пользователя {instance.owner}")
+                raise PermissionDenied("Вы не можете изменять эту карту")
+            
+            # Частичное обновление
+            partial = kwargs.pop('partial', False)
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            
+            if not serializer.is_valid():
+                logger.error(f"Ошибка валидации: {serializer.errors}")
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            self.perform_update(serializer)
+            logger.info(f"Карта ID: {instance.id} успешно обновлена")
+            return Response(serializer.data)
+            
+        except Exception as e:
+            logger.exception("Ошибка при обновлении карты")
+            return Response(
+                {"error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     def perform_update(self, serializer):
-        # Дополнительные проверки при обновлении
-        if serializer.instance.owner != self.request.user:
-            raise PermissionDenied("Вы не можете изменять эту карту")
         serializer.save()
 
 @login_required

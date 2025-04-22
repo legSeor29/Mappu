@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
@@ -14,5 +13,4 @@ urlpatterns = [
     path('edit_map/<int:map_id>', edit_map, name='edit_map'),
     path('create_map/', create_map, name='create_map'),
     path('api/v1/maps/<int:pk>/', MapDetailAPI.as_view(), name='map-detail'),
-
 ]
