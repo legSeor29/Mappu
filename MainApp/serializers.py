@@ -119,13 +119,18 @@ class MapSerializer(serializers.ModelSerializer):
             existing_nodes_dict = {str(node.id): node for node in instance.nodes.all()}
             logger.debug(f"Существующие узлы: {[n.id for n in instance.nodes.all()]}")
             
+            # Сохраняем список существующих ID узлов для последующего удаления отсутствующих
+            existing_node_ids = set(existing_nodes_dict.keys())
+            
             # Словарь для отслеживания соответствия временных ID и постоянных ID
             temp_to_perm_id_map = {}
+            processed_node_ids = set()
             
             # 3. Сначала создаем/обновляем ВСЕ узлы
             for node_data in nodes_data:
                 try:
                     temp_node_id = str(node_data.get('id'))
+                    processed_node_ids.add(temp_node_id)
                     logger.debug(f"Обработка узла с ID: {temp_node_id}")
                     
                     if temp_node_id in existing_nodes_dict:
@@ -149,6 +154,7 @@ class MapSerializer(serializers.ModelSerializer):
                             # Используем существующий узел
                             instance.nodes.add(existing_node)
                             temp_to_perm_id_map[temp_node_id] = str(existing_node.id)
+                            processed_node_ids.add(str(existing_node.id))
                             logger.info(f"Использован существующий узел. Временный ID: {temp_node_id}, Постоянный ID: {existing_node.id}")
                         else:
                             # Создаем новый узел
@@ -162,6 +168,7 @@ class MapSerializer(serializers.ModelSerializer):
                             instance.nodes.add(new_node)
                             # Сопоставляем временный ID с постоянным
                             temp_to_perm_id_map[temp_node_id] = str(new_node.id)
+                            processed_node_ids.add(str(new_node.id))
                             logger.info(f"Создан новый узел. Временный ID: {temp_node_id}, Постоянный ID: {new_node.id}")
                             
                 except Exception as e:
@@ -171,6 +178,27 @@ class MapSerializer(serializers.ModelSerializer):
             # Важно: обновляем список узлов после добавления новых
             instance.refresh_from_db()
             
+            # Удаляем узлы, которых нет в запросе
+            nodes_to_delete = existing_node_ids - processed_node_ids
+            if nodes_to_delete:
+                logger.info(f"Удаление узлов, которых нет в запросе: {nodes_to_delete}")
+                for node_id in nodes_to_delete:
+                    if node_id in existing_nodes_dict:
+                        # Перед удалением узла нужно удалить все ребра, связанные с ним
+                        related_edges = Edge.objects.filter(node1_id=node_id) | Edge.objects.filter(node2_id=node_id)
+                        for edge in related_edges:
+                            instance.edges.remove(edge)
+                            # Если ребро больше не используется ни в одной карте - удаляем его
+                            if edge.maps.count() == 0:
+                                edge.delete()
+                                logger.info(f"Удалено ребро ID: {edge.id}, связанное с узлом {node_id}")
+                        
+                        instance.nodes.remove(existing_nodes_dict[node_id])
+                        # Если узел больше не используется ни в одной карте - удаляем его
+                        if existing_nodes_dict[node_id].maps.count() == 0:
+                            existing_nodes_dict[node_id].delete()
+                            logger.info(f"Удален узел ID: {node_id}")
+            
             # Логируем карту соответствия ID
             logger.debug(f"Карта соответствия ID: {temp_to_perm_id_map}")
             
@@ -178,12 +206,17 @@ class MapSerializer(serializers.ModelSerializer):
             existing_edges_dict = {str(edge.id): edge for edge in instance.edges.all()}
             logger.debug(f"Существующие рёбра: {[e.id for e in instance.edges.all()]}")
             
+            # Сохраняем список существующих ID ребер для последующего удаления отсутствующих
+            existing_edge_ids = set(existing_edges_dict.keys())
+            processed_edge_ids = set()
+            
             # Сохраняем данные о новых ребрах для обработки их после цикла
             new_edges_data = []
             
             for edge_data in edges_data:
                 try:
                     temp_edge_id = str(edge_data.get('id'))
+                    processed_edge_ids.add(temp_edge_id)
                     logger.debug(f"Обработка ребра с ID: {temp_edge_id}")
                     
                     # Получаем данные о узлах ребра
@@ -220,16 +253,31 @@ class MapSerializer(serializers.ModelSerializer):
                         edge.node1 = node1
                         edge.node2 = node2
                         edge.save()
+                        processed_edge_ids.add(edge_info['temp_id'])
                         logger.info(f"Обновлено ребро ID: {edge_info['temp_id']}")
                     else:
                         # Создаем новое ребро
                         new_edge = Edge.objects.create(node1=node1, node2=node2)
                         instance.edges.add(new_edge)
+                        if edge_info['temp_id'] in existing_edges_dict:
+                            processed_edge_ids.add(edge_info['temp_id'])
                         logger.info(f"Создано новое ребро ID: {new_edge.id}, соединяющее узлы {node1.id} и {node2.id}")
                 except Node.DoesNotExist as e:
                     logger.error(f"Узел не найден: {str(e)}")
                 except Exception as e:
                     logger.error(f"Ошибка при обработке ребра: {str(e)}")
+            
+            # Удаляем ребра, которых нет в запросе
+            edges_to_delete = existing_edge_ids - processed_edge_ids
+            if edges_to_delete:
+                logger.info(f"Удаление ребер, которых нет в запросе: {edges_to_delete}")
+                for edge_id in edges_to_delete:
+                    if edge_id in existing_edges_dict:
+                        instance.edges.remove(existing_edges_dict[edge_id])
+                        # Если ребро больше не используется ни в одной карте - удаляем его
+                        if existing_edges_dict[edge_id].maps.count() == 0:
+                            existing_edges_dict[edge_id].delete()
+                            logger.info(f"Удалено ребро ID: {edge_id}")
             
             # Обновляем данные экземпляра
             instance.refresh_from_db()
