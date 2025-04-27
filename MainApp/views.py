@@ -19,6 +19,7 @@ class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Map.objects.all()
     serializer_class = MapSerializer
     permission_classes = [IsMapOwner]
+    http_method_names = ['get', 'patch', 'delete', 'head', 'options']
 
     def update(self, request, *args, **kwargs):
         try:
@@ -31,9 +32,8 @@ class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
                 logger.warning(f"Отказ в доступе: пользователь {request.user} пытается редактировать карту пользователя {instance.owner}")
                 raise PermissionDenied("Вы не можете изменять эту карту")
             
-            # Частичное обновление
-            partial = kwargs.pop('partial', False)
-            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            # Всегда используем partial=True, так как используется только PATCH
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
             
             if not serializer.is_valid():
                 logger.error(f"Ошибка валидации: {serializer.errors}")

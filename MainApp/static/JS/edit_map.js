@@ -8,6 +8,17 @@ class DatabaseController {
         this.formHandler = formHandler;
         this.map = null;  
         this.ymaps3 = null;
+        
+        // Наборы для отслеживания начальных ID узлов и ребер
+        this.initialNodeIds = new Set();
+        this.initialEdgeIds = new Set();
+        
+        // Объект для отслеживания изменений
+        this.resetChanges();
+        
+        // Настройка интервала автосохранения (каждые 30 секунд)
+        this.autoSaveInterval = null;
+        this.enableAutoSave = false;
     }
     GetCurrentData() {
         console.log('Поиск карты...')
@@ -26,83 +37,338 @@ class DatabaseController {
     }
 
     ArrayFilling(data) {
-        console.log(data.nodes);  
-        console.log(data.edges);  
-        data.nodes.forEach(node => {
-            const newNode = new Node(
-                [node.longitude, node.latitude], 
-                node.id, 
-                this.map, 
-                this.ymaps3, 
-                this.formHandler,
-                node.name,
-                node.description,
-                node.z_coordinate,
-            );
-            nodes[newNode.id] = newNode;
-        })
+        console.log(data.nodes);
+        console.log(data.edges);
+        
+        // Очищаем объекты узлов и ребер перед заполнением
+        nodes = {};
+        edges = {};
+        
+        // Сохраняем ID существующих узлов и ребер, чтобы не считать их новыми
+        this.initialNodeIds = new Set();
+        this.initialEdgeIds = new Set();
+        
+        // Установим флаг загрузки данных
+        document.getElementById('mapId')._loadingData = true;
 
-        data.edges.forEach(edge => {
-            const newEdge = new Edge(
-                edge.id,
-                nodes[edge.node1],
-                nodes[edge.node2],
-                this.map,
-                this.ymaps3,
-                this.formHandler
-            );
-            edges[newEdge.id] = newEdge
-        })
-        console.log('Текущие данные заполнены')
-        console.log(nodes, edges)
+        try {
+            // Заполняем узлы
+            for (const node of data.nodes) {
+                // Сохраняем ID существующего узла
+                this.initialNodeIds.add(node.id);
+                
+                // Создаем узел из данных с сервера
+                const newNode = new Node(
+                    [node.longitude, node.latitude],
+                    node.id,
+                    this.map,
+                    this.ymaps3,
+                    this.formHandler,
+                    node.name,
+                    node.description,
+                    node.z_coordinate
+                );
+                
+                // Добавляем в глобальный объект узлов
+                nodes[node.id] = newNode;
+                
+                console.log(`Узел ${node.id} загружен из базы данных`);
+            }
+            
+            // Заполняем ребра
+            for (const edge of data.edges) {
+                // Сохраняем ID существующего ребра
+                this.initialEdgeIds.add(edge.id);
+                
+                // Проверяем, есть ли оба узла
+                if (nodes[edge.node1] && nodes[edge.node2]) {
+                    // Создаем ребро
+                    const newEdge = new Edge(
+                        edge.id,
+                        nodes[edge.node1],
+                        nodes[edge.node2],
+                        this.map,
+                        this.ymaps3,
+                        this.formHandler
+                    );
+                    
+                    // Добавляем в глобальный объект ребер
+                    edges[edge.id] = newEdge;
+                    
+                    console.log(`Ребро ${edge.id} загружено из базы данных`);
+                } else {
+                    console.warn(`Невозможно загрузить ребро ${edge.id}: один или оба узла не найдены`);
+                }
+            }
+            
+            // Сбрасываем изменения после загрузки
+            this.resetChanges();
+            
+            console.log('Текущие данные заполнены');
+            console.log('Отслеживаемые начальные ID узлов:', this.initialNodeIds);
+            console.log('Отслеживаемые начальные ID рёбер:', this.initialEdgeIds);
+            console.log(nodes, edges);
+        } catch (error) {
+            console.error("Ошибка при получении данных:", error);
+        } finally {
+            // Сбрасываем флаг загрузки данных, когда загрузка завершена
+            document.getElementById('mapId')._loadingData = false;
+        }
     }
 
     UpdateData() {
+        // Проверяем наличие изменений для PATCH-запроса
+        if (this.hasChanges()) {
+            console.log('Обнаружены изменения, используем PATCH запрос');
+            // Используем PATCH для отправки только измененных данных
+            this.sendPatchRequest();
+        } else {
+            console.log('Изменения не обнаружены, используем полный PUT запрос');
+            // Используем PUT для отправки всех данных (на случай если нет изменений для отслеживания)
+            this.sendPutRequest();
+        }
+    }
+
+    // Отправка полного PUT-запроса (все данные)
+    sendPutRequest() {
+        console.group('Отправка PUT-запроса');
+        console.time('PUT запрос');
+        
         const dataToSend = {
-            nodes: Object.values(nodes).map(node => ({
-                id: node.id,
-                longitude: node.coordinates[0],
-                latitude: node.coordinates[1],
-                name: node.name || '',
-                description: node.description || '',
-                z_coordinate: node.z_coordinate || 0
-            })),
-            edges: Object.values(edges).map(edge => ({
-                id: edge.id,
-                node1: edge.node1.id,
-                node2: edge.node2.id
-            }))
+            nodes: Object.values(nodes).map(node => {
+                const nodeData = {
+                    id: node.id,
+                    longitude: node.coordinates[0],
+                    latitude: node.coordinates[1],
+                    name: node.name || '',
+                    description: node.description || '',
+                    z_coordinate: node.z_coordinate || 0
+                };
+                return nodeData;
+            }),
+            edges: Object.values(edges).map(edge => {
+                const edgeData = {
+                    id: edge.id,
+                    node1: edge.node1.id,
+                    node2: edge.node2.id
+                };
+                return edgeData;
+            })
         };
 
-        console.log('Отправляемые данные:', JSON.stringify(dataToSend, null, 2));
+        console.log(`Подготовлено узлов: ${dataToSend.nodes.length}, ребер: ${dataToSend.edges.length}`);
+        console.log('Отправляемые данные (PUT):', JSON.stringify(dataToSend, null, 2));
+
+        const csrfToken = this.getCsrfToken();
+        console.log(`Отправка запроса на /api/v1/maps/${mapId}/ с CSRF токеном: ${csrfToken.substring(0, 5)}...`);
 
         fetch(`/api/v1/maps/${mapId}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': this.getCsrfToken()
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(dataToSend)
         })
         .then(response => {
+            console.log(`Получен ответ HTTP ${response.status} ${response.statusText}`);
             if (!response.ok) {
                 console.error('Ошибка HTTP:', response.status);
                 return response.text().then(text => {
+                    console.error('Ответ сервера:', text);
                     throw new Error(`Ошибка обновления данных: ${text}`);
                 });
             }
             return response.json();
         })
         .then(updatedData => {
-            console.log('Данные успешно обновлены:', updatedData);
+            console.log('Ответ сервера:', updatedData);
+            console.log(`Обновлено узлов: ${updatedData.nodes ? updatedData.nodes.length : 0}, ребер: ${updatedData.edges ? updatedData.edges.length : 0}`);
             
             // Обновляем ID узлов и ребер после сохранения на сервере
+            console.time('Обновление локальных ID');
             this.updateLocalIdsAfterSave(updatedData);
+            console.timeEnd('Обновление локальных ID');
             
+            // Обновляем списки начальных ID
+            console.log('Обновление списка начальных ID узлов и ребер');
+            Object.values(nodes).forEach(node => {
+                this.initialNodeIds.add(node.id);
+            });
+            
+            Object.values(edges).forEach(edge => {
+                this.initialEdgeIds.add(edge.id);
+            });
+            
+            // Сбрасываем отслеживание изменений
+            this.resetChanges();
+            
+            console.log('Размер начальных ID после обновления:', {
+                nodes: this.initialNodeIds.size,
+                edges: this.initialEdgeIds.size
+            });
+            
+            console.timeEnd('PUT запрос');
+            console.groupEnd();
             alert('Карта успешно сохранена!');
         })
         .catch(error => {
             console.error('Ошибка при обновлении:', error);
+            console.timeEnd('PUT запрос');
+            console.groupEnd();
+            alert('Ошибка при сохранении карты: ' + error.message);
+        });
+    }
+    
+    // Отправка PATCH-запроса (только изменения)
+    sendPatchRequest() {
+        console.group('Отправка PATCH-запроса');
+        console.time('PATCH запрос');
+        
+        // Готовим данные для PATCH-запроса
+        const mapData = {};
+        
+        // Добавляем новые узлы
+        if (this.changes.newNodes.length > 0) {
+            console.log(`Подготовка ${this.changes.newNodes.length} новых узлов`);
+            mapData.new_nodes = this.changes.newNodes.map(node => {
+                const nodeData = {
+                    name: node.name || '',
+                    longitude: node.coordinates[0],
+                    latitude: node.coordinates[1],
+                    description: node.description || '',
+                    z_coordinate: node.z_coordinate || 0
+                };
+                console.debug(`Новый узел: ${JSON.stringify(nodeData)}`);
+                return nodeData;
+            });
+        }
+        
+        // Добавляем измененные узлы
+        if (Object.keys(this.changes.changedNodes).length > 0) {
+            console.log(`Подготовка ${Object.keys(this.changes.changedNodes).length} измененных узлов`);
+            mapData.changed_nodes = Object.values(this.changes.changedNodes).map(node => {
+                const nodeData = {
+                    id: node.id,
+                    name: node.name || '',
+                    longitude: node.coordinates[0],
+                    latitude: node.coordinates[1],
+                    description: node.description || '',
+                    z_coordinate: node.z_coordinate || 0
+                };
+                console.debug(`Измененный узел ID=${node.id}: ${JSON.stringify(nodeData)}`);
+                return nodeData;
+            });
+        }
+        
+        // Добавляем ID удаленных узлов
+        if (this.changes.deletedNodeIds.length > 0) {
+            console.log(`Подготовка ${this.changes.deletedNodeIds.length} удаленных узлов: ${JSON.stringify(this.changes.deletedNodeIds)}`);
+            mapData.deleted_node_ids = this.changes.deletedNodeIds;
+        }
+        
+        // Добавляем новые ребра
+        if (this.changes.newEdges.length > 0) {
+            console.log(`Подготовка ${this.changes.newEdges.length} новых ребер`);
+            mapData.new_edges = this.changes.newEdges.map(edge => {
+                const edgeData = {
+                    node1: edge.node1.id,
+                    node2: edge.node2.id
+                };
+                console.debug(`Новое ребро: ${JSON.stringify(edgeData)}`);
+                return edgeData;
+            });
+        }
+        
+        // Добавляем измененные ребра
+        if (Object.keys(this.changes.changedEdges).length > 0) {
+            console.log(`Подготовка ${Object.keys(this.changes.changedEdges).length} измененных ребер`);
+            mapData.changed_edges = Object.values(this.changes.changedEdges).map(edge => {
+                const edgeData = {
+                    id: edge.id,
+                    node1: edge.node1.id,
+                    node2: edge.node2.id
+                };
+                console.debug(`Измененное ребро ID=${edge.id}: ${JSON.stringify(edgeData)}`);
+                return edgeData;
+            });
+        }
+        
+        // Добавляем ID удаленных ребер
+        if (this.changes.deletedEdgeIds.length > 0) {
+            console.log(`Подготовка ${this.changes.deletedEdgeIds.length} удаленных ребер: ${JSON.stringify(this.changes.deletedEdgeIds)}`);
+            mapData.deleted_edge_ids = this.changes.deletedEdgeIds;
+        }
+
+        console.log('Итоговые данные для PATCH-запроса:', JSON.stringify(mapData, null, 2));
+        
+        // Проверяем, есть ли что отправлять
+        if (Object.keys(mapData).length === 0) {
+            console.warn('Нет изменений для отправки в PATCH-запросе');
+            console.timeEnd('PATCH запрос');
+            console.groupEnd();
+            alert('Нет изменений для сохранения.');
+            return;
+        }
+
+        // Отправляем PATCH-запрос
+        const csrfToken = this.getCsrfToken();
+        console.log(`Отправка запроса на /api/v1/maps/${mapId}/ с CSRF токеном: ${csrfToken.substring(0, 5)}...`);
+        
+        fetch(`/api/v1/maps/${mapId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(mapData)
+        })
+        .then(response => {
+            console.log(`Получен ответ HTTP ${response.status} ${response.statusText}`);
+            if (!response.ok) {
+                console.error('Ошибка HTTP:', response.status);
+                return response.text().then(text => {
+                    console.error('Ответ сервера:', text);
+                    throw new Error(`Ошибка обновления данных: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(updatedData => {
+            console.log('Ответ сервера:', updatedData);
+            console.log(`Обновлено узлов: ${updatedData.nodes ? updatedData.nodes.length : 0}, ребер: ${updatedData.edges ? updatedData.edges.length : 0}`);
+            
+            // Обновляем ID узлов и ребер после сохранения на сервере
+            console.time('Обновление локальных ID');
+            this.updateLocalIdsAfterSave(updatedData);
+            console.timeEnd('Обновление локальных ID');
+            
+            // Обновляем списки начальных ID
+            console.log('Обновление списка начальных ID узлов и ребер');
+            Object.values(nodes).forEach(node => {
+                this.initialNodeIds.add(node.id);
+            });
+            
+            Object.values(edges).forEach(edge => {
+                this.initialEdgeIds.add(edge.id);
+            });
+            
+            // Сбрасываем отслеживание изменений
+            this.resetChanges();
+            
+            console.log('Размер начальных ID после обновления:', {
+                nodes: this.initialNodeIds.size,
+                edges: this.initialEdgeIds.size
+            });
+            
+            console.timeEnd('PATCH запрос');
+            console.groupEnd();
+            alert('Карта успешно сохранена!');
+        })
+        .catch(error => {
+            console.error('Ошибка при обновлении:', error);
+            console.timeEnd('PATCH запрос');
+            console.groupEnd();
             alert('Ошибка при сохранении карты: ' + error.message);
         });
     }
@@ -114,25 +380,89 @@ class DatabaseController {
         // Создаем карту соответствия между старыми и новыми ID узлов
         const nodeIdMap = {};
         
-        // Собираем текущие узлы с данными для сравнения
-        const localNodeMap = {};
-        Object.values(nodes).forEach(node => {
-            const key = `${node.longitude}_${node.latitude}`;
-            localNodeMap[key] = node;
-        });
+        // Проверяем наличие карты соответствия индексов от сервера
+        console.log('client_index_map из ответа:', serverData.client_index_map);
+        console.log('Тип данных client_index_map:', typeof serverData.client_index_map);
+        console.log('Ключи в client_index_map:', serverData.client_index_map ? Object.keys(serverData.client_index_map) : 'нет ключей');
         
-        // Обновляем ID узлов и создаем карту соответствия
-        if (serverData.nodes && serverData.nodes.length > 0) {
-            serverData.nodes.forEach(serverNode => {
-                const key = `${serverNode.longitude}_${serverNode.latitude}`;
-                const localNode = localNodeMap[key];
+        if (serverData.client_index_map && Object.keys(serverData.client_index_map).length > 0) {
+            console.log('Получена карта соответствия индексов от сервера:', serverData.client_index_map);
+            
+            // Обновляем ID узлов на основе карты индексов от сервера
+            Object.entries(serverData.client_index_map).forEach(([clientIndex, nodeId]) => {
+                console.log(`Проверка маппинга: клиентский индекс ${clientIndex} -> ID узла ${nodeId}`);
                 
-                if (localNode && localNode.id !== serverNode.id) {
-                    console.log(`Обновление ID узла: ${localNode.id} -> ${serverNode.id}`);
-                    nodeIdMap[localNode.id] = serverNode.id;
-                    localNode.id = serverNode.id;
+                // Ищем узел с соответствующим индексом или временным ID
+                let localNode = null;
+                
+                // Сначала проверяем прямое соответствие ID
+                localNode = Object.values(nodes).find(n => String(n.id) === clientIndex);
+                if (localNode) {
+                    console.log(`Найден узел с ID ${localNode.id} по прямому соответствию индексу ${clientIndex}`);
+                    if (localNode.id !== nodeId) {
+                        console.log(`Обновление ID узла: ${localNode.id} -> ${nodeId}`);
+                        nodeIdMap[localNode.id] = nodeId;
+                        localNode.id = nodeId;
+                    }
+                    return; // Переходим к следующему маппингу
+                }
+                
+                // Если это числовой индекс (например, позиция в массиве new_nodes)
+                if (isFinite(clientIndex)) {
+                    // Ищем среди новых узлов - они могут иметь временные ID совпадающие с индексом
+                    const newNodeId = parseInt(clientIndex, 10);
+                    if (this.changes.newNodes.length > newNodeId) {
+                        // Узел может быть в массиве newNodes по индексу
+                        const newNodeAtIndex = this.changes.newNodes[newNodeId];
+                        if (newNodeAtIndex) {
+                            localNode = Object.values(nodes).find(n => n.id === newNodeAtIndex.id);
+                            if (localNode) {
+                                console.log(`Найден новый узел с ID ${localNode.id} для индекса ${clientIndex}`);
+                                if (localNode.id !== nodeId) {
+                                    console.log(`Обновление ID нового узла: ${localNode.id} -> ${nodeId}`);
+                                    nodeIdMap[localNode.id] = nodeId;
+                                    localNode.id = nodeId;
+                                }
+                                return; // Переходим к следующему маппингу
+                            }
+                        }
+                    }
+                    
+                    // Пробуем искать напрямую по ID из клиентского индекса
+                    localNode = Object.values(nodes).find(n => n.id == newNodeId);
+                    if (localNode) {
+                        console.log(`Найден узел с совпадающим ID ${localNode.id} для индекса ${clientIndex}`);
+                        if (localNode.id !== nodeId) {
+                            console.log(`Обновление ID узла: ${localNode.id} -> ${nodeId}`);
+                            nodeIdMap[localNode.id] = nodeId;
+                            localNode.id = nodeId;
+                        }
+                    }
                 }
             });
+        } else {
+            console.log('Карта соответствия индексов не получена, используем сопоставление по координатам');
+            
+            // Собираем текущие узлы с данными для сравнения
+            const localNodeMap = {};
+            Object.values(nodes).forEach(node => {
+                const key = `${node.coordinates[0]}_${node.coordinates[1]}`;
+                localNodeMap[key] = node;
+            });
+            
+            // Обновляем ID узлов и создаем карту соответствия
+            if (serverData.nodes && serverData.nodes.length > 0) {
+                serverData.nodes.forEach(serverNode => {
+                    const key = `${serverNode.longitude}_${serverNode.latitude}`;
+                    const localNode = localNodeMap[key];
+                    
+                    if (localNode && localNode.id !== serverNode.id) {
+                        console.log(`Обновление ID узла: ${localNode.id} -> ${serverNode.id}`);
+                        nodeIdMap[localNode.id] = serverNode.id;
+                        localNode.id = serverNode.id;
+                    }
+                });
+            }
         }
         
         // Обновляем ID ребер и связи с узлами
@@ -186,6 +516,172 @@ class DatabaseController {
                document.cookie.split('; ')
                 .find(row => row.startsWith('csrftoken='))
                 ?.split('=')[1] || '';
+    }
+    
+    // Сбрасывает все накопленные изменения
+    resetChanges() {
+        // Инициализируем объект для отслеживания изменений
+        this.changes = {
+            infoChanged: false,        // Изменилась основная информация карты
+            newNodes: [],              // Новые узлы, добавленные после загрузки
+            changedNodes: {},          // Измененные узлы по ID: {id: node}
+            deletedNodeIds: [],        // ID удаленных узлов
+            newEdges: [],              // Новые ребра, добавленные после загрузки
+            changedEdges: {},          // Измененные ребра по ID: {id: edge}
+            deletedEdgeIds: []         // ID удаленных ребер
+        };
+        
+        console.log('Изменения сброшены');
+    }
+    
+    // Добавляет новый узел в список изменений
+    addNewNode(node) {
+        // Проверяем, является ли узел новым или это существующий узел из базы данных
+        if (!this.initialNodeIds.has(node.id)) {
+            console.log(`Узел ${node.id} добавлен как новый`);
+            
+            // Проверяем, не добавлен ли уже этот узел в список новых
+            const alreadyAdded = this.changes.newNodes.some(n => n.id === node.id);
+            if (!alreadyAdded) {
+                // Добавляем узел в список новых узлов
+                this.changes.newNodes.push({
+                    id: node.id,
+                    name: node.name,
+                    longitude: node.coordinates[0],
+                    latitude: node.coordinates[1],
+                    description: node.description,
+                    z_coordinate: node.z_coordinate
+                });
+            }
+        } else {
+            console.log(`Узел ${node.id} уже существует в базе данных, не добавляем в новые`);
+        }
+    }
+    
+    // Добавляет новое ребро в список изменений
+    addNewEdge(edge) {
+        // Проверяем, является ли ребро новым или это существующее ребро из базы данных
+        if (!this.initialEdgeIds.has(edge.id)) {
+            console.log(`Ребро ${edge.id} добавлено как новое`);
+            
+            // Проверяем, не добавлено ли уже это ребро в список новых
+            const alreadyAdded = this.changes.newEdges.some(e => e.id === edge.id);
+            if (!alreadyAdded) {
+                // Добавляем ребро в список новых ребер
+                this.changes.newEdges.push({
+                    id: edge.id,
+                    node1: edge.node1.id,
+                    node2: edge.node2.id
+                });
+            }
+        } else {
+            console.log(`Ребро ${edge.id} уже существует в базе данных, не добавляем в новые`);
+        }
+    }
+    
+    // Отмечает узел как измененный
+    markNodeChanged(node) {
+        // Проверяем, существует ли узел в базе данных
+        if (this.initialNodeIds.has(node.id)) {
+            console.log(`Узел ${node.id} отмечен как измененный`)
+            
+            // Если узел не был отмечен как измененный ранее, добавляем его
+            if (!this.changes.changedNodes[node.id]) {
+                this.changes.changedNodes[node.id] = {
+                    id: node.id,
+                    name: node.name,
+                    longitude: node.coordinates[0],
+                    latitude: node.coordinates[1],
+                    description: node.description,
+                    z_coordinate: node.z_coordinate
+                };
+            } else {
+                // Если уже был отмечен, просто обновляем данные
+                Object.assign(this.changes.changedNodes[node.id], {
+                    name: node.name,
+                    longitude: node.coordinates[0],
+                    latitude: node.coordinates[1],
+                    description: node.description,
+                    z_coordinate: node.z_coordinate
+                });
+            }
+        } else {
+            // Если узел не существует в базе данных, добавляем его как новый
+            this.addNewNode(node);
+        }
+    }
+    
+    // Отмечает ребро как измененное
+    markEdgeChanged(edge) {
+        // Проверяем, существует ли ребро в базе данных
+        if (this.initialEdgeIds.has(edge.id)) {
+            console.log(`Ребро ${edge.id} отмечено как измененное`)
+            
+            // Если ребро не было отмечено как измененное ранее, добавляем его
+            if (!this.changes.changedEdges[edge.id]) {
+                this.changes.changedEdges[edge.id] = {
+                    id: edge.id,
+                    node1: edge.node1.id,
+                    node2: edge.node2.id
+                };
+            } else {
+                // Если уже было отмечено, просто обновляем данные
+                Object.assign(this.changes.changedEdges[edge.id], {
+                    node1: edge.node1.id,
+                    node2: edge.node2.id
+                });
+            }
+        } else {
+            // Если ребро не существует в базе данных, добавляем его как новое
+            this.addNewEdge(edge);
+        }
+    }
+    
+    // Отметить узел как удаленный
+    markNodeDeleted(nodeId) {
+        // Если это новый узел, просто удаляем его из списка новых
+        if (!this.initialNodeIds.has(nodeId)) {
+            this.changes.newNodes = this.changes.newNodes.filter(node => node.id !== nodeId);
+            return;
+        }
+        
+        // Удаляем из измененных, если был там
+        delete this.changes.changedNodes[nodeId];
+        
+        // Добавляем в удаленные
+        if (!this.changes.deletedNodeIds.includes(nodeId)) {
+            this.changes.deletedNodeIds.push(nodeId);
+        }
+        console.log(`Узел ${nodeId} отмечен как удаленный`);
+    }
+    
+    // Отметить ребро как удаленное
+    markEdgeDeleted(edgeId) {
+        // Если это новое ребро, просто удаляем его из списка новых
+        if (!this.initialEdgeIds.has(edgeId)) {
+            this.changes.newEdges = this.changes.newEdges.filter(edge => edge.id !== edgeId);
+            return;
+        }
+        
+        // Удаляем из измененных, если было там
+        delete this.changes.changedEdges[edgeId];
+        
+        // Добавляем в удаленные
+        if (!this.changes.deletedEdgeIds.includes(edgeId)) {
+            this.changes.deletedEdgeIds.push(edgeId);
+        }
+        console.log(`Ребро ${edgeId} отмечено как удаленное`);
+    }
+    
+    // Проверяем, есть ли изменения
+    hasChanges() {
+        return this.changes.infoChanged || 
+              this.changes.newNodes.length > 0 || 
+              Object.keys(this.changes.changedNodes).length > 0 ||
+              this.changes.deletedNodeIds.length > 0 ||
+              this.changes.newEdges.length > 0 ||
+              Object.keys(this.changes.changedEdges).length > 0 ||
+              this.changes.deletedEdgeIds.length > 0;
     }
 }
 
@@ -265,6 +761,18 @@ class Node {
         this.formHandler.addNodeOption(this); // Добавляем в список
         this.placeholderUrl = 'https://cdn.animaapp.com/projects/6761c31b315a42798e3ee7e6/releases/67db012a45e0bcae5c95cfd1/img/placeholder-1.png'
         this.createMarker();
+        
+        // Добавляем узел для отслеживания только если он создан не из базы данных
+        // и если контроллер инициализирован
+        if (Controller && typeof Controller.addNewNode === 'function' && 
+            !Controller.initialNodeIds.has(id)) {
+            // Проверяем, создан ли этот узел новым пользовательским действием
+            const nodeCreatedByUserAction = !document.getElementById('mapId')._loadingData;
+            if (nodeCreatedByUserAction) {
+                console.log(`Узел ${id} создан пользователем, отмечаем как новый`);
+                Controller.addNewNode(this);
+            }
+        }
     }
 
     createMarker() {
@@ -391,10 +899,22 @@ class Node {
         menu.querySelector(`.node_save`).addEventListener('click', (e) => {
             //e.stopPropagation();
             console.log('Сохранение данных о вершине...')
+            
+            // Сохраняем старые значения для проверки изменений
+            const oldName = this.name;
+            const oldDesc = this.description;
+            const oldZ = this.z_coordinate;
+            
             this.name = menu.querySelector('.node-name').value; 
             this.description = menu.querySelector('.node-desc').value;
             this.z_coordinate = menu.querySelector('.node-z_cord').value; 
             this.formHandler.updateNodeOptions(this);
+            
+            // Отмечаем узел как измененный, если что-то изменилось
+            if (Controller && Controller.markNodeChanged && 
+                (oldName !== this.name || oldDesc !== this.description || oldZ !== this.z_coordinate)) {
+                Controller.markNodeChanged(this);
+            }
         });
         
         menu.querySelector('.delete').addEventListener('click', (e) => {
@@ -427,6 +947,11 @@ class Node {
         delete nodes[this.id];
         // Очищаем поля формы если удаляемый ID был в них
         this.formHandler.removeNodeOption(this.id);
+        
+        // Отмечаем узел как удаленный
+        if (Controller && Controller.markNodeDeleted) {
+            Controller.markNodeDeleted(this.id);
+        }
     }
 }
 class Edge {
@@ -442,6 +967,12 @@ class Edge {
         this.id = id;
        
         this.createFeature();
+        
+        // Добавляем ребро для отслеживания если оно новое
+        if (Controller && Controller.addNewEdge && 
+            (!Controller.initialEdgeIds || !Controller.initialEdgeIds.has(id))) {
+            Controller.addNewEdge(this);
+        }
     }
 
     createFeature() {
@@ -480,7 +1011,7 @@ class Edge {
 
         container.addEventListener('click', (e) => {
             if (e.button !== 0) return;
-            this.formHandler.setCurrentEdge(this.id);
+            this.formHandler.setCurrentEdge?.(this.id);
             this.menuVisible = false;
             menu.style.display = 'none';
         });
@@ -524,6 +1055,11 @@ class Edge {
         console.log(`вы удалили ребро ${this.id}`)
         this.map.removeChild(this.feature);
         delete edges[this.id];
+        
+        // Отмечаем ребро как удаленное
+        if (Controller && Controller.markEdgeDeleted) {
+            Controller.markEdgeDeleted(this.id);
+        }
     }
 
     updatePosition() {
@@ -533,6 +1069,11 @@ class Edge {
                 coordinates: [this.node1.coordinates, this.node2.coordinates]
             }
         });
+        
+        // Отмечаем ребро как измененное при изменении позиции
+        if (Controller && Controller.markEdgeChanged) {
+            Controller.markEdgeChanged(this);
+        }
     }
 }
 
@@ -617,6 +1158,8 @@ class MapInteraction {
         );
         
         nodes[newNodeId] = newNode;
+        
+        // Node constructor already adds new node to tracking
 
         console.log('Создан новый узел при клике на карту:', newNode);
         
