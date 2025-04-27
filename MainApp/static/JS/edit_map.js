@@ -272,8 +272,8 @@ class DatabaseController {
             console.log(`Подготовка ${this.changes.newEdges.length} новых ребер`);
             mapData.new_edges = this.changes.newEdges.map(edge => {
                 const edgeData = {
-                    node1: edge.node1.id,
-                    node2: edge.node2.id
+                    node1: edge.node1,
+                    node2: edge.node2
                 };
                 console.debug(`Новое ребро: ${JSON.stringify(edgeData)}`);
                 return edgeData;
@@ -567,12 +567,17 @@ class DatabaseController {
             // Проверяем, не добавлено ли уже это ребро в список новых
             const alreadyAdded = this.changes.newEdges.some(e => e.id === edge.id);
             if (!alreadyAdded) {
-                // Добавляем ребро в список новых ребер
-                this.changes.newEdges.push({
+                // Создаем объект данных для нового ребра
+                const newEdgeData = {
                     id: edge.id,
                     node1: edge.node1.id,
                     node2: edge.node2.id
-                });
+                };
+                
+                console.log(`Добавление нового ребра в список изменений:`, newEdgeData);
+                
+                // Добавляем ребро в список новых ребер
+                this.changes.newEdges.push(newEdgeData);
             }
         } else {
             console.log(`Ребро ${edge.id} уже существует в базе данных, не добавляем в новые`);
