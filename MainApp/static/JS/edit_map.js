@@ -234,8 +234,8 @@ class DatabaseController {
             mapData.new_nodes = this.changes.newNodes.map(node => {
                 const nodeData = {
                     name: node.name || '',
-                    longitude: node.coordinates[0],
-                    latitude: node.coordinates[1],
+                    longitude: node.longitude || (node.coordinates && node.coordinates[0]) || 0,
+                    latitude: node.latitude || (node.coordinates && node.coordinates[1]) || 0,
                     description: node.description || '',
                     z_coordinate: node.z_coordinate || 0
                 };
@@ -251,8 +251,8 @@ class DatabaseController {
                 const nodeData = {
                     id: node.id,
                     name: node.name || '',
-                    longitude: node.coordinates[0],
-                    latitude: node.coordinates[1],
+                    longitude: node.longitude || (node.coordinates && node.coordinates[0]) || 0,
+                    latitude: node.latitude || (node.coordinates && node.coordinates[1]) || 0,
                     description: node.description || '',
                     z_coordinate: node.z_coordinate || 0
                 };
