@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.response import Response
+from rest_framework import status
 from .forms import UserRegistrationForm, NodeForm, EdgeForm, CreateMapForm
 from .models import Node, Edge, Map
 from django.http import JsonResponse, HttpResponseForbidden
@@ -9,73 +11,54 @@ from django.db.models import Max
 from .serializers import MapSerializer
 from .permissions import IsMapOwner
 from rest_framework import generics
+<<<<<<< HEAD
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 
 
+=======
+import logging
+
+logger = logging.getLogger(__name__)
+>>>>>>> map_changes
 
 class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Map.objects.all()
     serializer_class = MapSerializer
     permission_classes = [IsMapOwner]
+    http_method_names = ['get', 'patch', 'delete', 'head', 'options']
+
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            logger.info(f"Запрос на обновление карты ID: {instance.id}")
+            logger.debug(f"Данные запроса: {request.data}")
+            
+            # Проверка прав доступа
+            if instance.owner != request.user:
+                logger.warning(f"Отказ в доступе: пользователь {request.user} пытается редактировать карту пользователя {instance.owner}")
+                raise PermissionDenied("Вы не можете изменять эту карту")
+            
+            # Всегда используем partial=True, так как используется только PATCH
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            
+            if not serializer.is_valid():
+                logger.error(f"Ошибка валидации: {serializer.errors}")
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            self.perform_update(serializer)
+            logger.info(f"Карта ID: {instance.id} успешно обновлена")
+            return Response(serializer.data)
+            
+        except Exception as e:
+            logger.exception("Ошибка при обновлении карты")
+            return Response(
+                {"error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def perform_update(self, serializer):
-        # Дополнительные проверки при обновлении
-        if serializer.instance.owner != self.request.user:
-            raise PermissionDenied("Вы не можете изменять эту карту")
         serializer.save()
-
-def api_data(request, map_id):
-    map_obj = get_object_or_404(
-        Map.objects.prefetch_related('nodes', 'edges'),
-        pk=map_id
-    )
-    max_node_id = Node.objects.aggregate(Max('id'))['id__max'] or 0
-    max_edge_id = Edge.objects.aggregate(Max('id'))['id__max'] or 0
-
-    # Сериализуем узлы
-    nodes_data = [
-        {
-            'id': node.id,
-            'name': node.name,
-            'lat': node.latitude,
-            'lng': node.longitude,
-            'z': node.z_coordinate,
-            'description': node.description
-        }
-        for node in map_obj.nodes.all()
-    ]
-
-    # Сериализуем связи
-    edges_data = [
-        {
-            'id': edge.id,
-            'from': edge.node1_id,
-            'to': edge.node2_id,
-            'description': edge.description
-        }
-        for edge in map_obj.edges.all()
-    ]
-
-    # Собираем общий контекст
-    data = {
-        'map': {
-            'title': map_obj.title,
-            'center': {
-                'lat': map_obj.center_latitude,
-                'lng': map_obj.center_longitude
-            }
-        },
-        'nodes': nodes_data,
-        'edges': edges_data,
-
-        'max_ids': {
-            'node': max_node_id,
-            'edge': max_edge_id
-        }
-    }
-
-    return JsonResponse(data, safe=False)
 
 @login_required
 def main_page(request):
