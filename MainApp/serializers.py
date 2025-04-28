@@ -4,6 +4,8 @@ import logging
 
 
 class NodeSerializer(serializers.ModelSerializer):
+    temp_id = serializers.IntegerField(required=False, write_only=True)
+    
     class Meta:
         model = Node
         fields = '__all__'
@@ -18,9 +20,17 @@ class NodeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Долгота должна быть между -180 и 180")
         return value
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if hasattr(instance, 'temp_id'):
+            data['temp_id'] = instance.temp_id
+        return data
+
 
 # Этот сериализатор используется только для чтения данных
 class EdgeSerializer(serializers.ModelSerializer):
+    temp_id = serializers.IntegerField(required=False, write_only=True)
+    
     class Meta:
         model = Edge
         fields = '__all__'
@@ -28,14 +38,19 @@ class EdgeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['node1'] == data['node2']:
             raise serializers.ValidationError("Узлы не могут ссылаться сами на себя")
-        
-        # Убираем проверку принадлежности узлов к карте, т.к. это проверяется в other логике
+        return data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if hasattr(instance, 'temp_id'):
+            data['temp_id'] = instance.temp_id
         return data
 
 
 # Сериализатор для обработки ребер при отправке данных с клиента
 class EdgeWriteSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
+    temp_id = serializers.IntegerField(required=False)
     node1 = serializers.IntegerField()
     node2 = serializers.IntegerField()
     

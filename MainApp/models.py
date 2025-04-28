@@ -8,6 +8,7 @@ class Node(models.Model):
     longitude = models.FloatField()
     description = models.TextField(blank=True, null=True)
     z_coordinate = models.FloatField(blank=True, null=True)
+    temp_id = models.IntegerField(null=True, blank=True, db_index=True)
     def __str__(self):
         return self.name
 
@@ -15,6 +16,7 @@ class Edge(models.Model):
     node1 = models.ForeignKey(Node, related_name='edges_from', on_delete=models.CASCADE)
     node2 = models.ForeignKey(Node, related_name='edges_to', on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
+    temp_id = models.IntegerField(null=True, blank=True, db_index=True)
     def __str__(self):
         return f"{self.node1} -> {self.node2}"
 
