@@ -11,16 +11,13 @@ from django.db.models import Max
 from .serializers import MapSerializer
 from .permissions import IsMapOwner
 from rest_framework import generics
-<<<<<<< HEAD
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 
 
-=======
 import logging
 
 logger = logging.getLogger(__name__)
->>>>>>> map_changes
 
 class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Map.objects.all()
