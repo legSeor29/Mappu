@@ -1,45 +1,58 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-{% for map in maps %}
-<div class="map-card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
-    <h3 style="margin-top: 0;">{{ map.title|default:"Без названия" }}</h3>
-    <p>{{ map.description|default:"Описание отсутствует" }}</p>
-    <p>Центр: {{ map.center_latitude }}, {{ map.center_longitude }}</p>
-    <p>Узлов: {{ map.nodes_count }} | Ребер: {{ map.edges_count }}</p>
-
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <a href="{% url 'edit_map' map.id %}" style="display: inline-block; padding: 8px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-            Редактировать
-        </a>
-
-        <form id="deleteForm{{ map.id }}" action="{% url 'delete_map' map.id %}" method="POST" style="display: inline;">
-            {% csrf_token %}
-            <button type="button" onclick="confirmDelete({{ map.id }})" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Удалить
-            </button>
-        </form>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2 class="mb-4">Мои карты</h2>
+            
+            <div class="row">
+                {% for map in maps %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ map.title|default:"Без названия" }}</h5>
+                            <p class="card-text">{{ map.description|default:"Описание отсутствует" }}</p>
+                            <p class="card-text"><small class="text-muted">Центр: {{ map.center_latitude }}, {{ map.center_longitude }}</small></p>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="badge bg-primary">Узлов: {{ map.nodes_count }}</span>
+                                <span class="badge bg-secondary">Ребер: {{ map.edges_count }}</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'edit_map' map.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Редактировать
+                                </a>
+                                <form id="deleteForm{{ map.id }}" action="{% url 'delete_map' map.id %}" method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="button" onclick="confirmDelete({{ map.id }})" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Вы ещё не создали ни одной карты.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'create_map' %}" class="btn btn-success">
+                    <i class="fas fa-plus-circle"></i> Создать новую карту
+                </a>
+            </div>
+        </div>
     </div>
-</div>
-{% empty %}
-<p style="padding: 15px; background: #f8f9fa; border-radius: 5px;">
-    Вы ещё не создали ни одной карты.
-</p>
-{% endfor %}
-
-<div style="margin-top: 30px; text-align: center;">
-    <a href="{% url 'create_map' %}" style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-        + Создать новую карту
-    </a>
 </div>
 
 <script>
-    function confirmDelete(mapId) {
-        if (confirm('Вы уверены, что хотите удалить эту карту?\nЭто действие нельзя отменить!')) {
-            document.getElementById('deleteForm' + mapId).submit();
-        }
-    }
-
     function confirmDelete(mapId) {
         if (confirm('Вы уверены, что хотите удалить эту карту?\nЭто действие нельзя отменить!')) {
             document.getElementById('deleteForm' + mapId).submit();

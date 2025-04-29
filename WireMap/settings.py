@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'MainApp',
 ]
 
+AUTH_USER_MODEL = 'MainApp.CustomUser'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -138,6 +140,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'MainApp/staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'MainApp/static'),  # Обратите внимание на правильный путь
 ]
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

@@ -2,189 +2,195 @@
 {% load static %}
 {% block content %}
 
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GraphMaps - Создание и анализ карт-графов</title>
-    <style>
-
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            line-height: 1.6;
-        }
-
-        .header {
-            background: var(--primary-color);
-            color: white;
-            padding: 1rem;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 8rem 2rem 4rem;
-            text-align: center;
-        }
-
-        .features {
-            padding: 4rem 2rem;
-            background: #f9f9f9;
-        }
-
-        .grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 2rem 0;
-        }
-
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .testimonials {
-            padding: 4rem 2rem;
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .contact {
-            padding: 4rem 2rem;
-            background: #f9f9f9;
-        }
-
-        .footer {
-            background: var(--primary-color);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: var(--secondary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s ease;
-        }
-
-        .btn:hover {
-            background: var(--accent-color);
-        }
-    </style>
-</head>
-<body>
-
-
-    <section class="hero">
-        <h2>Создавайте, анализируйте и делитесь картами-графами</h2>
-        <p>Интуитивный инструмент для работы с пространственными данными</p>
-        <div style="margin-top: 2rem;">
-            <a href="{% url 'create_map' %}" class="btn">Начать бесплатно</a>
-        </div>
-    </section>
-
-    <section class="features" id="features">
-        <div class="grid">
-            <div class="card">
-                <h3>📌 Создание графов</h3>
-                <p>Визуальный редактор с поддержкой слоев и сложных связей</p>
-            </div>
-            <div class="card">
-                <h3>🌍 Геопривязка</h3>
-                <p>Работа с реальными координатами и картографическими подложками</p>
-            </div>
-            <div class="card">
-                <h3>🤝 Совместная работа</h3>
-                <p>Редактирование в реальном времени и контроль версий</p>
+<!-- Hero Section with Animated Waves -->
+<section class="position-relative overflow-hidden" style="padding-top: 7rem; padding-bottom: 7rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);">
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTI4MCAxNDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIj48cGF0aCBkPSJNNjQwIDEzOUwwIDB2MTQwaDEyODBWMEw2NDAgMTM5eiIvPjwvZz48L3N2Zz4='); background-size: cover; background-position: center bottom; opacity: 0.4;"></div>
+    
+    <div class="container position-relative text-center text-white">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">Создавайте интерактивные карты-графы</h1>
+                <p class="lead mb-5" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Мощный инструмент для визуализации, анализа и совместной работы с пространственными данными</p>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{% url 'create_map' %}" class="btn btn-light btn-lg px-4 me-md-2 fw-bold">
+                        <i class="fas fa-map-marked-alt me-2"></i>Создать карту
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-info-circle me-2"></i>Узнать больше
+                    </a>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="testimonials" id="examples">
-        <div class="grid">
-            <div class="card">
-                <h3>Логистические схемы</h3>
-                <p>Оптимизация маршрутов доставки</p>
-                <img src="map-example1.jpg" alt="Пример карты" style="width:100%; margin-top:1rem;">
-            </div>
-            <div class="card">
-                <h3>Городская инфраструктура</h3>
-                <p>Анализ транспортных сетей</p>
-                <img src="map-example2.jpg" alt="Пример карты" style="width:100%; margin-top:1rem;">
+<!-- Features Section -->
+<section class="py-5" id="features">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="fw-bold">Ключевые возможности</h2>
+                <p class="lead text-muted">Все необходимые инструменты для создания профессиональных карт</p>
             </div>
         </div>
-    </section>
-
-    <section class="contact" id="contact">
-        <div style="max-width: 600px; margin: 0 auto;">
-            <h2>Свяжитесь с нами</h2>
-            <form id="contactForm">
-                <input type="text" placeholder="Ваше имя" style="width:100%; margin:1rem 0; padding:0.5rem;">
-                <input type="email" placeholder="Email" style="width:100%; margin:1rem 0; padding:0.5rem;">
-                <textarea placeholder="Сообщение" style="width:100%; height:150px; margin:1rem 0; padding:0.5rem;"></textarea>
-                <button type="submit" class="btn">Отправить</button>
-            </form>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon bg-primary bg-gradient rounded-circle mb-4 d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                            <i class="fas fa-project-diagram text-white fs-3"></i>
+                        </div>
+                        <h3 class="fs-4 fw-bold mb-3">Интуитивный редактор</h3>
+                        <p class="text-muted mb-0">Создавайте узлы и связи простым перетаскиванием элементов. Настраивайте внешний вид и свойства объектов.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon bg-primary bg-gradient rounded-circle mb-4 d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                            <i class="fas fa-globe-americas text-white fs-3"></i>
+                        </div>
+                        <h3 class="fs-4 fw-bold mb-3">Геопривязка</h3>
+                        <p class="text-muted mb-0">Работайте с реальными географическими координатами. Используйте различные картографические подложки.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <div class="feature-icon bg-primary bg-gradient rounded-circle mb-4 d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                            <i class="fas fa-share-alt text-white fs-3"></i>
+                        </div>
+                        <h3 class="fs-4 fw-bold mb-3">Совместная работа</h3>
+                        <p class="text-muted mb-0">Делитесь картами с коллегами. Работайте над проектами вместе в режиме реального времени.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
+</section>
 
+<!-- Use Cases -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-5 text-center">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="fw-bold">Применение</h2>
+                <p class="lead text-muted">Решайте различные задачи с помощью WireMap</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="row g-0 h-100">
+                        <div class="col-md-6">
+                            <img src="{% static 'IMAGES/logistics.jpg' %}" class="img-fluid rounded-start h-100" alt="Логистика" style="object-fit: cover;">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body d-flex flex-column h-100">
+                                <h3 class="card-title fs-4 fw-bold">Логистика</h3>
+                                <p class="card-text text-muted">Оптимизация маршрутов доставки, анализ транспортных сетей, планирование</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary mt-auto">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="row g-0 h-100">
+                        <div class="col-md-6">
+                            <img src="{% static 'IMAGES/network.jpg' %}" class="img-fluid rounded-start h-100" alt="Сетевая инфраструктура" style="object-fit: cover;">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body d-flex flex-column h-100">
+                                <h3 class="card-title fs-4 fw-bold">Сетевая инфраструктура</h3>
+                                <p class="card-text text-muted">Визуализация компьютерных сетей, планирование инфраструктуры, мониторинг</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary mt-auto">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h2 class="fw-bold mb-4">Готовы начать создавать свои карты?</h2>
+                <p class="lead mb-4">Зарегистрируйтесь бесплатно и откройте все возможности WireMap</p>
+                <a href="{% url 'register' %}" class="btn btn-light btn-lg px-5 py-3 fw-bold">
+                    <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <script>
-        // Плавная прокрутка
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+<!-- Contact Form -->
+<section class="py-5" id="contact">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mx-auto">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white py-4">
+                        <h3 class="card-title mb-0 text-center fw-bold">Свяжитесь с нами</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <form id="contactForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Ваше имя</label>
+                                <input type="text" class="form-control" id="name" placeholder="Введите ваше имя" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" placeholder="email@example.com" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Сообщение</label>
+                                <textarea class="form-control" id="message" rows="4" placeholder="Ваше сообщение" required></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Отправить
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Плавная прокрутка
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
             });
         });
+    });
 
-        // Обработка формы
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Спасибо за ваше сообщение! Мы скоро свяжемся с вами.');
-            this.reset();
-        });
-    </script>
-</body>
+    // Обработка формы
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Спасибо за ваше сообщение! Мы скоро свяжемся с вами.');
+        this.reset();
+    });
+</script>
 
 {% endblock %}

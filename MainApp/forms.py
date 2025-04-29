@@ -1,13 +1,34 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import Node, Edge, Map
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import CustomUser, Node, Edge, Map
+
+
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'phone')
+
+class CustomUserChangeForm(UserChangeForm):
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'phone')
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    
     class Meta:
-        model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        model = CustomUser
+        fields = ('username', 'email', 'phone', 'password1', 'password2')
+
+    def __init__(self, *args, **kwargs):
+        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
 
 class CreateMapForm(forms.ModelForm):
     class Meta:
@@ -23,3 +44,40 @@ class EdgeForm(forms.ModelForm):
     class Meta:
         model = Edge
         fields = ['node1', 'node2', 'description']
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'phone', 'image']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+        
+    def clean_image(self):
+        image = self.cleaned_data.get('image', False)
+        if image and hasattr(image, 'size'):
+            if image.size > 5 * 1024 * 1024:  # 5MB
+                raise forms.ValidationError("Размер изображения не должен превышать 5 МБ")
+            return image
+        # Если изображение не выбрано, вернуть текущее
+        elif self.instance and self.instance.pk:
+            return self.instance.image
+        return None
+
+class AvatarUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['image']
+        
+    def clean_image(self):
+        image = self.cleaned_data.get('image', False)
+        if image and hasattr(image, 'size'):
+            if image.size > 5 * 1024 * 1024:  # 5MB
+                raise forms.ValidationError("Размер изображения не должен превышать 5 МБ")
+            return image
+        # Если изображение не выбрано, вернуть текущее
+        elif self.instance and self.instance.pk:
+            return self.instance.image
+        return None

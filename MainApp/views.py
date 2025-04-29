@@ -4,8 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework import status
-from .forms import UserRegistrationForm, NodeForm, EdgeForm, CreateMapForm
-from .models import Node, Edge, Map
+from .forms import UserRegistrationForm, NodeForm, EdgeForm, CreateMapForm, UserProfileForm, AvatarUpdateForm
+from .models import Node, Edge, Map, CustomUser
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Max
 from .serializers import MapSerializer
@@ -13,6 +13,7 @@ from .permissions import IsMapOwner
 from rest_framework import generics
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 
 import logging
@@ -66,32 +67,52 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')  # Перенаправление на страницу входа
+            user = form.save()
+            messages.success(request, f'Аккаунт создан для {user.username}! Теперь вы можете войти в систему.')
+            return redirect('login')
     else:
         form = UserRegistrationForm()
     return render(request, 'register.html', {'form': form})
 
+@login_required
 def profile(request):
-    pass
+    if request.method == 'POST':
+        form = AvatarUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Аватар успешно обновлен!')
+            return redirect('profile')
+    else:
+        form = AvatarUpdateForm(instance=request.user)
+    
+    context = {
+        'form': form,
+        'user': request.user,
+    }
+    return render(request, 'profile.html', context)
 
 
 @login_required
 def create_map(request):
     if request.method == 'POST':
         form = CreateMapForm(request.POST)
+        print(f"Form is valid: {form.is_valid()}")
         if form.is_valid():
             # Создаём объект карты без сохранения в БД
             new_map = form.save(commit=False)
             # Устанавливаем владельца из текущего пользователя
+            print(f"Current user: {request.user}, id: {request.user.id}, is authenticated: {request.user.is_authenticated}")
             new_map.owner = request.user
             # Сохраняем в БД
-            new_map.save()
-            # Сохраняем M2M связи, если они есть в форме
-            form.save_m2m()
-
-            messages.success(request, 'Карта успешно создана!')
-            return redirect('main')
+            try:
+                new_map.save()
+                # Сохраняем M2M связи, если они есть в форме
+                form.save_m2m()
+                messages.success(request, 'Карта успешно создана!')
+                return redirect('main')
+            except Exception as e:
+                print(f"Error saving map: {e}")
+                messages.error(request, f'Ошибка при создании карты: {e}')
     else:
         form = CreateMapForm()
 
@@ -171,3 +192,7 @@ def delete_map(request, map_id):
 
 def maps_gallery(request):
     pass
+
+def custom_logout(request):
+    logout(request)
+    return redirect('login')
