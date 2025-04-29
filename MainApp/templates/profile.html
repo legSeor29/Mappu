@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    :root {
+        --primary-blue: #1a73e8;
+        --light-blue: #e8f0fe;
+        --medium-blue: #4285f4;
+        --dark-blue: #0d47a1;
+        --accent-blue: #bbdefb;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f9ff 0%, #e3f2fd 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .profile-container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(66, 133, 244, 0.15);
+        padding: 2.5rem;
+        margin: 3rem auto;
+        border: 1px solid var(--accent-blue);
+        max-width: 500px;
+    }
+
+    h2 {
+        color: var(--dark-blue);
+        margin-bottom: 1.8rem;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
+        border-radius: 3px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-blue);
+        border: none;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background-image: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
+        border-radius: 8px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--primary-blue);
+        border: 1px solid var(--primary-blue);
+        transition: all 0.3s ease;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--light-blue);
+        color: var(--dark-blue);
+    }
+
+    .profile-info {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .profile-info-item {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        background-color: var(--light-blue);
+    }
+
+    .profile-info-label {
+        font-weight: 600;
+        color: var(--dark-blue);
+        margin-bottom: 0.3rem;
+    }
+
+    .profile-info-value {
+        color: #333;
+    }
+
+    .edit-form {
+        display: none;
+        margin-top: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    input, select, textarea {
+        border: 1px solid #d2e3fc !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1rem !important;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--primary-blue) !important;
+        box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.15) !important;
+    }
+
+    label {
+        color: var(--dark-blue);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--accent-blue);
+        margin: 0 auto 1.5rem;
+        display: block;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .profile-picture:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .change-photo-btn {
+        display: block;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: var(--primary-blue);
+        cursor: pointer;
+    }
+
+    .change-photo-btn:hover {
+        text-decoration: underline;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    @media (max-width: 576px) {
+        .profile-container {
+            padding: 1.5rem;
+            margin: 1.5rem auto;
+        }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+        }
+
+        .button-group {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="profile-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <h2>Профиль пользователя</h2>
+
+        <div class="text-center">
+            <img src="{{ user.profile.image.url }}" alt="Profile Picture" class="profile-picture" id="profilePicture">
+            <label for="id_image" class="change-photo-btn" id="changePhotoBtn">Изменить фото</label>
+            <input type="file" name="image" id="id_image" class="file-input" accept="image/*">
+        </div>
+
+        <div class="profile-info" id="profileInfo">
+            <div class="profile-info-item">
+                <div class="profile-info-label">Имя пользователя</div>
+                <div class="profile-info-value">{{ user.username }}</div>
+            </div>
+
+            <div class="profile-info-item">
+                <div class="profile-info-label">Email</div>
+                <div class="profile-info-value">{{ user.email }}</div>
+            </div>
+
+            <div class="profile-info-item">
+                <div class="profile-info-label">Имя</div>
+                <div class="profile-info-value">{{ user.first_name }}</div>
+            </div>
+
+            <div class="profile-info-item">
+                <div class="profile-info-label">Фамилия</div>
+                <div class="profile-info-value">{{ user.last_name }}</div>
+            </div>
+
+            <div class="profile-info-item">
+                <div class="profile-info-label">Телефон</div>
+                <div class="profile-info-value">{{ user.profile.phone }}</div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="editProfileBtn">Редактировать профиль</button>
+              
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="edit-form" id="editProfileForm">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="edit_username">Имя пользователя</label>
+                <input type="text" id="edit_username" name="username" value="{{ user.username }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit_email">Email</label>
+                <input type="email" id="edit_email" name="email" value="{{ user.email }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="edit_first_name">Имя</label>
+                <input type="text" id="edit_first_name" name="first_name" value="{{ user.first_name }}">
+            </div>
+
+            <div class="form-group">
+                <label for="edit_last_name">Фамилия</label>
+                <input type="text" id="edit_last_name" name="last_name" value="{{ user.last_name }}">
+            </div>
+
+            <div class="form-group">
+                <label for="edit_phone">Телефон</label>
+                <input type="tel" id="edit_phone" name="phone" value="{{ user.profile.phone }}">
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" class="btn btn-secondary" id="cancelEditBtn">Отмена</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('id_image').addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('profilePicture').src = event.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    document.getElementById('profilePicture').addEventListener('click', function() {
+        document.getElementById('id_image').click();
+    });
+
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const profileInfo = document.getElementById('profileInfo');
+    const editProfileForm = document.getElementById('editProfileForm');
+    const changePhotoBtn = document.getElementById('changePhotoBtn');
+
+    editProfileBtn.addEventListener('click', function() {
+        profileInfo.style.display = 'none';
+        editProfileForm.style.display = 'block';
+        changePhotoBtn.style.display = 'none';
+    });
+
+    cancelEditBtn.addEventListener('click', function() {
+        profileInfo.style.display = 'block';
+        editProfileForm.style.display = 'none';
+        changePhotoBtn.style.display = 'block';
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        editProfileForm.style.display = 'none';
+    });
+</script>
+
+{% endblock %}

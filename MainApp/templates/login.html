@@ -1,6 +1,118 @@
 {% extends "base.html" %}
 {% block content %}
 
+<style>
+    :root {
+        --primary-blue: #1a73e8;
+        --light-blue: #e8f0fe;
+        --medium-blue: #4285f4;
+        --dark-blue: #0d47a1;
+        --accent-blue: #bbdefb;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f9ff 0%, #e3f2fd 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(66, 133, 244, 0.15);
+        padding: 2.5rem;
+        margin-top: 3rem;
+        border: 1px solid var(--accent-blue);
+        max-width: 500px;
+    }
+
+    h2 {
+        color: var(--dark-blue);
+        margin-bottom: 1.8rem;
+        font-weight: 600;
+        position: relative;
+        padding-bottom: 0.5rem;
+    }
+
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
+        border-radius: 3px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-blue);
+        border: none;
+        padding: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background-image: linear-gradient(to right, var(--primary-blue), var(--medium-blue));
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--primary-blue);
+        border: 1px solid var(--primary-blue);
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--light-blue);
+        color: var(--dark-blue);
+    }
+
+    .form-group p {
+        margin-bottom: 1.5rem;
+    }
+
+    input, select, textarea {
+        border: 1px solid #d2e3fc !important;
+        border-radius: 8px !important;
+        padding: 0.75rem 1rem !important;
+        transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--primary-blue) !important;
+        box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.15) !important;
+    }
+
+    label {
+        color: var(--dark-blue);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .text-center.mt-3 {
+        margin-top: 1.8rem !important;
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 576px) {
+        .container {
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+    }
+</style>
+
 <div class="container mt-5">
     {% if form.errors %}
         <div class="alert alert-danger" role="alert">
@@ -19,26 +131,28 @@
             </div>
         {% endif %}
     {% endif %}
+    
+    <h2 class="text-center">Вход</h2>
 
-    <div class="card text-bg-light mb-3" style="max-width: 30rem; margin: auto;">
-        <div class="card-header text-center">Авторизация</div>
-        <div class="card-body">
-            <form method="POST" action="{% url 'login' %}">
-                {% csrf_token %}
-                <div class="form-group mb-3">
-                    {{ form.username.label }}
-                    {{ form.username }}
-                </div>
-
-                <div class="form-group mb-3">
-                    {{ form.password.label }}
-                    {{ form.password }}
-                </div>
-
-                <input class="btn btn-primary btn-block" type="submit" value="Войти" />
-                <input type="hidden" name="next" value="{{ next }}" />
-            </form>
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_username">Имя пользователя</label>
+            <input type="text" name="username" id="id_username" class="form-control" required>
         </div>
+
+        <div class="form-group">
+            <label for="id_password">Пароль</label>
+            <input type="password" name="password" id="id_password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Войти</button>
+        <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+
+    <div class="text-center mt-3">
+        <p>Ещё нет аккаунта?</p>
+        <a href="{% url 'register' %}" class="btn btn-secondary">Зарегистрироваться</a>
     </div>
 </div>
 
