@@ -3,8 +3,8 @@ version: '3.8'
 services:
   web:
     build: .
-    volumes:
-      - static_volume:/MainApp/static
+    ports:
+      - "8000:8000"
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -28,7 +28,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/MainApp/static
+      - static_volume:/app/static
     depends_on:
       - web
 
