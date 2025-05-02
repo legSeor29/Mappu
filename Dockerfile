@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
-    
+
 # Устанавливаем переменные окружения
 ENV PYTHONUNBUFFERED=1
 
@@ -23,4 +23,4 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # Команда для запуска Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "myproject.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "WireMap.wsgi"]
