@@ -69,6 +69,19 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Фиксированные параметры подключения к базе данных
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydb_e5kg',
+        'USER': 'myuser',
+        'PASSWORD': 'zyaKnE3WImuhsoElFThfN8asiArepbPc',
+        'HOST': 'dpg-d0aghdh5pdvs73ecld00-a',
+        'PORT': '5432',
+    }
+}
+
+# Пытаемся использовать DATABASE_URL только если он явно установлен
 database_url = os.getenv('DATABASE_URL')
 if database_url:
     # Безопасный вывод URL (без пароля)
@@ -87,35 +100,19 @@ if database_url:
     # Используем dj_database_url для парсинга
     try:
         parsed_db = dj_database_url.parse(database_url)
-        DATABASES = {
-            'default': parsed_db
-        }
-        print(f"Successfully parsed DATABASE_URL")
+        # Явно проверяем, что есть пароль
+        if 'PASSWORD' in parsed_db and parsed_db['PASSWORD']:
+            DATABASES = {
+                'default': parsed_db
+            }
+            print(f"Successfully parsed DATABASE_URL with password")
+        else:
+            print("DATABASE_URL parsed but no password found, using fixed credentials")
     except Exception as e:
         print(f"Error parsing DATABASE_URL: {e}")
-        # Используем запасной вариант
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': 'mydb_e5kg',
-                'USER': 'myuser',
-                'PASSWORD': os.getenv('DB_PASSWORD', ''),
-                'HOST': 'dpg-d0aghdh5pdvs73ecld00-a',
-                'PORT': '5432',
-            }
-        }
+        # Используем запасной вариант (уже настроен выше)
 else:
-    print("DATABASE_URL not set, using environment variables")
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB', 'mydb_e5kg'),
-            'USER': os.getenv('POSTGRES_USER', 'myuser'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-            'HOST': os.getenv('POSTGRES_HOST', 'dpg-d0aghdh5pdvs73ecld00-a'),
-            'PORT': os.getenv('POSTGRES_PORT', '5432'),
-        }
-    }
+    print("DATABASE_URL not set, using fixed database credentials")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
