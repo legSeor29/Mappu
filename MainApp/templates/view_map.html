@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div id="mapId" hidden>{{ map.id }}</div>
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Основная карта -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">{{ map.title|default:"Без названия" }}</h4>
+                    <span class="badge bg-primary">{{ map.owner }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map" style="height: 70vh; width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация о карте -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Информация о карте</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong>Описание:</strong></p>
+                            <p class="text-muted">{{ map.description|default:"Нет описания" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="fas fa-dot-circle me-1"></i> Узлов: {{ map.nodes_count }}</span>
+                                <span><i class="fas fa-route me-1"></i> Связей: {{ map.edges_count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><i class="fas fa-map-marker-alt me-1"></i> Центр: {{ map.center_latitude|floatformat:4 }}, {{ map.center_longitude|floatformat:4 }}</span>
+                            </div>
+                            {% if map.created_at %}
+                            <div class="d-flex justify-content-between">
+                                <span><i class="fas fa-calendar me-1"></i> Создана: {{ map.created_at|date:"d.m.Y" }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://api-maps.yandex.ru/v3/?apikey=429145fc-83ae-4630-91fd-62211767b57a&lang=ru_RU" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let nodes = {};
+    let edges = {};
+
+    class DatabaseController {
+        constructor() {   
+            this.map = null;  
+            this.ymaps3 = null;
+        }
+
+        GetCurrentData() {
+            console.log('Поиск карты...')
+            fetch(`/api/v1/maps/${mapId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Данные объекта:', data);
+                this.ArrayFilling(data);
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        }
+
+        ArrayFilling(data) {
+            console.log(data.nodes);
+            console.log(data.edges);
+            
+            // Очищаем объекты узлов и ребер перед заполнением
+            nodes = {};
+            edges = {};
+            
+            try {
+                // Заполняем узлы
+                for (const node of data.nodes) {
+                    const newNode = new Node(
+                        [node.longitude, node.latitude],
+                        node.id,
+                        this.map,
+                        this.ymaps3,
+                        null,
+                        node.name,
+                        node.description,
+                        node.z_coordinate
+                    );
+                    
+                    nodes[node.id] = newNode;
+                }
+                
+                // Заполняем ребра
+                for (const edge of data.edges) {
+                    if (nodes[edge.node1] && nodes[edge.node2]) {
+                        const newEdge = new Edge(
+                            edge.id,
+                            nodes[edge.node1],
+                            nodes[edge.node2],
+                            this.map,
+                            this.ymaps3,
+                            null
+                        );
+                        
+                        edges[edge.id] = newEdge;
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка при заполнении данных:', error);
+            }
+        }
+    }
+
+    class Node {
+        constructor(coordinates, id, map, ymaps3, formHandler, name = null, description = null, z_coordinate = 0) {  
+            this.coordinates = coordinates;
+            this.id = id;
+            this.map = map;
+            this.ymaps3 = ymaps3;
+            this.name = name;
+            this.description = description;
+            this.z_coordinate = z_coordinate;
+            this.marker = null;
+            
+            this.createMarker();
+        }
+        
+        createMarker() {
+            const balloonContent = `
+                <div class="p-2">
+                    <h6 class="mb-2">${this.name || 'Без названия'}</h6>
+                    <p class="mb-1">${this.description || 'Нет описания'}</p>
+                    ${this.z_coordinate ? `<p class="mb-0">Высота: ${this.z_coordinate}</p>` : ''}
+                </div>
+            `;
+            
+            this.marker = new ymaps.Placemark(this.coordinates, {
+                balloonContent: balloonContent
+            }, {
+                preset: 'islands#blueDotIcon'
+            });
+            
+            this.map.geoObjects.add(this.marker);
+        }
+    }
+
+    class Edge {
+        constructor(id, node1, node2, map, ymaps3, formHandler) {
+            this.id = id;
+            this.node1 = node1;
+            this.node2 = node2;
+            this.map = map;
+            this.ymaps3 = ymaps3;
+            this.polyline = null;
+            
+            this.createFeature();
+        }
+        
+        createFeature() {
+            const balloonContent = `
+                <div class="p-2">
+                    <h6 class="mb-2">${this.node1.name || 'Без названия'} → ${this.node2.name || 'Без названия'}</h6>
+                </div>
+            `;
+            
+            this.polyline = new ymaps.Polyline([
+                this.node1.coordinates,
+                this.node2.coordinates
+            ], {
+                balloonContent: balloonContent
+            }, {
+                strokeColor: "#0000FF",
+                strokeWidth: 2,
+                strokeOpacity: 0.5
+            });
+            
+            this.map.geoObjects.add(this.polyline);
+        }
+    }
+
+    async function initMap() {
+        const mapId = document.getElementById('mapId').innerText;
+        const dbController = new DatabaseController();
+        
+        // Инициализация карты
+        const map = new ymaps.Map('map', {
+            center: [{{ map.center_latitude }}, {{ map.center_longitude }}],
+            zoom: 13
+        });
+        
+        dbController.map = map;
+        dbController.ymaps3 = ymaps;
+        dbController.GetCurrentData();
+    }
+
+    ymaps.ready(initMap);
+</script>
+{% endblock %}

@@ -50,6 +50,7 @@ class Map(models.Model):
     )
     nodes = models.ManyToManyField(Node, related_name='maps')
     edges = models.ManyToManyField(Edge, related_name='maps')
+    is_published = models.BooleanField(default=False, verbose_name='published')
 
     def __str__(self):
         return self.title

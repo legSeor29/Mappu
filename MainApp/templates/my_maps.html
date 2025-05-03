@@ -24,12 +24,29 @@
                                 <a href="{% url 'edit_map' map.id %}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i> Редактировать
                                 </a>
-                                <form id="deleteForm{{ map.id }}" action="{% url 'delete_map' map.id %}" method="POST" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="button" onclick="confirmDelete({{ map.id }})" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-trash"></i> Удалить
-                                    </button>
-                                </form>
+                                <div class="btn-group">
+                                    {% if not map.is_published %}
+                                    <form action="{% url 'publish_map' map.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-share-alt"></i> Опубликовать
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form action="{% url 'unpublish_map' map.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-eye-slash"></i> Снять с публикации
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <form id="deleteForm{{ map.id }}" action="{% url 'delete_map' map.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="button" onclick="confirmDelete({{ map.id }})" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

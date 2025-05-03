@@ -156,6 +156,7 @@ def edit_map(request, map_id):
     })
 
 
+@login_required
 def user_maps(request):
     maps = Map.objects.filter(owner=request.user).prefetch_related('nodes', 'edges')
 
@@ -171,6 +172,7 @@ def user_maps(request):
             'nodes_count': map_obj.nodes.count(),
             'edges_count': map_obj.edges.count(),
             'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
+            'is_published': map_obj.is_published,
         })
 
     context = {
@@ -191,8 +193,71 @@ def delete_map(request, map_id):
 
 
 def maps_gallery(request):
-    pass
+    maps = Map.objects.filter(is_published=True).prefetch_related('nodes', 'edges', 'owner')
+    
+    # Create a list of maps with additional information
+    maps_with_stats = []
+    for map_obj in maps:
+        maps_with_stats.append({
+            'id': map_obj.id,
+            'title': map_obj.title,
+            'description': map_obj.description,
+            'center_latitude': map_obj.center_latitude,
+            'center_longitude': map_obj.center_longitude,
+            'nodes_count': map_obj.nodes.count(),
+            'edges_count': map_obj.edges.count(),
+            'owner': map_obj.owner.username,
+            'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
+        })
+
+    context = {
+        'maps': maps_with_stats,
+        'title': 'Галерея карт'
+    }
+
+    return render(request, 'maps_gallery.html', context)
 
 def custom_logout(request):
     logout(request)
     return redirect('login')
+
+
+@login_required
+def publish_map(request, map_id):
+    map_obj = get_object_or_404(Map, id=map_id, owner=request.user)
+    if request.method == 'POST':
+        map_obj.is_published = True
+        map_obj.save()
+        messages.success(request, 'Карта успешно опубликована!')
+    return redirect('user_maps')
+
+@login_required
+def unpublish_map(request, map_id):
+    map_obj = get_object_or_404(Map, id=map_id, owner=request.user)
+    if request.method == 'POST':
+        map_obj.is_published = False
+        map_obj.save()
+        messages.success(request, 'Карта снята с публикации!')
+    return redirect('user_maps')
+
+def view_map(request, map_id):
+    map_obj = get_object_or_404(Map, id=map_id)
+    
+    # Создаем контекст с информацией о карте
+    context = {
+        'map': {
+            'id': map_obj.id,
+            'title': map_obj.title,
+            'description': map_obj.description,
+            'center_latitude': map_obj.center_latitude,
+            'center_longitude': map_obj.center_longitude,
+            'nodes_count': map_obj.nodes.count(),
+            'edges_count': map_obj.edges.count(),
+            'owner': map_obj.owner.username,
+            'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
+            'nodes': map_obj.nodes.all(),
+            'edges': map_obj.edges.all(),
+        }
+    }
+
+    return render(request, 'view_map.html', context)
