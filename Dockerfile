@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
 
 # Устанавливаем переменные окружения
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
 
 # Создаем рабочую директорию
 WORKDIR /app
@@ -23,4 +24,4 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # Команда для запуска Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "WireMap.wsgi"]
+CMD gunicorn WireMap.wsgi:application --bind 0.0.0.0:${PORT}
