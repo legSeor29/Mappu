@@ -80,6 +80,11 @@ DATABASES = {
         'PASSWORD': 'zyaKnE3WImuhsoElFThfN8asiArepbPc',
         'HOST': 'dpg-d0aghdh5pdvs73ecld00-a',
         'PORT': '5432',
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'options': '-c statement_timeout=15000ms',
+        },
+        'CONN_MAX_AGE': 600,
     }
 }
 
