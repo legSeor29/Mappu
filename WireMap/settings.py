@@ -14,8 +14,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$!52o53%$p2^%r1fhia35ie#7zbpz@c)dl@1z6y@1%pp0)r5pt')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
-
+# DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+DEBUG = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://mappu.ru',
+]
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
