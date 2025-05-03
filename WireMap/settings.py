@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import dj_database_url
 from django.conf.global_settings import LOGIN_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL
+import urllib.parse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -70,17 +71,48 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 
 database_url = os.getenv('DATABASE_URL')
 if database_url:
-    DATABASES = {
-        'default': dj_database_url.config(default=database_url)
-    }
+    # Безопасный вывод URL (без пароля)
+    db_url_parts = urllib.parse.urlparse(database_url)
+    if '@' in db_url_parts.netloc:
+        user_part, host_part = db_url_parts.netloc.split('@')
+        if ':' in user_part:
+            user = user_part.split(':')[0]
+            masked_url = f"{db_url_parts.scheme}://{user}:****@{host_part}{db_url_parts.path}"
+        else:
+            masked_url = f"{db_url_parts.scheme}://{user_part}@{host_part}{db_url_parts.path}"
+    else:
+        masked_url = database_url
+    print(f"DATABASE_URL format: {masked_url}")
+    
+    # Используем dj_database_url для парсинга
+    try:
+        parsed_db = dj_database_url.parse(database_url)
+        DATABASES = {
+            'default': parsed_db
+        }
+        print(f"Successfully parsed DATABASE_URL")
+    except Exception as e:
+        print(f"Error parsing DATABASE_URL: {e}")
+        # Используем запасной вариант
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': 'mydb_e5kg',
+                'USER': 'myuser',
+                'PASSWORD': os.getenv('DB_PASSWORD', ''),
+                'HOST': 'dpg-d0aghdh5pdvs73ecld00-a',
+                'PORT': '5432',
+            }
+        }
 else:
+    print("DATABASE_URL not set, using environment variables")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB'),
-            'USER': os.getenv('POSTGRES_USER'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-            'HOST': os.getenv('POSTGRES_HOST'),
+            'NAME': os.getenv('POSTGRES_DB', 'mydb_e5kg'),
+            'USER': os.getenv('POSTGRES_USER', 'myuser'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+            'HOST': os.getenv('POSTGRES_HOST', 'dpg-d0aghdh5pdvs73ecld00-a'),
             'PORT': os.getenv('POSTGRES_PORT', '5432'),
         }
     }

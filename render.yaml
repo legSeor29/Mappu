@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: wiremap
+    name: my-django-app
     env: python
     buildCommand: pip install -r requirements.txt && DJANGO_SETTINGS_MODULE=WireMap.settings python manage.py collectstatic --noinput
     startCommand: gunicorn WireMap.wsgi:application --bind 0.0.0.0:$PORT
@@ -8,9 +8,9 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: DATABASE_URL
-        fromDatabase:
-          name: postgres
-          property: connectionString
+        value: postgresql://myuser:zyaKnE3WImuhsoElFThfN8asiArepbPc@dpg-d0aghdh5pdvs73ecld00-a/mydb_e5kg
+      - key: DB_PASSWORD
+        value: zyaKnE3WImuhsoElFThfN8asiArepbPc
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
@@ -18,7 +18,8 @@ services:
       - key: STATIC_ROOT
         value: /app/MainApp/staticfiles
 
-databases:
-  - name: postgres
-    databaseName: wiremap
-    plan: free 
+# Используем существующую базу данных, не создаем новую
+# databases:
+#   - name: my-django-db
+#     databaseName: mydb_e5kg
+#     plan: free 
