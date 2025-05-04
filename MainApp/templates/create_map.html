@@ -51,6 +51,28 @@
                     </div>
                     {% endif %}
                 </div>
+                
+                <!-- Поле хештегов -->
+                <div class="mb-3">
+                    <label for="id_hashtags_input" class="form-label">Хештеги</label>
+                    <input 
+                        type="text" 
+                        name="hashtags_input" 
+                        id="id_hashtags_input" 
+                        class="form-control {% if form.hashtags_input.errors %}is-invalid{% endif %}"
+                        placeholder="#природа #город #маршрут"
+                        value="{{ form.hashtags_input.value|default_if_none:'' }}">
+                    <div class="form-text text-muted">
+                        Введите хештеги через пробел (например: #природа #город #маршрут)
+                    </div>
+                    {% if form.hashtags_input.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.hashtags_input.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
 
                 <!-- Координаты -->
                 <div class="row g-3 mb-4">

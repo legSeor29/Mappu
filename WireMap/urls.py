@@ -18,6 +18,10 @@ urlpatterns = [
     path('api/v1/maps/<int:pk>/', MapDetailAPI.as_view(), name='map-detail'),
     path('maps/my-maps/', views.user_maps, name='user_maps'),
     path('delete-map/<int:map_id>/', views.delete_map, name='delete_map'),
+    path('maps/gallery/', views.maps_gallery, name='maps_gallery'),
+    path('publish-map/<int:map_id>/', views.publish_map, name='publish_map'),
+    path('unpublish-map/<int:map_id>/', views.unpublish_map, name='unpublish_map'),
+    path('view-map/<int:map_id>/', views.view_map, name='view_map'),
 ]
 
 # Serving media files in development

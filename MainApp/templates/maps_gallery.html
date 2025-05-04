@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Галерея карт</h1>
+        <a href="{% url 'user_maps' %}" class="btn btn-outline-primary">
+            <i class="fas fa-map me-1"></i> Мои карты
+        </a>
+    </div>
+    
+    <!-- Добавляем поиск по хештегам -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="d-flex gap-2 align-items-center">
+                <div class="flex-grow-1">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="fas fa-hashtag text-primary"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            name="hashtag" 
+                            class="form-control" 
+                            value="{{ request.GET.hashtag|default:'' }}" 
+                            placeholder="Поиск по хештегам (например: природа)">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i> Найти
+                </button>
+                {% if request.GET.hashtag %}
+                <a href="{% url 'maps_gallery' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i> Сбросить
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    
+    {% if active_hashtag %}
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-filter me-2"></i> Показаны карты с хештегом: <strong>#{{ active_hashtag }}</strong>
+    </div>
+    {% endif %}
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for map in maps %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{{ map.title|default:"Без названия" }}</h5>
+                    <span class="badge bg-primary">{{ map.owner }}</span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ map.description|default:"Нет описания" }}</p>
+                    
+                    {% if map.hashtags %}
+                    <div class="mb-3">
+                        {% for tag in map.hashtags %}
+                        <a href="{% url 'maps_gallery' %}?hashtag={{ tag.name }}" class="badge bg-light text-primary text-decoration-none me-1">
+                            <i class="fas fa-hashtag fa-sm"></i>{{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between text-muted small mb-3">
+                        <span><i class="fas fa-dot-circle me-1"></i> {{ map.nodes_count }} узлов</span>
+                        <span><i class="fas fa-route me-1"></i> {{ map.edges_count }} связей</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'view_map' map.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i> Просмотреть
+                        </a>
+                        <div class="text-end">
+                            {% if map.created_at %}
+                            <small class="text-muted d-block">{{ map.created_at|date:"d.m.Y" }}</small>
+                            {% endif %}
+                            <small class="text-muted">Центр: {{ map.center_latitude|floatformat:4 }}, {{ map.center_longitude|floatformat:4 }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> 
+                {% if active_hashtag %}
+                    Нет карт с хештегом <strong>#{{ active_hashtag }}</strong>
+                {% else %}
+                    Пока нет опубликованных карт
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

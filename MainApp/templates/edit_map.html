@@ -5,6 +5,14 @@
 <div class="container py-4">
     <h1 class="mb-4 text-center">Редактор карты: {{ map.title }}</h1>
 
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% if errors %}
     <div class="alert alert-danger">
         {% for error in errors %}
@@ -17,6 +25,33 @@
         <!-- Левая колонка с формами -->
         <div class="col-lg-4">
             <div class="bg-light p-4 rounded shadow-sm overflow-auto" style="height: 600px;">
+                <!-- Форма для хештегов -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title h5 mb-3">Редактировать хештеги</h2>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="hashtags_input" class="form-label">Хештеги карты</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="hashtags_input"
+                                       name="hashtags_input"
+                                       placeholder="#природа #город #маршрут"
+                                       value="{{ hashtags_str }}">
+                                <div class="form-text text-muted">
+                                    Введите хештеги через пробел (например: #природа #город #маршрут)
+                                </div>
+                            </div>
+                            <button type="submit" 
+                                    class="btn btn-primary w-100" 
+                                    name="hashtags_submit">
+                                Сохранить хештеги
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
                 <!-- Форма для узла -->
                 <div class="card mb-4">
                     <div class="card-body">

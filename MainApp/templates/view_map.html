@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div id="mapId" hidden>{{ map.id }}</div>
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Название карты и меню -->
+        <div class="col-12 mb-3">
+            <div class="card shadow-sm bg-light border-0">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0 text-primary">{{ map.title|default:"Без названия" }}</h3>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-primary py-2 px-3 me-2">
+                                <i class="fas fa-user me-1"></i> {{ map.owner }}
+                            </span>
+                            <a href="{% url 'main' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-arrow-left me-1"></i> Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основная карта -->
+        <div class="col-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0 position-relative">
+                    <div id="map" style="height: 70vh; width: 100%; border-radius: 6px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация о карте -->
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                        Информация о карте
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6 class="text-secondary mb-2">Описание:</h6>
+                                <p class="text-muted">{{ map.description|default:"Нет описания" }}</p>
+                            </div>
+                            
+                            {% if map.hashtags %}
+                            <div class="mb-3">
+                                <h6 class="text-secondary mb-2">Хештеги:</h6>
+                                <div>
+                                    {% for tag in map.hashtags %}
+                                    <span class="badge bg-light text-primary me-1 mb-1">
+                                        <i class="fas fa-hashtag fa-sm"></i> {{ tag.name }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-dot-circle me-2 text-primary"></i> 
+                                            <span>Узлов: <strong>{{ map.nodes_count }}</strong></span>
+                                        </span>
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-route me-2 text-primary"></i> 
+                                            <span>Связей: <strong>{{ map.edges_count }}</strong></span>
+                                        </span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i> 
+                                            <span>Центр: <strong>{{ map.center_latitude|floatformat:4 }}, {{ map.center_longitude|floatformat:4 }}</strong></span>
+                                        </span>
+                                    </div>
+                                    {% if map.created_at %}
+                                    <div>
+                                        <span class="d-flex align-items-center">
+                                            <i class="fas fa-calendar me-2 text-primary"></i> 
+                                            <span>Создана: <strong>{{ map.created_at|date:"d.m.Y" }}</strong></span>
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://api-maps.yandex.ru/v3/?apikey=429145fc-83ae-4630-91fd-62211767b57a&lang=ru_RU" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'JS/view_map.js' %}"></script>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Node, Edge, Map
+from .models import CustomUser, Node, Edge, Map, HashTag
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -31,9 +31,45 @@ class UserRegistrationForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
 
 class CreateMapForm(forms.ModelForm):
+    hashtags_input = forms.CharField(
+        max_length=200, 
+        required=False, 
+        label='Хештеги',
+        help_text='Введите хештеги через пробел (например: #природа #город #маршрут)',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#природа #город #маршрут'})
+    )
+    
     class Meta:
         model = Map
-        fields = ['title', 'description', 'center_latitude', 'center_longitude']
+        fields = ['title', 'description', 'center_latitude', 'center_longitude', 'hashtags_input']
+        
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        if commit:
+            instance.save()
+            
+            # Handle hashtags
+            if self.cleaned_data.get('hashtags_input'):
+                # Clear existing hashtags
+                instance.hashtags.clear()
+                
+                # Process hashtags
+                hashtags_text = self.cleaned_data['hashtags_input'].strip()
+                hashtag_names = [tag.strip().lower() for tag in hashtags_text.split() if tag.strip()]
+                
+                # Remove # symbol if present
+                hashtag_names = [name[1:] if name.startswith('#') else name for name in hashtag_names]
+                
+                # Add hashtags to the map
+                for tag_name in hashtag_names:
+                    if tag_name:  # Skip empty tags
+                        tag, created = HashTag.objects.get_or_create(name=tag_name)
+                        instance.hashtags.add(tag)
+                        
+            self.save_m2m()
+            
+        return instance
 
 class NodeForm(forms.ModelForm):
     class Meta:

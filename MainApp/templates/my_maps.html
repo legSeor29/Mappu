@@ -13,6 +13,17 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ map.title|default:"Без названия" }}</h5>
                             <p class="card-text">{{ map.description|default:"Описание отсутствует" }}</p>
+                            
+                            {% if map.hashtags.exists %}
+                            <div class="mb-3">
+                                {% for tag in map.hashtags %}
+                                <span class="badge bg-light text-primary me-1">
+                                    <i class="fas fa-hashtag fa-sm"></i>{{ tag.name }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
                             <p class="card-text"><small class="text-muted">Центр: {{ map.center_latitude }}, {{ map.center_longitude }}</small></p>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="badge bg-primary">Узлов: {{ map.nodes_count }}</span>
@@ -24,12 +35,29 @@
                                 <a href="{% url 'edit_map' map.id %}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i> Редактировать
                                 </a>
-                                <form id="deleteForm{{ map.id }}" action="{% url 'delete_map' map.id %}" method="POST" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="button" onclick="confirmDelete({{ map.id }})" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-trash"></i> Удалить
-                                    </button>
-                                </form>
+                                <div class="btn-group">
+                                    {% if not map.is_published %}
+                                    <form action="{% url 'publish_map' map.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="fas fa-share-alt"></i> Опубликовать
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form action="{% url 'unpublish_map' map.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-eye-slash"></i> Снять с публикации
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <form id="deleteForm{{ map.id }}" action="{% url 'delete_map' map.id %}" method="POST" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="button" onclick="confirmDelete({{ map.id }})" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Удалить
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
