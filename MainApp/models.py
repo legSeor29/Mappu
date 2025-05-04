@@ -14,6 +14,20 @@ class CustomUser(AbstractUser):
         verbose_name = 'User'
         verbose_name_plural = 'Users'
 
+class HashTag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        return super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = 'Хештег'
+        verbose_name_plural = 'Хештеги'
+
 class Node(models.Model):
     name = models.CharField(max_length=100)
     latitude = models.FloatField()
@@ -50,6 +64,7 @@ class Map(models.Model):
     )
     nodes = models.ManyToManyField(Node, related_name='maps')
     edges = models.ManyToManyField(Edge, related_name='maps')
+    hashtags = models.ManyToManyField(HashTag, related_name='maps', blank=True)
     is_published = models.BooleanField(default=False, verbose_name='published')
 
     def __str__(self):

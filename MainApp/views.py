@@ -5,7 +5,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework import status
 from .forms import UserRegistrationForm, NodeForm, EdgeForm, CreateMapForm, UserProfileForm, AvatarUpdateForm
-from .models import Node, Edge, Map, CustomUser
+from .models import Node, Edge, Map, CustomUser, HashTag
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Max
 from .serializers import MapSerializer
@@ -128,6 +128,9 @@ def edit_map(request, map_id):
     edge_form = EdgeForm()
     errors = []
 
+    # Initial hashtags string for the form
+    hashtags_str = ' '.join([f"#{tag.name}" for tag in map_obj.hashtags.all()])
+
     if request.method == 'POST':
         print(request.POST)
         if 'node_submit' in request.POST:
@@ -147,18 +150,41 @@ def edit_map(request, map_id):
                 map_instance.edges.add(new_edge)
             else:
                 errors.append("Edge save error.")
+                
+        elif 'hashtags_submit' in request.POST:
+            hashtags_text = request.POST.get('hashtags_input', '').strip()
+            
+            # Clear existing hashtags
+            map_obj.hashtags.clear()
+            
+            # Process the hashtags
+            hashtag_names = [tag.strip().lower() for tag in hashtags_text.split() if tag.strip()]
+            # Remove # symbol if present
+            hashtag_names = [name[1:] if name.startswith('#') else name for name in hashtag_names]
+            
+            # Add hashtags to the map
+            for tag_name in hashtag_names:
+                if tag_name:  # Skip empty tags
+                    tag, created = HashTag.objects.get_or_create(name=tag_name)
+                    map_obj.hashtags.add(tag)
+            
+            # Update the hashtags string for the form
+            hashtags_str = ' '.join([f"#{tag.name}" for tag in map_obj.hashtags.all()])
+            messages.success(request, 'Хештеги успешно обновлены!')
 
     return render(request, 'edit_map.html', {
         'node_form': node_form,
         'edge_form': edge_form,
         'map_id': map_id,
         'errors': errors,
+        'map': map_obj,
+        'hashtags_str': hashtags_str,
     })
 
 
 @login_required
 def user_maps(request):
-    maps = Map.objects.filter(owner=request.user).prefetch_related('nodes', 'edges')
+    maps = Map.objects.filter(owner=request.user).prefetch_related('nodes', 'edges', 'hashtags')
 
     # Создаем список карт с дополнительной информацией
     maps_with_stats = []
@@ -173,6 +199,7 @@ def user_maps(request):
             'edges_count': map_obj.edges.count(),
             'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
             'is_published': map_obj.is_published,
+            'hashtags': map_obj.hashtags.all(),
         })
 
     context = {
@@ -193,7 +220,27 @@ def delete_map(request, map_id):
 
 
 def maps_gallery(request):
-    maps = Map.objects.filter(is_published=True).prefetch_related('nodes', 'edges', 'owner')
+    # Get hashtag filter parameter
+    hashtag_filter = request.GET.get('hashtag', '').strip().lower()
+    
+    # Base queryset - published maps
+    maps_queryset = Map.objects.filter(is_published=True)
+    
+    # Apply hashtag filtering if provided
+    active_hashtag = None
+    if hashtag_filter:
+        # Remove # if present
+        if hashtag_filter.startswith('#'):
+            hashtag_filter = hashtag_filter[1:]
+        
+        # Store active hashtag for template
+        active_hashtag = hashtag_filter
+        
+        # Filter maps by hashtag
+        maps_queryset = maps_queryset.filter(hashtags__name=hashtag_filter)
+    
+    # Prefetch related data for performance
+    maps = maps_queryset.prefetch_related('nodes', 'edges', 'owner', 'hashtags').distinct()
     
     # Create a list of maps with additional information
     maps_with_stats = []
@@ -208,11 +255,13 @@ def maps_gallery(request):
             'edges_count': map_obj.edges.count(),
             'owner': map_obj.owner.username,
             'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
+            'hashtags': map_obj.hashtags.all(),
         })
 
     context = {
         'maps': maps_with_stats,
-        'title': 'Галерея карт'
+        'title': 'Галерея карт',
+        'active_hashtag': active_hashtag,
     }
 
     return render(request, 'maps_gallery.html', context)
@@ -257,6 +306,7 @@ def view_map(request, map_id):
             'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
             'nodes': map_obj.nodes.all(),
             'edges': map_obj.edges.all(),
+            'hashtags': map_obj.hashtags.all(),
         }
     }
 

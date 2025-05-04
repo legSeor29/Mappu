@@ -13,6 +13,17 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ map.title|default:"Без названия" }}</h5>
                             <p class="card-text">{{ map.description|default:"Описание отсутствует" }}</p>
+                            
+                            {% if map.hashtags.exists %}
+                            <div class="mb-3">
+                                {% for tag in map.hashtags %}
+                                <span class="badge bg-light text-primary me-1">
+                                    <i class="fas fa-hashtag fa-sm"></i>{{ tag.name }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
                             <p class="card-text"><small class="text-muted">Центр: {{ map.center_latitude }}, {{ map.center_longitude }}</small></p>
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="badge bg-primary">Узлов: {{ map.nodes_count }}</span>
