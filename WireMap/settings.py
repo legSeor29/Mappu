@@ -32,10 +32,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'MainApp',
+    'MainApp.apps.MainappConfig',
 ]
 
 AUTH_USER_MODEL = 'MainApp.CustomUser'
+
+# Явно проверяем, существует ли медиа директория
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+if not os.path.exists(MEDIA_ROOT):
+    try:
+        os.makedirs(MEDIA_ROOT, exist_ok=True)
+        os.makedirs(os.path.join(MEDIA_ROOT, 'profile_pics'), exist_ok=True)
+        print(f"Created media directories at {MEDIA_ROOT}")
+    except Exception as e:
+        print(f"Error creating media directories: {e}")
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -134,7 +144,6 @@ STATICFILES_DIRS = [
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
