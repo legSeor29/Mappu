@@ -3,15 +3,40 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Mappu documentation
-===================
+Документация проекта Mappu
+===========================
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+Добро пожаловать в документацию проекта Mappu! Здесь вы найдете информацию о структуре проекта, его компонентах и API.
 
+О проекте
+---------
+
+Mappu - веб-приложение для создания и управления интерактивными картами. 
+Приложение позволяет пользователям создавать карты с узлами и связями между ними, 
+добавлять к картам хештеги и делиться ими с другими пользователями.
+
+Содержание
+---------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Содержание:
+
+   models
+   views
+   forms
+   serializers
+   permissions
+   admin
+
+Модули
+------
+
+* :ref:`modindex`
+
+Индексы и таблицы
+----------------
+
+* :ref:`genindex`
+* :ref:`search`
 
