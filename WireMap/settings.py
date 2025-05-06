@@ -139,6 +139,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'MainApp/staticfiles')
 # Дополнительные директории для поиска статических файлов
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'MainApp/static'),  # Обратите внимание на правильный путь
+    os.path.join(BASE_DIR, 'docs/build/html'),  # Путь к сгенерированной документации Sphinx
 ]
 
 # Media files

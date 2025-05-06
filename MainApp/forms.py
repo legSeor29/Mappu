@@ -4,6 +4,11 @@ from .models import CustomUser, Node, Edge, Map, HashTag
 
 
 class CustomUserCreationForm(UserCreationForm):
+    """
+    Форма для создания нового пользователя с дополнительными полями.
+    
+    Расширяет стандартную форму UserCreationForm Django, добавляя поле email как обязательное.
+    """
     email = forms.EmailField(required=True)
     
     class Meta:
@@ -11,12 +16,19 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email', 'phone')
 
 class CustomUserChangeForm(UserChangeForm):
-
+    """
+    Форма для изменения данных пользователя.
+    
+    Расширяет стандартную форму UserChangeForm Django.
+    """
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'phone')
 
 class UserRegistrationForm(UserCreationForm):
+    """
+    Форма регистрации пользователя с дополнительными полями и стилями.
+    """
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
     phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
     
@@ -25,6 +37,13 @@ class UserRegistrationForm(UserCreationForm):
         fields = ('username', 'email', 'phone', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
+        """
+        Инициализирует форму и добавляет CSS-классы к полям.
+        
+        Args:
+            *args: Позиционные аргументы
+            **kwargs: Именованные аргументы, может содержать 'user'
+        """
         # Pass current user to form for later use
         self.user = kwargs.pop('user', None)
         # Calling parent's init
@@ -34,6 +53,9 @@ class UserRegistrationForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
 
 class CreateMapForm(forms.ModelForm):
+    """
+    Форма для создания новой карты с возможностью добавления хештегов.
+    """
     hashtags_input = forms.CharField(
         max_length=200, 
         required=False, 
@@ -47,6 +69,15 @@ class CreateMapForm(forms.ModelForm):
         fields = ['title', 'description', 'center_latitude', 'center_longitude', 'hashtags_input']
         
     def save(self, commit=True):
+        """
+        Сохраняет карту и обрабатывает хештеги.
+        
+        Args:
+            commit (bool): Флаг для сохранения объекта в базу данных
+            
+        Returns:
+            Map: Созданный объект карты
+        """
         instance = super().save(commit=False)
         
         if commit:
@@ -75,16 +106,25 @@ class CreateMapForm(forms.ModelForm):
         return instance
 
 class NodeForm(forms.ModelForm):
+    """
+    Форма для создания и редактирования узла карты.
+    """
     class Meta:
         model = Node
         fields = ['name', 'latitude', 'longitude', 'description', 'z_coordinate']
 
 class EdgeForm(forms.ModelForm):
+    """
+    Форма для создания и редактирования связи между узлами.
+    """
     class Meta:
         model = Edge
         fields = ['node1', 'node2', 'description']
 
 class UserProfileForm(forms.ModelForm):
+    """
+    Форма для редактирования профиля пользователя.
+    """
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'phone', 'image']
@@ -95,6 +135,17 @@ class UserProfileForm(forms.ModelForm):
         }
         
     def clean_image(self):
+        """
+        Валидирует загружаемое изображение.
+        
+        Проверяет размер изображения, не позволяя загружать файлы более 5 МБ.
+        
+        Returns:
+            ImageField или None: Валидированное изображение или None
+        
+        Raises:
+            ValidationError: Если размер изображения превышает 5 МБ
+        """
         image = self.cleaned_data.get('image', False)
         if image and hasattr(image, 'size'):
             if image.size > 5 * 1024 * 1024:  # 5MB
@@ -106,11 +157,23 @@ class UserProfileForm(forms.ModelForm):
         return None
 
 class AvatarUpdateForm(forms.ModelForm):
+    """
+    Форма для обновления аватара пользователя.
+    """
     class Meta:
         model = CustomUser
         fields = ['image']
         
     def clean_image(self):
+        """
+        Валидирует загружаемое изображение аватара.
+        
+        Returns:
+            ImageField или None: Валидированное изображение или None
+        
+        Raises:
+            ValidationError: Если размер изображения превышает 5 МБ
+        """
         image = self.cleaned_data.get('image', False)
         if image and hasattr(image, 'size'):
             if image.size > 5 * 1024 * 1024:  # 5MB

@@ -2,3 +2,7 @@ Django>=5.1.6
 psycopg2>=2.9.10
 djangorestframework
 Pillow
+pylint>=2.17.0
+pylint-django>=2.5.3
+sphinx>=8.2.3
+sphinx_rtd_theme>=3.0.2

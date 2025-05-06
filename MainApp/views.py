@@ -61,7 +61,18 @@ class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
 @login_required
 def main_page(request):
     """
-    Главная страница сайта
+    Представление главной страницы сайта.
+    
+    Отображает списки карт пользователя и публичных карт других пользователей.
+    
+    Args:
+        request: Объект HttpRequest
+        
+    Returns:
+        HttpResponse: Ответ с отрендеренным шаблоном
+    
+    Raises:
+        Exception: При ошибке получения публичных карт
     """
     logger.info("Main page accessed")
     logger.debug("User: {0}".format(request.user))
@@ -86,6 +97,16 @@ def main_page(request):
 
 
 def register(request):
+    """
+    Представление для регистрации новых пользователей.
+    
+    Args:
+        request: Объект HttpRequest
+        
+    Returns:
+        HttpResponse: При GET-запросе - форма регистрации,
+                      При POST-запросе с валидной формой - перенаправление на страницу входа
+    """
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -100,7 +121,18 @@ def register(request):
 @login_required
 def profile(request):
     """
-    Страница профиля пользователя
+    Представление страницы профиля пользователя.
+    
+    Отображает информацию о пользователе, количество его карт и последнюю редактируемую карту.
+    
+    Args:
+        request: Объект HttpRequest с аутентифицированным пользователем
+        
+    Returns:
+        HttpResponse: Ответ с отрендеренным шаблоном профиля
+    
+    Raises:
+        Exception: При ошибке получения последней карты
     """
     user = request.user
     maps_count = Map.objects.filter(owner=user).count()
@@ -122,6 +154,16 @@ def profile(request):
 
 @login_required
 def create_map(request):
+    """
+    Представление для создания новой карты.
+    
+    Args:
+        request: Объект HttpRequest с аутентифицированным пользователем
+        
+    Returns:
+        HttpResponse: При GET-запросе - форма создания карты,
+                      При POST-запросе с валидной формой - перенаправление на страницу редактирования карты
+    """
     if request.method == 'POST':
         form = CreateMapForm(request.POST)
         if form.is_valid():
@@ -310,7 +352,17 @@ def unpublish_map(request, map_id):
 
 def view_map(request, map_id):
     """
-    Страница просмотра карты без возможности редактирования
+    Представление для просмотра карты без возможности редактирования.
+    
+    Проверяет права доступа к карте и отображает карту с её деталями.
+    
+    Args:
+        request: Объект HttpRequest
+        map_id: Идентификатор карты для просмотра
+        
+    Returns:
+        HttpResponse: Ответ с отрендеренным шаблоном просмотра карты
+                      или перенаправление на главную страницу при отсутствии прав доступа
     """
     map_instance = get_object_or_404(Map, id=map_id)
     
@@ -323,3 +375,16 @@ def view_map(request, map_id):
         'map': map_instance,
         'is_owner': request.user.is_authenticated and map_instance.owner == request.user
     })
+
+@login_required
+def docs_index(request):
+    """
+    Представление для перенаправления на главную страницу документации.
+    
+    Args:
+        request: Объект HttpRequest с аутентифицированным пользователем
+        
+    Returns:
+        HttpResponse: Перенаправление на главную страницу документации Sphinx
+    """
+    return redirect('/static/index.html')
