@@ -60,7 +60,29 @@ class MapDetailAPI(generics.RetrieveUpdateDestroyAPIView):
 
 @login_required
 def main_page(request):
-    return render(request, 'main_page.html')
+    """
+    Главная страница сайта
+    """
+    logger.info("Main page accessed")
+    logger.debug("User: {0}".format(request.user))
+    
+    # Получаем все карты пользователя
+    user_maps = Map.objects.filter(owner=request.user)
+    try:
+        # Получаем публичные карты других пользователей
+        public_maps = Map.objects.filter(is_published=True).exclude(owner=request.user)
+        logger.debug("Found {0} public maps".format(len(public_maps)))
+    except Exception as e:
+        logger.error("Error fetching public maps: {0}".format(e))
+        public_maps = []
+    
+    logger.debug("Found {0} user maps".format(len(user_maps)))
+    
+    context = {
+        'user_maps': user_maps,
+        'public_maps': public_maps
+    }
+    return render(request, 'main_page.html', context)
 
 
 def register(request):
@@ -68,27 +90,33 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, f'Аккаунт создан для {user.username}! Теперь вы можете войти в систему.')
-            return redirect('login')
+            messages.success(request, 'Регистрация успешна! Теперь вы можете войти в систему.')
+            return redirect('login')  # перенаправляем на страницу входа
     else:
         form = UserRegistrationForm()
+    
     return render(request, 'register.html', {'form': form})
 
 @login_required
 def profile(request):
-    if request.method == 'POST':
-        form = AvatarUpdateForm(request.POST, request.FILES, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Аватар успешно обновлен!')
-            return redirect('profile')
-    else:
-        form = AvatarUpdateForm(instance=request.user)
+    """
+    Страница профиля пользователя
+    """
+    user = request.user
+    maps_count = Map.objects.filter(owner=user).count()
+    
+    try:
+        latest_map = Map.objects.filter(owner=user).order_by('-updated_at').first()
+    except Exception as e:
+        latest_map = None
+        messages.error(request, "Ошибка при получении последней карты: {0}".format(str(e)))
     
     context = {
-        'form': form,
-        'user': request.user,
+        'user': user,
+        'maps_count': maps_count,
+        'latest_map': latest_map
     }
+    
     return render(request, 'profile.html', context)
 
 
@@ -96,29 +124,20 @@ def profile(request):
 def create_map(request):
     if request.method == 'POST':
         form = CreateMapForm(request.POST)
-        print(f"Form is valid: {form.is_valid()}")
         if form.is_valid():
-            # Создаём объект карты без сохранения в БД
-            new_map = form.save(commit=False)
-            # Устанавливаем владельца из текущего пользователя
-            print(f"Current user: {request.user}, id: {request.user.id}, is authenticated: {request.user.is_authenticated}")
-            new_map.owner = request.user
-            # Сохраняем в БД
-            try:
-                new_map.save()
-                # Сохраняем M2M связи, если они есть в форме
-                form.save_m2m()
-                messages.success(request, 'Карта успешно создана!')
-                return redirect('main')
-            except Exception as e:
-                print(f"Error saving map: {e}")
-                messages.error(request, f'Ошибка при создании карты: {e}')
+            map_instance = form.save(commit=False)
+            map_instance.owner = request.user
+            map_instance.save()
+            
+            # Сохраняем хэштеги и отношения многие-ко-многим
+            form.save_m2m()
+            
+            messages.success(request, 'Карта успешно создана!')
+            return redirect('edit_map', map_id=map_instance.id)
     else:
         form = CreateMapForm()
 
-    return render(request, 'create_map.html', {
-        'form': form,
-    })
+    return render(request, 'create_map.html', {'form': form})
 
 def edit_map(request, map_id):
     map_obj = get_object_or_404(Map, pk=map_id)
@@ -290,24 +309,17 @@ def unpublish_map(request, map_id):
     return redirect('user_maps')
 
 def view_map(request, map_id):
-    map_obj = get_object_or_404(Map, id=map_id)
+    """
+    Страница просмотра карты без возможности редактирования
+    """
+    map_instance = get_object_or_404(Map, id=map_id)
     
-    # Создаем контекст с информацией о карте
-    context = {
-        'map': {
-            'id': map_obj.id,
-            'title': map_obj.title,
-            'description': map_obj.description,
-            'center_latitude': map_obj.center_latitude,
-            'center_longitude': map_obj.center_longitude,
-            'nodes_count': map_obj.nodes.count(),
-            'edges_count': map_obj.edges.count(),
-            'owner': map_obj.owner.username,
-            'created_at': map_obj.created_at if hasattr(map_obj, 'created_at') else None,
-            'nodes': map_obj.nodes.all(),
-            'edges': map_obj.edges.all(),
-            'hashtags': map_obj.hashtags.all(),
-        }
-    }
-
-    return render(request, 'view_map.html', context)
+    # Проверяем, что карта опубликована или пользователь ее владелец
+    if not map_instance.is_published and (not request.user.is_authenticated or map_instance.owner != request.user):
+        messages.error(request, 'У вас нет доступа к этой карте')
+        return redirect('main_page')
+    
+    return render(request, 'view_map.html', {
+        'map': map_instance,
+        'is_owner': request.user.is_authenticated and map_instance.owner == request.user
+    })

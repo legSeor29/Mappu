@@ -25,7 +25,10 @@ class UserRegistrationForm(UserCreationForm):
         fields = ('username', 'email', 'phone', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
-        super(UserRegistrationForm, self).__init__(*args, **kwargs)
+        # Pass current user to form for later use
+        self.user = kwargs.pop('user', None)
+        # Calling parent's init
+        super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
@@ -64,7 +67,7 @@ class CreateMapForm(forms.ModelForm):
                 # Add hashtags to the map
                 for tag_name in hashtag_names:
                     if tag_name:  # Skip empty tags
-                        tag, created = HashTag.objects.get_or_create(name=tag_name)
+                        tag, _ = HashTag.objects.get_or_create(name=tag_name)
                         instance.hashtags.add(tag)
                         
             self.save_m2m()
@@ -98,7 +101,7 @@ class UserProfileForm(forms.ModelForm):
                 raise forms.ValidationError("Размер изображения не должен превышать 5 МБ")
             return image
         # Если изображение не выбрано, вернуть текущее
-        elif self.instance and self.instance.pk:
+        if self.instance and self.instance.pk:
             return self.instance.image
         return None
 
@@ -114,6 +117,6 @@ class AvatarUpdateForm(forms.ModelForm):
                 raise forms.ValidationError("Размер изображения не должен превышать 5 МБ")
             return image
         # Если изображение не выбрано, вернуть текущее
-        elif self.instance and self.instance.pk:
+        if self.instance and self.instance.pk:
             return self.instance.image
         return None

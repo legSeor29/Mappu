@@ -1,12 +1,13 @@
-from rest_framework.permissions import BasePermission
+from rest_framework import permissions
+from .models import Map
 
 
-class IsMapOwner(BasePermission):
-    """Проверяет, является ли пользователь владельцем карты"""
+class IsMapOwner(permissions.BasePermission):
+    """
+    Permission to allow only the map owner to access its detailed representation
+    """
 
     def has_object_permission(self, request, view, obj):
-        # Для GET, HEAD, OPTIONS разрешаем доступ всем
-        if request.method in ['GET', 'HEAD', 'OPTIONS']:
-            return True
-        # Для остальных методов проверяем владельца
-        return obj.owner == request.user
+        if isinstance(obj, Map):
+            return obj.owner == request.user
+        return False

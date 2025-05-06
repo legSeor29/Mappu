@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 class CustomUser(AbstractUser):
     phone = models.CharField(max_length=20, null=True, blank=True)
@@ -44,7 +45,7 @@ class Edge(models.Model):
     description = models.TextField(blank=True, null=True)
     temp_id = models.IntegerField(null=True, blank=True, db_index=True)
     def __str__(self):
-        return f"{self.node1} -> {self.node2}"
+        return "%s -> %s" % (self.node1, self.node2)
 
 class Map(models.Model):
     title = models.CharField(max_length=100, null=True)
@@ -66,6 +67,31 @@ class Map(models.Model):
     edges = models.ManyToManyField(Edge, related_name='maps')
     hashtags = models.ManyToManyField(HashTag, related_name='maps', blank=True)
     is_published = models.BooleanField(default=False, verbose_name='published')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
+
+class MapNode(models.Model):
+    map = models.ForeignKey(Map, on_delete=models.CASCADE)
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    description = models.TextField(blank=True, null=True)
+    z_coordinate = models.FloatField(blank=True, null=True)
+    temp_id = models.IntegerField(null=True, blank=True, db_index=True)
+
+    def __str__(self):
+        return "%s - %s" % (self.map, self.name)
+
+class MapEdge(models.Model):
+    map = models.ForeignKey(Map, on_delete=models.CASCADE)
+    node1 = models.ForeignKey(Node, related_name='map_edges_from', on_delete=models.CASCADE)
+    node2 = models.ForeignKey(Node, related_name='map_edges_to', on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    temp_id = models.IntegerField(null=True, blank=True, db_index=True)
+
+    def __str__(self):
+        return "%s -> %s" % (self.node1, self.node2)
