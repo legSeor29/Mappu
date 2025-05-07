@@ -285,3 +285,15 @@ fabric.properties
 .idea/**/azureSettings.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/django,pycharm
+
+# Render specific
+/var/task/
+/staticfiles/
+
+# Docker
+.docker/
+.dockerignore
+
+# Cache
+__pycache__/
+.pytest_cache/

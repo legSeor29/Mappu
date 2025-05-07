@@ -1,21 +1,21 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Exit on error
 set -o errexit
 
-echo "Установка зависимостей..."
+echo "Installing dependencies..."
 pip install -r requirements.txt
 
-echo "Создание директорий для медиа-файлов..."
+echo "Creating media directories..."
 mkdir -p media/profile_pics
 
-echo "Сбор статических файлов..."
-python manage.py collectstatic --no-input
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
 
-echo "Применение миграций базы данных..."
+echo "Applying database migrations..."
 python manage.py migrate
 
-echo "Создание суперпользователя..."
-python -c "
+echo "Creating superuser if needed..."
+python - << END
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WireMap.settings')
 import django
@@ -27,11 +27,11 @@ try:
     
     if not User.objects.filter(username='admin').exists():
         User.objects.create_superuser('admin', 'admin@example.com', 'adminpassword')
-        print('Суперпользователь успешно создан')
+        print('Superuser created successfully')
     else:
-        print('Суперпользователь уже существует')
+        print('Superuser already exists')
 except Exception as e:
-    print(f'Ошибка при создании суперпользователя: {e}')
-"
+    print(f'Error creating superuser: {e}')
+END
 
-echo "Сборка завершена!" 
+echo "Build completed!" 
