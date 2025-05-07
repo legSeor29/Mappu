@@ -1,0 +1,33 @@
+Паттерны проектирования в MainApp/static/JS/edit_map.js
+
+1. Наблюдатель (Observer)
+   - Реализован в классе DatabaseController
+   - Отслеживает изменения узлов и рёбер на карте
+   - Методы: addNewNode, markNodeChanged, markNodeDeleted, addNewEdge, markEdgeChanged, markEdgeDeleted
+
+2. Хранитель (Memento)
+   - Реализован в DatabaseController через отслеживание начального состояния и изменений
+   - Позволяет сохранять и восстанавливать состояние объектов
+   - Методы: resetChanges, hasChanges
+
+3. Фасад (Facade)
+   - DatabaseController предоставляет упрощенный интерфейс для работы с бэкендом
+   - MapInteraction скрывает сложность взаимодействия с картой
+   - Объединяет несколько операций в единый интерфейс
+
+4. Посредник (Mediator)
+   - FormHandler координирует взаимодействие между формами и объектами карты
+   - Централизует коммуникацию между различными компонентами
+
+5. Компоновщик (Composite)
+   - Node и Edge формируют иерархическую структуру карты
+   - Позволяет работать с индивидуальными объектами и их коллекциями единообразно
+
+6. Стратегия (Strategy)
+   - Разные способы обновления данных (sendPutRequest, sendPatchRequest)
+   - Выбор метода зависит от текущего состояния (hasChanges)
+
+7. Модель-Представление-Контроллер (MVC)
+   - Model: классы Node и Edge представляют данные
+   - View: методы createMarker, createFeature отвечают за отображение
+   - Controller: DatabaseController и MapInteraction управляют логикой приложения 

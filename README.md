@@ -3,7 +3,9 @@
 ![Version](https://img.shields.io/badge/версия-1.0.0-blue)
 ![Django](https://img.shields.io/badge/Django-5.1.6-green)
 ![Python](https://img.shields.io/badge/Python-3.8+-yellow)
-![License](https://img.shields.io/badge/лицензия-MIT-orange)
+![Pylint](https://img.shields.io/badge/pylint-8.81%2F10-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-77%25-green)
+
 
 Веб-приложение для создания и управления интерактивными картами с поддержкой многопользовательской работы и публикации.
 
@@ -173,6 +175,4 @@ python manage.py runserver
 
 - **Kalinin Team** - [GitHub](https://github.com/kalinin-team)
 
-## 📄 Лицензия
-
-Этот проект лицензирован под MIT License - см. файл LICENSE для подробностей.
+ 
