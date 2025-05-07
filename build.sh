@@ -11,6 +11,12 @@ mkdir -p media/profile_pics
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+# Диагностика переменных окружения (безопасно, без вывода секретов)
+echo "Diagnostic information:"
+echo "DATABASE_URL exists: $(if [ -n "$DATABASE_URL" ]; then echo "Yes"; else echo "No"; fi)"
+echo "RENDER_EXTERNAL_HOSTNAME: $RENDER_EXTERNAL_HOSTNAME"
+echo "PYTHON_VERSION: $PYTHON_VERSION"
+
 echo "Applying database migrations..."
 python manage.py migrate
 

@@ -84,14 +84,20 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Используем dj-database-url для настройки подключения к базе данных
-DATABASES = {
-    'default': dj_database_url.config(
-        # Значение по умолчанию используется для локальной разработки
-        default='postgresql://postgres:postgres@localhost:5432/mydb_e5kg',
-        conn_max_age=600
-    )
-}
+# Настройки базы данных
+if os.environ.get('DATABASE_URL'):
+    # База данных на Render.com
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600)
+    }
+else:
+    # Локальная база данных для разработки
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
