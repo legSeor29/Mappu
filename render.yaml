@@ -1,8 +1,8 @@
 databases:
   - name: mappu-db
     plan: free
-    databaseName: mappu
-    user: mappu
+    databaseName: mydb_e5kg
+    user: myuser
 
 services:
   - type: web
@@ -14,7 +14,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
-      # DATABASE_URL будет добавлена Render автоматически
+      - key: DATABASE_URL
+        value: "postgresql://myuser:zyaKnE3WImuhsoElFThfN8asiArepbPc@dpg-d0aghdh5pdvs73ecld00-a/mydb_e5kg"
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
