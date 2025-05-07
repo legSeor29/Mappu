@@ -165,19 +165,17 @@ def create_map(request):
                       При POST-запросе с валидной формой - перенаправление на страницу редактирования карты
     """
     if request.method == 'POST':
-        form = CreateMapForm(request.POST)
+        # Pass the user to the form
+        form = CreateMapForm(request.POST, user=request.user) 
         if form.is_valid():
-            map_instance = form.save(commit=False)
-            map_instance.owner = request.user
-            map_instance.save()
-            
-            # Сохраняем хэштеги и отношения многие-ко-многим
-            form.save_m2m()
+            # Call save with commit=True, form now handles owner and hashtags
+            map_instance = form.save() 
             
             messages.success(request, 'Карта успешно создана!')
             return redirect('edit_map', map_id=map_instance.id)
     else:
-        form = CreateMapForm()
+        # Pass user for GET request if needed by form init, though not currently used there
+        form = CreateMapForm(user=request.user)
 
     return render(request, 'create_map.html', {'form': form})
 

@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Node, Edge, Map, HashTag
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CustomUserCreationForm(UserCreationForm):
     """
@@ -66,8 +68,13 @@ class CreateMapForm(forms.ModelForm):
     
     class Meta:
         model = Map
-        fields = ['title', 'description', 'center_latitude', 'center_longitude', 'hashtags_input']
+        fields = ['title', 'description', 'center_latitude', 'center_longitude']
         
+    def __init__(self, *args, **kwargs):
+        """Store the user passed in kwargs."""
+        self.user = kwargs.pop('user', None) # Get user from kwargs
+        super().__init__(*args, **kwargs)
+
     def save(self, commit=True):
         """
         Сохраняет карту и обрабатывает хештеги.
@@ -78,32 +85,37 @@ class CreateMapForm(forms.ModelForm):
         Returns:
             Map: Созданный объект карты
         """
-        instance = super().save(commit=False)
+        instance = super().save(commit=False) 
         
-        if commit:
-            instance.save()
+        # Set owner if user was passed to the form
+        if self.user:
+            instance.owner = self.user 
             
-            # Handle hashtags
-            if self.cleaned_data.get('hashtags_input'):
-                # Clear existing hashtags
-                instance.hashtags.clear()
-                
-                # Process hashtags
-                hashtags_text = self.cleaned_data['hashtags_input'].strip()
-                hashtag_names = [tag.strip().lower() for tag in hashtags_text.split() if tag.strip()]
-                
-                # Remove # symbol if present
-                hashtag_names = [name[1:] if name.startswith('#') else name for name in hashtag_names]
-                
-                # Add hashtags to the map
-                for tag_name in hashtag_names:
-                    if tag_name:  # Skip empty tags
-                        tag, _ = HashTag.objects.get_or_create(name=tag_name)
-                        instance.hashtags.add(tag)
-                        
-            self.save_m2m()
+        if commit:
+            instance.save() # Save instance first
+            
+            hashtags_text = self.cleaned_data.get('hashtags_input', '').strip()
+            if hashtags_text:
+                instance.hashtags.set(self._process_hashtags(hashtags_text)) 
+            else:
+                 instance.hashtags.clear()
             
         return instance
+
+    def _process_hashtags(self, hashtags_text):
+        """Helper method to process hashtag input string into HashTag objects."""
+        logger.debug(f"Processing hashtags_input: '{hashtags_text}'")
+        tags_to_add = []
+        if hashtags_text:
+            hashtag_names = [tag.strip().lower() for tag in hashtags_text.split() if tag.strip()]
+            hashtag_names = [name[1:] if name.startswith('#') else name for name in hashtag_names]
+            logger.debug(f"Found hashtag names: {hashtag_names}")
+            for tag_name in hashtag_names:
+                if tag_name: 
+                    tag, created = HashTag.objects.get_or_create(name=tag_name)
+                    tags_to_add.append(tag)
+                    logger.debug(f"Processed hashtag '{tag.name}'")
+        return tags_to_add
 
 class NodeForm(forms.ModelForm):
     """
@@ -120,6 +132,18 @@ class EdgeForm(forms.ModelForm):
     class Meta:
         model = Edge
         fields = ['node1', 'node2', 'description']
+
+    def clean(self):
+        """Add validation to prevent edge connecting a node to itself."""
+        cleaned_data = super().clean()
+        node1 = cleaned_data.get("node1")
+        node2 = cleaned_data.get("node2")
+
+        if node1 and node2 and node1 == node2:
+            raise forms.ValidationError(
+                "Ребро не может соединять узел сам с собой."
+            )
+        return cleaned_data
 
 class UserProfileForm(forms.ModelForm):
     """
