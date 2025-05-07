@@ -3,6 +3,7 @@ from pathlib import Path
 import dj_database_url
 from django.conf.global_settings import LOGIN_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL
 import urllib.parse
+import re
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -88,10 +89,9 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 # Настройки базы данных
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# Безопасно выводим информацию о базе данных для диагностики
+# ОТЛАДКА: Выводим DATABASE_URL (УБРАТЬ ПОСЛЕ ОТЛАДКИ!)
 if DATABASE_URL:
-    print(f"Database URL schema: {DATABASE_URL.split('://')[0] if '://' in DATABASE_URL else 'unknown'}")
-    print(f"Database URL length: {len(DATABASE_URL)}")
+    print(f"DEBUG: DATABASE_URL = {DATABASE_URL}") 
 
 # Базовая конфигурация для SQLite
 DATABASES = {
@@ -102,36 +102,32 @@ DATABASES = {
 }
 
 # Если есть DATABASE_URL, пробуем использовать PostgreSQL
-if DATABASE_URL:
+if DATABASE_URL and DATABASE_URL.startswith('postgres'):
     try:
-        # Явно парсим URL для большей безопасности
-        parsed_url = urllib.parse.urlparse(DATABASE_URL)
-        
-        # Получаем компоненты URL
-        db_scheme = parsed_url.scheme
-        db_user = parsed_url.username
-        db_password = parsed_url.password
-        db_host = parsed_url.hostname
-        db_port = parsed_url.port or '5432'  # PostgreSQL порт по умолчанию
-        db_name = parsed_url.path.lstrip('/') if parsed_url.path else 'postgres'
-        
-        # Выводим информацию для диагностики (без секретов)
-        print(f"Database connection info: {db_scheme}://{db_user}@{db_host}:{db_port}/{db_name}")
-        
-        # Настраиваем PostgreSQL
-        DATABASES['default'] = {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': db_name,
-            'USER': db_user,
-            'PASSWORD': db_password,
-            'HOST': db_host,
-            'PORT': db_port,
-            'CONN_MAX_AGE': 600,
-        }
-        print("Successfully configured PostgreSQL database")
+        # Простой разбор URL с помощью регулярного выражения
+        match = re.match(r"postgres(?:ql)?://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>[^/]+)/(?P<dbname>.+)", DATABASE_URL)
+        if match:
+            db_info = match.groupdict()
+            DATABASES['default'] = {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': db_info['dbname'],
+                'USER': db_info['user'],
+                'PASSWORD': db_info['password'],
+                'HOST': db_info['host'],
+                'PORT': db_info['port'],
+                'CONN_MAX_AGE': 600,
+            }
+            print(f"DEBUG: Successfully configured PostgreSQL with: NAME={db_info['dbname']}, USER={db_info['user']}, HOST={db_info['host']}, PORT={db_info['port']}")
+        else:
+            print("DEBUG: DATABASE_URL did not match expected format. Falling back to SQLite.")
+            # Если не удалось разобрать, можно попробовать через dj_database_url как запасной вариант
+            DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
+            print("DEBUG: Attempted fallback to dj_database_url.")
+
     except Exception as e:
-        print(f"Error parsing DATABASE_URL: {str(e)}")
-        print("Falling back to SQLite database")
+        print(f"DEBUG: Error configuring PostgreSQL: {str(e)}. Falling back to SQLite.")
+else:
+    print("DEBUG: DATABASE_URL not found or not PostgreSQL. Using SQLite.")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
