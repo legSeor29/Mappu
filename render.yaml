@@ -1,134 +1,30 @@
+databases:
+  - name: mappu-db
+    plan: free
+    databaseName: mappu
+    user: mappu
+
 services:
   - type: web
-    name: my-django-app
+    name: mappu
     env: python
-    buildCommand: >
-      pip install -r requirements.txt && 
-      mkdir -p media/profile_pics &&
-      python manage.py collectstatic --noinput &&
-      python manage.py makemigrations --empty MainApp --name initial --noinput &&
-      python manage.py migrate auth --noinput &&
-      python manage.py migrate admin --noinput &&
-      python manage.py migrate contenttypes --noinput &&
-      python manage.py migrate sessions --noinput &&
-      python manage.py migrate MainApp --noinput --fake-initial &&
-      python manage.py migrate --run-syncdb &&
-      python -c "
-      import os
-      os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'WireMap.settings')
-      import django
-      django.setup()
-      from django.db import connection
-      cursor = connection.cursor()
-      try:
-          cursor.execute('''
-              CREATE TABLE IF NOT EXISTS \"MainApp_customuser\" (
-                  \"id\" serial PRIMARY KEY,
-                  \"password\" varchar(128) NOT NULL,
-                  \"last_login\" timestamp with time zone NULL,
-                  \"is_superuser\" boolean NOT NULL,
-                  \"username\" varchar(150) NOT NULL UNIQUE,
-                  \"first_name\" varchar(150) NOT NULL,
-                  \"last_name\" varchar(150) NOT NULL,
-                  \"email\" varchar(254) NOT NULL,
-                  \"is_staff\" boolean NOT NULL,
-                  \"is_active\" boolean NOT NULL,
-                  \"date_joined\" timestamp with time zone NOT NULL,
-                  \"phone\" varchar(20) NULL,
-                  \"image\" varchar(100) NULL
-              )
-          ''')
-          cursor.execute('''
-              CREATE TABLE IF NOT EXISTS \"MainApp_customuser_groups\" (
-                  \"id\" serial PRIMARY KEY,
-                  \"customuser_id\" integer NOT NULL,
-                  \"group_id\" integer NOT NULL,
-                  CONSTRAINT unique_user_group UNIQUE (customuser_id, group_id),
-                  CONSTRAINT fk_customuser FOREIGN KEY (customuser_id) REFERENCES \"MainApp_customuser\" (id),
-                  CONSTRAINT fk_group FOREIGN KEY (group_id) REFERENCES \"auth_group\" (id)
-              )
-          ''')
-          cursor.execute('''
-              CREATE TABLE IF NOT EXISTS \"MainApp_customuser_user_permissions\" (
-                  \"id\" serial PRIMARY KEY,
-                  \"customuser_id\" integer NOT NULL,
-                  \"permission_id\" integer NOT NULL,
-                  CONSTRAINT unique_user_permission UNIQUE (customuser_id, permission_id),
-                  CONSTRAINT fk_customuser_perm FOREIGN KEY (customuser_id) REFERENCES \"MainApp_customuser\" (id),
-                  CONSTRAINT fk_permission FOREIGN KEY (permission_id) REFERENCES \"auth_permission\" (id)
-              )
-          ''')
-          print('Created MainApp_customuser tables and relationships')
-          
-          # Проверка связанных таблиц
-          cursor.execute('''
-              SELECT EXISTS (
-                  SELECT FROM information_schema.tables 
-                  WHERE table_name = 'auth_group'
-              );
-          ''')
-          auth_group_exists = cursor.fetchone()[0]
-          if not auth_group_exists:
-              print('Warning: auth_group table does not exist')
-              
-          cursor.execute('''
-              SELECT EXISTS (
-                  SELECT FROM information_schema.tables 
-                  WHERE table_name = 'auth_permission'
-              );
-          ''')
-          auth_permission_exists = cursor.fetchone()[0]
-          if not auth_permission_exists:
-              print('Warning: auth_permission table does not exist')
-              
-      except Exception as e:
-          print(f'Error creating tables: {e}')
-          
-      # Добавление суперпользователя
-      try:
-          from django.contrib.auth import get_user_model
-          from django.contrib.auth.hashers import make_password
-          from django.utils import timezone
-          
-          User = get_user_model()
-          if not User.objects.filter(username='admin').exists():
-              # Создаем суперпользователя напрямую с помощью SQL
-              cursor.execute('''
-                  INSERT INTO \"MainApp_customuser\" (
-                      password, is_superuser, username, first_name, last_name, 
-                      email, is_staff, is_active, date_joined
-                  ) VALUES (
-                      %s, %s, %s, %s, %s, %s, %s, %s, %s
-                  )
-              ''', [
-                  make_password('adminpassword'), 
-                  True, 
-                  'admin', 
-                  '', 
-                  '', 
-                  'admin@example.com', 
-                  True, 
-                  True, 
-                  timezone.now()
-              ])
-              print('Superuser created using SQL.')
-          else:
-              print('Superuser already exists.')
-      except Exception as e:
-          print(f'Error creating superuser: {e}')
-      "
-    startCommand: gunicorn WireMap.wsgi:application --bind 0.0.0.0:$PORT
+    buildCommand: "./build.sh"  # Используем наш скрипт сборки
+    startCommand: python -m gunicorn WireMap.wsgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mappu-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: "true"
+        value: "false"
       - key: STATIC_ROOT
-        value: /app/MainApp/staticfiles
-      - key: INIT_DB
-        value: "true"
+        value: /var/task/staticfiles
+      - key: WEB_CONCURRENCY
+        value: "4"
 
 # Используем существующую базу данных, не создаем новую
 # databases:

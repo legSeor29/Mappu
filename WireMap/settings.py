@@ -14,12 +14,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$!52o53%$p2^%r1fhia35ie#7zbpz@c)dl@1z6y@1%pp0)r5pt')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 CSRF_TRUSTED_ORIGINS = [
     'https://mappu.ru',
 ]
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME] if RENDER_EXTERNAL_HOSTNAME else []
+ALLOWED_HOSTS.extend(os.getenv('ALLOWED_HOSTS', '*').split(','))
 
 
 # Application definition
@@ -49,6 +51,7 @@ if not os.path.exists(MEDIA_ROOT):
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Добавлен WhiteNoise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -81,21 +84,13 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Фиксированные параметры подключения к базе данных
+# Используем dj-database-url для настройки подключения к базе данных
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydb_e5kg',
-        'USER': 'myuser',
-        'PASSWORD': 'zyaKnE3WImuhsoElFThfN8asiArepbPc',
-        'HOST': 'dpg-d0aghdh5pdvs73ecld00-a',
-        'PORT': '5432',
-        'OPTIONS': {
-            'connect_timeout': 10,
-            'options': '-c statement_timeout=15000ms',
-        },
-        'CONN_MAX_AGE': 600,
-    }
+    'default': dj_database_url.config(
+        # Значение по умолчанию используется для локальной разработки
+        default='postgresql://postgres:postgres@localhost:5432/mydb_e5kg',
+        conn_max_age=600
+    )
 }
 
 # Password validation
@@ -135,13 +130,17 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Путь к директории, где будут собираться статические файлы
-STATIC_ROOT = os.path.join(BASE_DIR, 'MainApp/staticfiles')
+STATIC_ROOT = os.getenv('STATIC_ROOT', os.path.join(BASE_DIR, 'MainApp/staticfiles'))
 
 # Дополнительные директории для поиска статических файлов
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'MainApp/static'),  # Обратите внимание на правильный путь
     os.path.join(BASE_DIR, 'docs/build/html'),  # Путь к сгенерированной документации Sphinx
 ]
+
+# Конфигурация WhiteNoise для производственной среды
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'

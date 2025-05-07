@@ -4,6 +4,7 @@ Pillow
 dj-database-url==2.0.0
 psycopg2-binary==2.9.7
 gunicorn==21.2.0
+whitenoise[brotli]==6.6.0
 pylint>=2.17.0
 pylint-django>=2.5.3
 sphinx>=8.2.3
@@ -14,4 +15,5 @@ pytest-django>=4.8.0
 pytest-cov>=4.1.0
 factory-boy>=3.3.0
 faker>=22.6.0
+uvicorn>=0.27.0
 
