@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import dj_database_url
 from django.conf.global_settings import LOGIN_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL
+import urllib.parse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,19 +86,52 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Настройки базы данных
-if os.environ.get('DATABASE_URL'):
-    # База данных на Render.com
-    DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# Безопасно выводим информацию о базе данных для диагностики
+if DATABASE_URL:
+    print(f"Database URL schema: {DATABASE_URL.split('://')[0] if '://' in DATABASE_URL else 'unknown'}")
+    print(f"Database URL length: {len(DATABASE_URL)}")
+
+# Базовая конфигурация для SQLite
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    # Локальная база данных для разработки
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+}
+
+# Если есть DATABASE_URL, пробуем использовать PostgreSQL
+if DATABASE_URL:
+    try:
+        # Явно парсим URL для большей безопасности
+        parsed_url = urllib.parse.urlparse(DATABASE_URL)
+        
+        # Получаем компоненты URL
+        db_scheme = parsed_url.scheme
+        db_user = parsed_url.username
+        db_password = parsed_url.password
+        db_host = parsed_url.hostname
+        db_port = parsed_url.port or '5432'  # PostgreSQL порт по умолчанию
+        db_name = parsed_url.path.lstrip('/') if parsed_url.path else 'postgres'
+        
+        # Выводим информацию для диагностики (без секретов)
+        print(f"Database connection info: {db_scheme}://{db_user}@{db_host}:{db_port}/{db_name}")
+        
+        # Настраиваем PostgreSQL
+        DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': db_name,
+            'USER': db_user,
+            'PASSWORD': db_password,
+            'HOST': db_host,
+            'PORT': db_port,
+            'CONN_MAX_AGE': 600,
         }
-    }
+        print("Successfully configured PostgreSQL database")
+    except Exception as e:
+        print(f"Error parsing DATABASE_URL: {str(e)}")
+        print("Falling back to SQLite database")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
