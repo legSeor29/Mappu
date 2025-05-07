@@ -1,0 +1,70 @@
+[MASTER]
+# Specify plugins for Django project
+load-plugins=pylint_django
+
+# Specify the Django settings module
+django-settings-module=WireMap.settings
+
+# Ignore migrations directories
+ignore=migrations
+
+# Python 3.x is assumed
+py-version=3.8
+
+# Parallelize
+jobs=4
+
+# Recursive discovery of Python modules
+recursive=yes
+
+[FORMAT]
+max-line-length=120
+
+[MESSAGES CONTROL]
+# Disable certain checks
+disable=
+    C0111, # missing docstring
+    C0103, # invalid name
+    C0303, # trailing whitespace
+    W0511, # fixme
+    R0903, # too few public methods
+    R0901, # too many ancestors
+    W0212, # protected member access
+    W0221, # arguments differ from overridden method
+    E1101, # no member (Django dynamically created attributes)
+    W2601, # using-f-string-in-unsupported-version
+    W1203, # logging-fstring-interpolation
+    R0201  # method could be a function
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=6
+
+# Ignore comments when computing similarities
+ignore-comments=yes
+
+# Ignore docstrings when computing similarities
+ignore-docstrings=yes
+
+# Ignore imports when computing similarities
+ignore-imports=yes
+
+[DESIGN]
+# Maximum number of locals for function / method
+max-locals=20
+
+# Maximum number of arguments for function / method
+max-args=8
+
+# Maximum number of branches for function / method
+max-branches=15
+
+# Maximum number of statements
+max-statements=60
+
+[REPORTS]
+# Set the output format
+output-format=text
+
+# Enable colorization
+color=yes 

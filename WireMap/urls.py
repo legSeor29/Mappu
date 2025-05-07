@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.urls import path
-from MainApp.views import main_page, register, edit_map, create_map, MapDetailAPI, custom_logout, profile
+from MainApp.views import main_page, register, edit_map, create_map, MapDetailAPI, custom_logout, profile, docs_index
 from MainApp import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -22,6 +22,7 @@ urlpatterns = [
     path('publish-map/<int:map_id>/', views.publish_map, name='publish_map'),
     path('unpublish-map/<int:map_id>/', views.unpublish_map, name='unpublish_map'),
     path('view-map/<int:map_id>/', views.view_map, name='view_map'),
+    path('docs/', docs_index, name='docs'),
 ]
 
 # Serving media files in development
