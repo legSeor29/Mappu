@@ -20,8 +20,7 @@ services:
         generateValue: true
       - key: DEBUG
         value: "false"
-      - key: STATIC_ROOT
-        value: /var/task/staticfiles
+      - 
       - key: WEB_CONCURRENCY
         value: "4"
       - key: INIT_DB
