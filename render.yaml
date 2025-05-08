@@ -11,6 +11,7 @@ services:
     plan: free
     buildCommand: "./build.sh"
     startCommand: gunicorn WireMap.wsgi:application --bind 0.0.0.0:$PORT --log-level debug
+    releaseCommand: "python manage.py migrate"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
