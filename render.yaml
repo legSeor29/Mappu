@@ -9,7 +9,7 @@ services:
     name: mappu
     runtime: python
     plan: free
-    buildCommand: "./build.sh"
+    buildCommand: "pytest && ./build.sh"
     startCommand: gunicorn WireMap.wsgi:application --bind 0.0.0.0:$PORT --log-level debug
     releaseCommand: "python manage.py migrate"
     envVars:
