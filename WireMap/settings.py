@@ -114,7 +114,7 @@ if DATABASE_URL and DATABASE_URL.startswith('postgres'):
                 'USER': db_info['user'],
                 'PASSWORD': db_info['password'],
                 'HOST': db_info['host'],
-                'PORT': db_info['port'],
+                'PORT': int(db_info['port']),
                 'CONN_MAX_AGE': 600,
             }
             print(f"DEBUG: Successfully configured PostgreSQL with: NAME={db_info['dbname']}, USER={db_info['user']}, HOST={db_info['host']}, PORT={db_info['port']}")
