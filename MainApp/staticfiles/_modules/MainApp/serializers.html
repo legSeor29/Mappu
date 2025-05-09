@@ -1,0 +1,619 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ru" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MainApp.serializers &mdash; документация Mappu 1.0.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e35015f7"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/translations.js?v=cd1d70c9"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="../../genindex.html" />
+    <link rel="search" title="Поиск" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Mappu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Поиск в документации" aria-label="Поиск в документации" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Меню навигации">
+              <p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Модели (Models)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../views.html">Представления (Views)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../forms.html">Формы (Forms)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../serializers.html">Сериализаторы (Serializers)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../permissions.html">Разрешения (Permissions)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../admin.html">Админка (Admin)</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Меню навигации для мобильных устройств" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Mappu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Навигация по страницам">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Код модуля</a></li>
+      <li class="breadcrumb-item active">MainApp.serializers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Исходный код MainApp.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Map</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Edge</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NodeSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">temp_id</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Node</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_latitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">90</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Широта должна быть между -90 и 90&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_longitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">180</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">180</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Долгота должна быть между -180 и 180&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;temp_id&#39;</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;temp_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">temp_id</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="c1"># Этот сериализатор используется только для чтения данных</span>
+<div class="viewcode-block" id="EdgeSerializer">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.EdgeSerializer">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EdgeSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">temp_id</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Edge</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;node2&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Узлы не могут ссылаться сами на себя&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="EdgeSerializer.to_representation">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.EdgeSerializer.to_representation">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;temp_id&#39;</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;temp_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">temp_id</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+</div>
+
+
+
+<span class="c1"># Сериализатор для обработки ребер при отправке данных с клиента</span>
+<div class="viewcode-block" id="EdgeWriteSerializer">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.EdgeWriteSerializer">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EdgeWriteSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">temp_id</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">node1</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    <span class="n">node2</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;node2&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Узлы не могут ссылаться сами на себя&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="MapSerializer">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.MapSerializer">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MapSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">NodeSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Используем EdgeSerializer только для чтения </span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">EdgeSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># А этот сериализатор для записи</span>
+    <span class="n">edges_data</span> <span class="o">=</span> <span class="n">EdgeWriteSerializer</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">write_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Поле для карты соответствия индексов</span>
+    <span class="n">client_index_map</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Map</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;owner&#39;</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="MapSerializer.get_client_index_map">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.MapSerializer.get_client_index_map">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_client_index_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Получает маппинг индексов из контекста.</span>
+<span class="sd">        Возвращает пустой словарь, если маппинг не найден.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Безопасно получаем маппинг индексов</span>
+        <span class="n">client_index_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_client_index_map&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        
+        <span class="c1"># Если маппинг существует и не пустой, возвращаем его</span>
+        <span class="k">if</span> <span class="n">client_index_map</span><span class="p">:</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Возвращаем client_index_map с </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">client_index_map</span><span class="p">)</span><span class="si">}</span><span class="s2"> элементами&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">client_index_map</span>
+        
+        <span class="c1"># Если маппинг не существует или пустой, возвращаем пустой словарь</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+    
+<div class="viewcode-block" id="MapSerializer.to_representation">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.MapSerializer.to_representation">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
+        <span class="c1"># Стандартное представление</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="c1"># Добавляем карту индексов, если она существует</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_client_index_map&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_index_map</span><span class="p">:</span>
+            <span class="c1"># Преобразуем объекты Node в их ID для сериализации</span>
+            <span class="n">index_to_id_map</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Подготовка client_index_map для ответа, размер: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_index_map</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_index_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># Приводим индекс к строке для использования в JSON</span>
+                <span class="n">str_index</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                
+                <span class="c1"># Проверяем тип node и получаем ID соответствующим образом</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">):</span>  <span class="c1"># Если это объект Node</span>
+                    <span class="n">node_id</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># Если это уже ID</span>
+                    <span class="n">node_id</span> <span class="o">=</span> <span class="n">node</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Пропуск значения </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2"> для индекса </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> - неизвестный тип </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                
+                <span class="n">index_to_id_map</span><span class="p">[</span><span class="n">str_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_id</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Добавление в client_index_map: </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2"> (тип: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">) -&gt; </span><span class="si">{</span><span class="n">node_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Отправка client_index_map в ответе, количество записей: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">index_to_id_map</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ret</span><span class="p">[</span><span class="s1">&#39;client_index_map&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index_to_id_map</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="MapSerializer.to_internal_value">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.MapSerializer.to_internal_value">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_internal_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Преобразует данные запроса во внутренний формат.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;to_internal_value получил данные: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Копируем данные, чтобы не менять входящий объект</span>
+        <span class="n">processed_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># Преобразуем edges в edges_data для обработки</span>
+        <span class="k">if</span> <span class="s1">&#39;edges&#39;</span> <span class="ow">in</span> <span class="n">processed_data</span><span class="p">:</span>
+            <span class="n">processed_data</span><span class="p">[</span><span class="s1">&#39;edges_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;edges&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Обработка PATCH полей</span>
+        <span class="n">patch_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;new_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;changed_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted_node_ids&#39;</span><span class="p">,</span> 
+                      <span class="s1">&#39;new_edges&#39;</span><span class="p">,</span> <span class="s1">&#39;changed_edges&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted_edge_ids&#39;</span><span class="p">]</span>
+        
+        <span class="c1"># Проверяем наличие этих полей и их формат</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">patch_fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">processed_data</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Обработка поля </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">, тип: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Убедимся, что поле корректно преобразовано из JSON, если это строка</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+                        <span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Преобразовано поле </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> из строки JSON: </span><span class="si">{</span><span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка при преобразовании JSON для поля </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Дополнительная валидация для полей с узлами и рёбрами</span>
+                <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;new_edges&#39;</span><span class="p">,</span> <span class="s1">&#39;changed_edges&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">]):</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                            <span class="c1"># Преобразуем ID узлов в целые числа, если они строки</span>
+                            <span class="k">if</span> <span class="s1">&#39;node1&#39;</span> <span class="ow">in</span> <span class="n">edge_data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                                <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="s1">&#39;node2&#39;</span> <span class="ow">in</span> <span class="n">edge_data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node2&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                                <span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">edge_data</span><span class="p">[</span><span class="s1">&#39;node2&#39;</span><span class="p">])</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Преобразованы ID узлов в ребре </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">edge_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Вызываем родительский метод</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_internal_value</span><span class="p">(</span><span class="n">processed_data</span><span class="p">)</span>
+        
+        <span class="c1"># Добавляем поля PATCH в результат</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">patch_fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">processed_data</span> <span class="ow">and</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">processed_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Добавлено поле </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> в validated_data: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="MapSerializer.update">
+<a class="viewcode-back" href="../../serializers.html#MainApp.serializers.MapSerializer.update">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Обработка запросов на обновление карты.</span>
+<span class="sd">        Так как мы отключили PUT, все запросы являются PATCH.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Обновление карты ID: </span><span class="si">{</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Входящие данные: </span><span class="si">{</span><span class="n">validated_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Если какие-то поля не попали в validated_data, проверим оригинальный запрос</span>
+            <span class="n">request_data</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="s1">&#39;request&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
+                <span class="n">request_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">[</span><span class="s1">&#39;request&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Исходные данные запроса: </span><span class="si">{</span><span class="n">request_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># Проверяем, есть ли поля в request_data, которых нет в validated_data</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;new_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;changed_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted_node_ids&#39;</span><span class="p">,</span> 
+                            <span class="s1">&#39;new_edges&#39;</span><span class="p">,</span> <span class="s1">&#39;changed_edges&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted_edge_ids&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">request_data</span> <span class="ow">and</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">validated_data</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Добавление поля </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> из исходных данных запроса&quot;</span><span class="p">)</span>
+                        <span class="n">validated_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">request_data</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+            
+            <span class="c1"># Обрабатываем PATCH-запрос с частичными данными</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_patch_update</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка при обновлении карты: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка при обновлении карты: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_patch_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">validated_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Обработка PATCH-запроса для карты.</span>
+<span class="sd">        Более строгая логика для предотвращения дублирования и ошибок.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Обработка PATCH-запроса для карты ID: </span><span class="si">{</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Словарь для соответствия временных и постоянных ID</span>
+        <span class="n">client_to_db_id_map</span> <span class="o">=</span> <span class="p">{}</span>
+        
+        <span class="c1"># 1. Обновляем основные поля карты, если они предоставлены</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;new_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;changed_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted_node_ids&#39;</span><span class="p">,</span> 
+                        <span class="s1">&#39;new_edges&#39;</span><span class="p">,</span> <span class="s1">&#39;changed_edges&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted_edge_ids&#39;</span><span class="p">,</span> <span class="s1">&#39;nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;edges_data&#39;</span><span class="p">]:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Обновление основного поля </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        
+        <span class="c1"># Получаем существующие узлы и рёбра</span>
+        <span class="n">existing_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">):</span> <span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">all</span><span class="p">()}</span>
+        <span class="n">existing_edges</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">id</span><span class="p">):</span> <span class="n">edge</span> <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">all</span><span class="p">()}</span>
+        
+        <span class="c1"># 2. Удаляем указанные узлы</span>
+        <span class="n">deleted_node_ids</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deleted_node_ids&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">deleted_node_ids</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удаление </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">deleted_node_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> узлов: </span><span class="si">{</span><span class="n">deleted_node_ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">deleted_node_ids</span><span class="p">:</span>
+                <span class="n">node_id_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">node_id_str</span> <span class="ow">in</span> <span class="n">existing_nodes</span><span class="p">:</span>
+                    <span class="n">node</span> <span class="o">=</span> <span class="n">existing_nodes</span><span class="p">[</span><span class="n">node_id_str</span><span class="p">]</span>
+                    
+                    <span class="c1"># Удаляем связанные рёбра</span>
+                    <span class="c1"># Получаем ID узла вместо объекта для использования в фильтре</span>
+                    <span class="n">node_db_id</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span>
+                    <span class="n">related_edges</span> <span class="o">=</span> <span class="n">Edge</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">node1_id</span><span class="o">=</span><span class="n">node_db_id</span>
+                    <span class="p">)</span> <span class="o">|</span> <span class="n">Edge</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">node2_id</span><span class="o">=</span><span class="n">node_db_id</span>
+                    <span class="p">)</span>
+                    
+                    <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">related_edges</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                            <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удалено ребро ID: </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из карты&quot;</span><span class="p">)</span>
+                        
+                        <span class="c1"># Если ребро больше не привязано ни к какой карте, удаляем его</span>
+                        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">maps</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">edge</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удалено ребро ID: </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из базы данных&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Удаляем узел из карты</span>
+                    <span class="n">instance</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удален узел ID: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из карты&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Если узел больше не привязан ни к какой карте, удаляем его</span>
+                    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">maps</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">node</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удален узел ID: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из базы данных&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Узел ID: </span><span class="si">{</span><span class="n">node_id</span><span class="si">}</span><span class="s2"> не найден для удаления&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 3. Обрабатываем измененные узлы</span>
+        <span class="n">changed_nodes</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;changed_nodes&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">changed_nodes</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Обновление </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">changed_nodes</span><span class="p">)</span><span class="si">}</span><span class="s2"> узлов&quot;</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">node_data</span> <span class="ow">in</span> <span class="n">changed_nodes</span><span class="p">:</span>
+                <span class="n">node_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">))</span>
+                
+                <span class="k">if</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">existing_nodes</span><span class="p">:</span>
+                    <span class="n">node</span> <span class="o">=</span> <span class="n">existing_nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span>
+                    
+                    <span class="c1"># Обновляем атрибуты узла</span>
+                    <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">attr</span> <span class="o">!=</span> <span class="s1">&#39;id&#39;</span><span class="p">:</span>
+                            <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                    
+                    <span class="n">node</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Обновлен узел ID: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Добавляем в маппинг</span>
+                    <span class="c1"># Используем строковый ключ для соответствия</span>
+                    <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+                    
+                    <span class="c1"># Также сохраняем целочисленный ключ, если node_id - число в строковом представлении</span>
+                    <span class="k">if</span> <span class="n">node_id</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                        <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">node_id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">node</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Узел ID: </span><span class="si">{</span><span class="n">node_id</span><span class="si">}</span><span class="s2"> не найден для обновления&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 4. Создаем новые узлы</span>
+        <span class="n">new_nodes</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;new_nodes&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">new_nodes</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создание </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">)</span><span class="si">}</span><span class="s2"> новых узлов&quot;</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">new_nodes</span><span class="p">):</span>
+                <span class="c1"># Проверяем, существует ли узел с такими координатами</span>
+                <span class="n">latitude</span> <span class="o">=</span> <span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;latitude&#39;</span><span class="p">)</span>
+                <span class="n">longitude</span> <span class="o">=</span> <span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;longitude&#39;</span><span class="p">)</span>
+                
+                <span class="n">existing_node</span> <span class="o">=</span> <span class="n">Node</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="n">latitude</span><span class="p">,</span> 
+                    <span class="n">longitude</span><span class="o">=</span><span class="n">longitude</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                
+                <span class="k">if</span> <span class="n">existing_node</span><span class="p">:</span>
+                    <span class="c1"># Если узел с такими координатами уже существует, добавляем его к карте</span>
+                    <span class="k">if</span> <span class="n">existing_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                        <span class="n">instance</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">existing_node</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Добавлен существующий узел ID: </span><span class="si">{</span><span class="n">existing_node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> к карте&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Добавляем в маппинг</span>
+                    <span class="c1"># Получаем временный ID, преобразуем в строку если это возможно</span>
+                    <span class="n">temp_id</span> <span class="o">=</span> <span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">temp_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">temp_id</span> <span class="o">=</span> <span class="n">i</span>
+                    
+                    <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">temp_id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">existing_node</span>  <span class="c1"># Используем строковый ключ</span>
+                    <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">existing_node</span>  <span class="c1"># Индекс в массиве</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Сопоставлен временный ID </span><span class="si">{</span><span class="n">temp_id</span><span class="si">}</span><span class="s2"> с узлом </span><span class="si">{</span><span class="n">existing_node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Создаем новый узел</span>
+                    <span class="n">new_node</span> <span class="o">=</span> <span class="n">Node</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                        <span class="n">latitude</span><span class="o">=</span><span class="n">latitude</span><span class="p">,</span>
+                        <span class="n">longitude</span><span class="o">=</span><span class="n">longitude</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                        <span class="n">z_coordinate</span><span class="o">=</span><span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;z_coordinate&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    
+                    <span class="c1"># Добавляем к карте</span>
+                    <span class="n">instance</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_node</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создан новый узел ID: </span><span class="si">{</span><span class="n">new_node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># Добавляем в маппинг</span>
+                    <span class="c1"># Получаем временный ID, преобразуем в строку если это возможно</span>
+                    <span class="n">temp_id</span> <span class="o">=</span> <span class="n">node_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">temp_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">temp_id</span> <span class="o">=</span> <span class="n">i</span>
+                    
+                    <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">temp_id</span><span class="p">)]</span> <span class="o">=</span> <span class="n">new_node</span>  <span class="c1"># Используем строковый ключ</span>
+                    <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_node</span>  <span class="c1"># Индекс в массиве</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Сопоставлен временный ID </span><span class="si">{</span><span class="n">temp_id</span><span class="si">}</span><span class="s2"> с новым узлом </span><span class="si">{</span><span class="n">new_node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    
+        <span class="c1"># 5. Удаляем указанные ребра</span>
+        <span class="n">deleted_edge_ids</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;deleted_edge_ids&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">deleted_edge_ids</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удаление </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">deleted_edge_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> ребер: </span><span class="si">{</span><span class="n">deleted_edge_ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">edge_id</span> <span class="ow">in</span> <span class="n">deleted_edge_ids</span><span class="p">:</span>
+                <span class="n">edge_id_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">edge_id</span><span class="p">)</span>
+                
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">edge_id_str</span> <span class="ow">in</span> <span class="n">existing_edges</span><span class="p">:</span>
+                        <span class="n">edge</span> <span class="o">=</span> <span class="n">existing_edges</span><span class="p">[</span><span class="n">edge_id_str</span><span class="p">]</span>
+                        
+                        <span class="c1"># Удаляем ребро из карты</span>
+                        <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удалено ребро ID: </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из карты&quot;</span><span class="p">)</span>
+                        
+                        <span class="c1"># Если ребро больше не привязано ни к какой карте, удаляем его</span>
+                        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">maps</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">edge</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удалено ребро ID: </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из базы данных&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Пытаемся найти ребро по ID</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">edge</span> <span class="o">=</span> <span class="n">Edge</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">edge_id</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                                <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удалено ребро ID: </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из карты (найдено по ID)&quot;</span><span class="p">)</span>
+                            
+                            <span class="c1"># Если ребро больше не привязано ни к какой карте, удаляем его</span>
+                            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">maps</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">edge</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Удалено ребро ID: </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> из базы данных&quot;</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="n">Edge</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ребро ID: </span><span class="si">{</span><span class="n">edge_id</span><span class="si">}</span><span class="s2"> не найдено в базе данных&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка при удалении ребра </span><span class="si">{</span><span class="n">edge_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 6. Создаем новые ребра</span>
+        <span class="n">new_edges</span> <span class="o">=</span> <span class="n">validated_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;new_edges&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">new_edges</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создание </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_edges</span><span class="p">)</span><span class="si">}</span><span class="s2"> новых ребер&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Получаем ID узлов, которые были удалены</span>
+            <span class="n">deleted_node_ids_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">deleted_node_ids</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">edge_data</span> <span class="ow">in</span> <span class="n">new_edges</span><span class="p">:</span>
+                <span class="c1"># Получаем ID узлов</span>
+                <span class="n">node1_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">edge_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;node1&#39;</span><span class="p">))</span>
+                <span class="n">node2_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">edge_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;node2&#39;</span><span class="p">))</span>
+                
+                <span class="c1"># Проверяем, не были ли узлы удалены</span>
+                <span class="k">if</span> <span class="n">node1_id</span> <span class="ow">in</span> <span class="n">deleted_node_ids_set</span> <span class="ow">or</span> <span class="n">node2_id</span> <span class="ow">in</span> <span class="n">deleted_node_ids_set</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Пропуск создания ребра </span><span class="si">{</span><span class="n">node1_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">node2_id</span><span class="si">}</span><span class="s2">, т.к. один из узлов удален&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                
+                <span class="c1"># Ищем узлы</span>
+                <span class="n">node1</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">node2</span> <span class="o">=</span> <span class="kc">None</span>
+                
+                <span class="c1"># Проверяем в маппинге клиентских ID</span>
+                <span class="k">if</span> <span class="n">node1_id</span> <span class="ow">in</span> <span class="n">client_to_db_id_map</span><span class="p">:</span>
+                    <span class="c1"># Получаем объект узла или его ID из маппинга</span>
+                    <span class="n">node1_value</span> <span class="o">=</span> <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="n">node1_id</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node1_value</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">):</span>
+                        <span class="n">node1</span> <span class="o">=</span> <span class="n">node1_value</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node1_value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                        <span class="c1"># Если у нас только ID, получаем объект из базы</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">node1</span> <span class="o">=</span> <span class="n">Node</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">node1_value</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="n">Node</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Узел с ID </span><span class="si">{</span><span class="n">node1_value</span><span class="si">}</span><span class="s2"> не найден в базе данных&quot;</span><span class="p">)</span>
+                <span class="c1"># Проверяем среди существующих узлов</span>
+                <span class="k">elif</span> <span class="n">node1_id</span> <span class="ow">in</span> <span class="n">existing_nodes</span><span class="p">:</span>
+                    <span class="n">node1</span> <span class="o">=</span> <span class="n">existing_nodes</span><span class="p">[</span><span class="n">node1_id</span><span class="p">]</span>
+                
+                <span class="c1"># Аналогично для второго узла</span>
+                <span class="k">if</span> <span class="n">node2_id</span> <span class="ow">in</span> <span class="n">client_to_db_id_map</span><span class="p">:</span>
+                    <span class="n">node2_value</span> <span class="o">=</span> <span class="n">client_to_db_id_map</span><span class="p">[</span><span class="n">node2_id</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node2_value</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">):</span>
+                        <span class="n">node2</span> <span class="o">=</span> <span class="n">node2_value</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node2_value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">node2</span> <span class="o">=</span> <span class="n">Node</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">node2_value</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="n">Node</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Узел с ID </span><span class="si">{</span><span class="n">node2_value</span><span class="si">}</span><span class="s2"> не найден в базе данных&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">node2_id</span> <span class="ow">in</span> <span class="n">existing_nodes</span><span class="p">:</span>
+                    <span class="n">node2</span> <span class="o">=</span> <span class="n">existing_nodes</span><span class="p">[</span><span class="n">node2_id</span><span class="p">]</span>
+                
+                <span class="c1"># Если оба узла найдены</span>
+                <span class="k">if</span> <span class="n">node1</span> <span class="ow">and</span> <span class="n">node2</span><span class="p">:</span>
+                    <span class="c1"># Проверяем, существует ли уже такое ребро</span>
+                    <span class="n">existing_edge</span> <span class="o">=</span> <span class="n">Edge</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">node1</span><span class="o">=</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="o">=</span><span class="n">node2</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="ow">or</span> <span class="n">Edge</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                        <span class="n">node1</span><span class="o">=</span><span class="n">node2</span><span class="p">,</span> <span class="n">node2</span><span class="o">=</span><span class="n">node1</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+                    
+                    <span class="k">if</span> <span class="n">existing_edge</span><span class="p">:</span>
+                        <span class="c1"># Если ребро существует, добавляем его к карте</span>
+                        <span class="k">if</span> <span class="n">existing_edge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                            <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">existing_edge</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Добавлено существующее ребро ID: </span><span class="si">{</span><span class="n">existing_edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> к карте&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Создаем новое ребро</span>
+                        <span class="n">new_edge</span> <span class="o">=</span> <span class="n">Edge</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">node1</span><span class="o">=</span><span class="n">node1</span><span class="p">,</span> <span class="n">node2</span><span class="o">=</span><span class="n">node2</span><span class="p">)</span>
+                        <span class="n">instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_edge</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создано новое ребро ID: </span><span class="si">{</span><span class="n">new_edge</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> между узлами </span><span class="si">{</span><span class="n">node1</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> и </span><span class="si">{</span><span class="n">node2</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Не удалось создать ребро: один или оба узла не найдены. node1_id=</span><span class="si">{</span><span class="n">node1_id</span><span class="si">}</span><span class="s2">, node2_id=</span><span class="si">{</span><span class="n">node2_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 7. Обновляем карту соответствия индексов для ответа клиенту</span>
+        <span class="n">client_index_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Подготовка карты индексов client_index_map&quot;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">client_to_db_id_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+                <span class="c1"># Извлекаем ID узла из value</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">):</span>  <span class="c1"># Если value - это объект Node</span>
+                    <span class="n">node_id</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>  <span class="c1"># Если value - это уже ID узла</span>
+                    <span class="n">node_id</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Пропуск значения для ключа </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: неожиданный тип </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                
+                <span class="c1"># Сохраняем в карту соответствия ключ (всегда строка) -&gt; ID узла (всегда int)</span>
+                <span class="n">client_index_map</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">node_id</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client_index_map</span> <span class="o">=</span> <span class="n">client_index_map</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Создана карта соответствия индексов клиента и узлов: </span><span class="si">{</span><span class="n">client_index_map</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Обновляем данные экземпляра</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">refresh_from_db</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">instance</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Авторские права 2025, Kalinin Team. </p>
+  </div>
+
+  Собрано при помощи <a href="https://www.sphinx-doc.org/">Sphinx</a> с использованием
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">темы,</a>
+    предоставленной <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

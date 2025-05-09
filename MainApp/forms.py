@@ -187,6 +187,9 @@ class AvatarUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'})
+        }
         
     def clean_image(self):
         """

@@ -137,6 +137,15 @@ def profile(request):
     user = request.user
     maps_count = Map.objects.filter(owner=user).count()
     
+    if request.method == 'POST':
+        form = AvatarUpdateForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Аватар успешно обновлен')
+            return redirect('profile')
+    else:
+        form = AvatarUpdateForm(instance=user)
+    
     try:
         latest_map = Map.objects.filter(owner=user).order_by('-updated_at').first()
     except Exception as e:
@@ -146,7 +155,8 @@ def profile(request):
     context = {
         'user': user,
         'maps_count': maps_count,
-        'latest_map': latest_map
+        'latest_map': latest_map,
+        'form': form
     }
     
     return render(request, 'profile.html', context)
