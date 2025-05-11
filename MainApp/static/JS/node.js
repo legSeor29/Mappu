@@ -8,6 +8,7 @@ import {
     getSelectedNodes, 
     getController 
 } from './store.js';
+import { Edge } from './edge.js';
 
 class Node {
     constructor(coordinates, id, map, ymaps3, formHandler, name = null, description = null, z_coordinate = 0) {  
