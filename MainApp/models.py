@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
         image (ImageField): Изображение профиля пользователя
     """
     phone = models.CharField(max_length=20, null=True, blank=True)
-    image = models.ImageField(upload_to='profile_pics', default='IMAGES/avatar.png', null=True, blank=True)
+    image = models.ImageField(upload_to='profile_pics', default='avatar.png', null=True, blank=True)
 
     def __str__(self):
         """Возвращает имя пользователя как строковое представление."""
