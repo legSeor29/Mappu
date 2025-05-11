@@ -1,6 +1,13 @@
 export { Node }
 
-import { nodes, edges, selectedNodes, mapId } from './edit_map.js';
+import { 
+    getNodes, 
+    getEdges, 
+    addSelectedNode, 
+    clearSelectedNodes, 
+    getSelectedNodes, 
+    getController 
+} from './store.js';
 
 class Node {
     constructor(coordinates, id, map, ymaps3, formHandler, name = null, description = null, z_coordinate = 0) {  
@@ -18,15 +25,13 @@ class Node {
         this.placeholderUrl = 'https://cdn.animaapp.com/projects/6761c31b315a42798e3ee7e6/releases/67db012a45e0bcae5c95cfd1/img/placeholder-1.png'
         this.createMarker();
         
-        // Добавляем узел для отслеживания только если он создан не из базы данных
-        // и если контроллер инициализирован
-        if (Controller && typeof Controller.addNewNode === 'function' && 
-            !Controller.initialNodeIds.has(id)) {
-            // Проверяем, создан ли этот узел новым пользовательским действием
+        const controller = getController(); // Получаем контроллер из store
+        if (controller && typeof controller.addNewNode === 'function' && 
+            !controller.initialNodeIds.has(id)) {
             const nodeCreatedByUserAction = !document.getElementById('mapId')._loadingData;
             if (nodeCreatedByUserAction) {
                 console.log(`Узел ${id} создан пользователем, отмечаем как новый`);
-                Controller.addNewNode(this);
+                controller.addNewNode(this);
             }
         }
     }
@@ -69,10 +74,13 @@ class Node {
             e.stopPropagation();
             e.preventDefault();
             if (e.button === 1) {
-                selectedNodes.push(this);
-                console.log(selectedNodes);
-                if (selectedNodes.length == 2) {
+                addSelectedNode(this); // Используем функцию из store
+                console.log(getSelectedNodes()); // Используем функцию из store
+                if (getSelectedNodes().length == 2) {
                     console.log('Создается новое ребро...')
+                    const edges = getEdges(); // Получаем edges из store
+                    const selectedNodes = getSelectedNodes(); // Получаем selectedNodes из store
+
                     const existingEdgeIds = Object.keys(edges).map(id => parseInt(id, 10));
                     const newEdgeId = existingEdgeIds.length > 0 ? Math.max(...existingEdgeIds) + 1 : 1;
                     const newEdge = new Edge(
@@ -84,9 +92,9 @@ class Node {
                         this.formHandler
                     );
             
-                    edges[newEdge.id] = newEdge;
+                    edges[newEdge.id] = newEdge; // Модифицируем edges из store
                     console.log('Создано новое ребро:', newEdge);
-                    selectedNodes = [];
+                    clearSelectedNodes(); // Используем функцию из store
                 }
             }
         });
@@ -166,10 +174,10 @@ class Node {
             this.z_coordinate = menu.querySelector('.node-z_cord').value; 
             this.formHandler.updateNodeOptions(this);
             
-            // Отмечаем узел как измененный, если что-то изменилось
-            if (Controller && Controller.markNodeChanged && 
+            const controller = getController(); // Получаем контроллер из store
+            if (controller && controller.markNodeChanged && 
                 (oldName !== this.name || oldDesc !== this.description || oldZ !== this.z_coordinate)) {
-                Controller.markNodeChanged(this);
+                controller.markNodeChanged(this);
             }
         });
         
@@ -189,6 +197,9 @@ class Node {
 
     delete() {
         console.log(`удалена вершина ${this.id}`)
+        const edges = getEdges(); // Получаем edges из store
+        const nodes = getNodes(); // Получаем nodes из store
+
         // Удаление всех связанных ребер
         const relatedEdges = Object.values(edges).filter(e => 
             e.node1.id === this.id || e.node2.id === this.id
@@ -200,13 +211,13 @@ class Node {
         this.map.removeChild(this.marker);
         // const index = nodes.findIndex(n => n.id === this.id);
         // if (index !== -1) nodes.splice(index, 1);
-        delete nodes[this.id];
+        delete nodes[this.id]; // Модифицируем nodes из store
         // Очищаем поля формы если удаляемый ID был в них
         this.formHandler.removeNodeOption(this.id);
         
-        // Отмечаем узел как удаленный
-        if (Controller && Controller.markNodeDeleted) {
-            Controller.markNodeDeleted(this.id);
+        const controller = getController(); // Получаем контроллер из store
+        if (controller && controller.markNodeDeleted) {
+            controller.markNodeDeleted(this.id);
         }
     }
 }

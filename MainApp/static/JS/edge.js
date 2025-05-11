@@ -1,5 +1,5 @@
 export { Edge }
-import { edges, Controller } from './edit_map.js';
+import { getEdges, getController } from './store.js';
  
 
 class Edge {
@@ -36,10 +36,10 @@ class Edge {
        
         this.createFeature();
         
-        // Добавляем ребро для отслеживания если оно новое
-        if (Controller && Controller.addNewEdge && 
-            (!Controller.initialEdgeIds || !Controller.initialEdgeIds.has(id))) {
-            Controller.addNewEdge(this);
+        const controller = getController(); // Получаем контроллер из store
+        if (controller && controller.addNewEdge && 
+            (!controller.initialEdgeIds || !controller.initialEdgeIds.has(id))) {
+            controller.addNewEdge(this);
         }
     }
 
@@ -122,11 +122,12 @@ class Edge {
     delete() {
         console.log(`вы удалили ребро ${this.id}`)
         this.map.removeChild(this.feature);
-        delete edges[this.id];
+        const edges = getEdges(); // Получаем edges из store
+        delete edges[this.id]; // Модифицируем edges из store
         
-        // Отмечаем ребро как удаленное
-        if (Controller && Controller.markEdgeDeleted) {
-            Controller.markEdgeDeleted(this.id);
+        const controller = getController(); // Получаем контроллер из store
+        if (controller && controller.markEdgeDeleted) {
+            controller.markEdgeDeleted(this.id);
         }
     }
 
@@ -138,9 +139,9 @@ class Edge {
             }
         });
         
-        // Отмечаем ребро как измененное при изменении позиции
-        if (Controller && Controller.markEdgeChanged) {
-            Controller.markEdgeChanged(this);
+        const controller = getController(); // Получаем контроллер из store
+        if (controller && controller.markEdgeChanged) {
+            controller.markEdgeChanged(this);
         }
     }
 }

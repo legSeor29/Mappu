@@ -1,6 +1,11 @@
 export { MapInteraction }
 
-import { nodes, edges, selectedNodes, mapId } from './edit_map.js';
+import { 
+    getNodes, 
+    getEdges, 
+    // getSelectedNodes, // Не используется напрямую, но используется в Node.js
+    getController 
+} from './store.js';
 import { Node } from './node.js';
 import { Edge } from './edge.js'; 
 
@@ -69,6 +74,8 @@ class MapInteraction {
     handleMapClick(event) {
         if (!event) return;
         
+        const nodes = getNodes(); // Получаем nodes из store
+        
         // Передаем API в конструктор Node
         const existingNodeIds = Object.keys(nodes).map(id => parseInt(id, 10));
         const newNodeId = existingNodeIds.length > 0 ? Math.max(...existingNodeIds) + 1 : 1;
@@ -84,7 +91,7 @@ class MapInteraction {
             0   // Базовое значение z-координаты
         );
         
-        nodes[newNodeId] = newNode;
+        nodes[newNodeId] = newNode; // Модифицируем nodes из store
         
         // Node constructor already adds new node to tracking
 
@@ -101,6 +108,10 @@ class MapInteraction {
             e.stopPropagation()
             e.preventDefault();
             console.log('Начало обработки формы ребра');
+        
+            const nodes = getNodes(); // Получаем nodes из store
+            const edges = getEdges(); // Получаем edges из store
+            const controller = getController(); // Получаем controller из store
         
             const node1Id = this.formHandler.node1Select.value;
             const node2Id = this.formHandler.node2Select.value;
@@ -135,16 +146,20 @@ class MapInteraction {
             }
 
             // Проверяем, являются ли узлы новыми (еще не сохранены на сервере)
-            const isNode1New = !this.initialNodeIds.has(node1.id);
-            const isNode2New = !this.initialNodeIds.has(node2.id);
+            const isNode1New = controller && controller.initialNodeIds && !controller.initialNodeIds.has(node1.id);
+            const isNode2New = controller && controller.initialNodeIds && !controller.initialNodeIds.has(node2.id);
 
             if (isNode1New || isNode2New) {
                 // Если хотя бы один узел новый, добавляем ребро в очередь
-                this.pendingEdges.push({
-                    node1: node1,
-                    node2: node2
-                });
-                console.log('Ребро добавлено в очередь ожидания сохранения узлов');
+                if (controller && controller.pendingEdges) {
+                     controller.pendingEdges.push({
+                        node1: node1,
+                        node2: node2
+                    });
+                    console.log('Ребро добавлено в очередь ожидания сохранения узлов');
+                } else {
+                    console.error("Controller или pendingEdges не инициализирован для добавления отложенного ребра.")
+                }
                 // Очищаем форму
                 this.formHandler.node1Select.value = '';
                 this.formHandler.node2Select.value = '';
@@ -162,8 +177,7 @@ class MapInteraction {
                 this.formHandler
             );
     
-            edges[newEdgeId] = newEdge;
-            this.addNewEdge(newEdge);
+            edges[newEdgeId] = newEdge; // Модифицируем edges из store
             console.log('Создано новое ребро через форму:', newEdge);
             
             // Очищаем форму
@@ -176,6 +190,9 @@ class MapInteraction {
             e.stopPropagation()
             e.preventDefault();
             console.log('Начало обработки формы узла');
+        
+            const nodes = getNodes(); // Получаем nodes из store
+            // const controller = getController(); // Получаем controller из store
         
             const name = this.formHandler.nodeName.value
             const lat = parseFloat(this.formHandler.latitudeInput.value)
@@ -201,8 +218,8 @@ class MapInteraction {
                 desc,
                 z_coord,
             );
-            nodes[newNodeId] = newNode;
-            this.addNewNode(newNode);
+            nodes[newNodeId] = newNode; // Модифицируем nodes из store
+            // controller.addNewNode(newNode); // addNewNode вызывается в конструкторе Node
 
             console.log('Создан новый узел через форму:', newNode);
             
