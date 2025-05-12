@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Видеоуроки | Mappu</title>
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #4285f4;
+            --dark-color: #202124;
+            --light-color: #f8f9fa;
+            --border-color: #dadce0;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .search-box {
+            width: 300px;
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+        }
+        
+        .sidebar {
+            width: 250px;
+            padding-right: 30px;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+        
+        .content {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h3 {
+            color: var(--dark-color);
+            margin-top: 25px;
+        }
+        
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-item {
+            margin-bottom: 5px;
+        }
+        
+        .nav-link {
+            display: block;
+            padding: 8px 15px;
+            color: var(--dark-color);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(66, 133, 244, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .video-category {
+            margin-bottom: 40px;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .video-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+        
+        .video-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-icon::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 15px solid var(--primary-color);
+            margin-left: 5px;
+        }
+        
+        .video-info {
+            padding: 15px;
+        }
+        
+        .video-title {
+            font-weight: 500;
+            margin: 0 0 8px 0;
+            color: var(--dark-color);
+        }
+        
+        .video-duration {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .video-description {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #555;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+            width: 100%;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-bottom: 30px;
+            }
+            
+            .search-box {
+                width: 200px;
+            }
+            
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">Mappu</div>
+            <input type="text" class="search-box" placeholder="Поиск видео...">
+        </div>
+    </header>
+    
+    <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#beginner" class="nav-link active">Для начинающих</a></li>
+                    <li class="nav-item"><a href="#editing" class="nav-link">Редактирование карт</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="content">
+            <h1>Видеоуроки по работе с Mappu</h1>
+            
+            <section id="beginner" class="video-category">
+                <h2>Для начинающих</h2>
+                <p>Обучающие материалы для новых пользователей Mappu</p>
+                
+                <div class="video-grid">
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <img src="https://via.placeholder.com/400x225" alt="Первые шаги в Mappu">
+                            <div class="play-icon"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Создание карты</h3>
+                            <div class="video-duration">5:24</div>
+                            <p class="video-description">Как создать карту с нуля</p>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <img src="https://via.placeholder.com/400x225" alt="Создание первой карты">
+                            <div class="play-icon"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Просмотр других карт</h3>
+                            <div class="video-duration">7:15</div>
+                            <p class="video-description">Как посмотреть карты других пользователей</p>
+                        </div>
+                    </div>
+                    
+                    
+            </section>
+            
+            <section id="editing" class="video-category">
+                <h2>Редактирование карт</h2>
+                <p>Техники работы с картами и объектами</p>
+                
+                <div class="video-grid">
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <img src="https://via.placeholder.com/400x225" alt="Добавление и редактирование точек">
+                            <div class="play-icon"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Добавление точек и рёбер</h3>
+                            <div class="video-duration">6:18</div>
+                            <p class="video-description">Как работать с объектами на карте</p>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <img src="https://via.placeholder.com/400x225" alt="Создание маршрутов и линий">
+                            <div class="play-icon"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Редактирование объетов</h3>
+                            <div class="video-duration">9:05</div>
+                            <p class="video-description">Руководство по редактированию объектов</p>
+                        </div>
+                    </div>
+                    
+                    
+            </section>
+        </main>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <div>
+                <p>© 2025 Kalinin Team. Все права защищены.</p>
+            </div>
+            <div>
+                <p><a href="help.html" style="color: white;">Справка</a></p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                document.querySelectorAll('.nav-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+                
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.video-category');
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= sectionTop - 100) {
+                    currentSection = '#' + section.getAttribute('id');
+                }
+            });
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        document.querySelector('.search-box').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                alert('Поиск будет реализован в будущем');
+            }
+        });
+    </script>
+</body>
+</html>
