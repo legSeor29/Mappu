@@ -1,5 +1,3 @@
-import { getNodes } from './store.js'; // Import getNodes
-
 export { FormHandler }
 
 class FormHandler {
@@ -30,48 +28,6 @@ class FormHandler {
         
         const options2 = this.node2Select.querySelectorAll(`option[value="${nodeId}"]`);
         options2.forEach(option => option.remove());
-    }
-
-    populateNodeDropdowns() {
-        console.log("Populating node dropdowns..."); // Add log for debugging
-        // Store current selections if needed (optional, depends on desired UX)
-        const selectedNode1 = this.node1Select.value;
-        const selectedNode2 = this.node2Select.value;
-
-        // Clear existing options and add a default empty option
-        this.node1Select.innerHTML = '<option value="">Выберите узел</option>'; 
-        this.node2Select.innerHTML = '<option value="">Выберите узел</option>';
-
-        const nodes = getNodes(); // Get current nodes from the store
-        
-        // Check if nodes is an object
-        if (typeof nodes === 'object' && nodes !== null) {
-             for (const nodeId in nodes) {
-                if (nodes.hasOwnProperty(nodeId)) {
-                    const node = nodes[nodeId];
-                    // Use the existing addNodeOption logic but apply it per node
-                    const option = document.createElement('option');
-                    option.value = node.id; 
-                    // Ensure text content is set correctly, handling potential undefined names
-                    option.textContent = node.name ? node.name : `Узел ${node.id}`; 
-                    
-                    this.node1Select.appendChild(option.cloneNode(true));
-                    this.node2Select.appendChild(option);
-                }
-            }
-        } else {
-            console.error("Nodes data is not an object:", nodes);
-        }
-
-
-        // Restore previous selections if they still exist (optional)
-        if (this.node1Select.querySelector(`option[value="${selectedNode1}"]`)) {
-            this.node1Select.value = selectedNode1;
-        }
-         if (this.node2Select.querySelector(`option[value="${selectedNode2}"]`)) {
-            this.node2Select.value = selectedNode2;
-        }
-        console.log("Finished populating dropdowns. Node1 options:", this.node1Select.options.length, "Node2 options:", this.node2Select.options.length); // Debug log
     }
 
     setNodeCoords(coords) {

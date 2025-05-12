@@ -145,9 +145,27 @@ class MapInteraction {
                 return;
             }
 
-            // Удаляем проверку и логику добавления в очередь pendingEdges
-            // Просто создаём ребро напрямую, как при клике колесиком мыши
-            
+            // Проверяем, являются ли узлы новыми (еще не сохранены на сервере)
+            const isNode1New = controller && controller.initialNodeIds && !controller.initialNodeIds.has(node1.id);
+            const isNode2New = controller && controller.initialNodeIds && !controller.initialNodeIds.has(node2.id);
+
+            if (isNode1New || isNode2New) {
+                // Если хотя бы один узел новый, добавляем ребро в очередь
+                if (controller && controller.pendingEdges) {
+                     controller.pendingEdges.push({
+                        node1: node1,
+                        node2: node2
+                    });
+                    console.log('Ребро добавлено в очередь ожидания сохранения узлов');
+                } else {
+                    console.error("Controller или pendingEdges не инициализирован для добавления отложенного ребра.")
+                }
+                // Очищаем форму
+                this.formHandler.node1Select.value = '';
+                this.formHandler.node2Select.value = '';
+                return;
+            }
+
             const existingEdgeIds = Object.keys(edges).map(id => parseInt(id, 10));
             const newEdgeId = existingEdgeIds.length > 0 ? Math.max(...existingEdgeIds) + 1 : 1;
             const newEdge = new Edge(
