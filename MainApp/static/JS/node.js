@@ -138,32 +138,125 @@ class Node {
     createMenu() {
         const menu = document.createElement('div');
         menu.innerHTML = `
-            <form class="node-form">
+            <div class="node-header" style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; padding: 12px 16px; border-radius: 12px 12px 0 0;">
+                <h5 style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                    <i class="fa fa-map-marker" style="margin-right: 6px; font-size: 14px;">📍</i>Вершина #${this.id}
+                </h5>
+            </div>
+            <form class="node-form" style="background-color: white; padding: 18px; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
                 <div class="mb-3">
-                    <label class="form-label">Название вершины</label>
-                    <input type="text" class="form-control node-name" value="${this.name || ''}">
+                    <label class="form-label" style="font-weight: 600; font-size: 14px; color: #333; margin-bottom: 6px; display: block;">
+                        Название вершины
+                    </label>
+                    <input type="text" class="form-control node-name" value="${this.name || ''}" 
+                           style="width: 100%; border-radius: 8px; border: 1px solid #e0e0e0; padding: 10px 14px; margin-bottom: 14px; transition: all 0.2s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Описание</label>
-                    <textarea class="form-control node-desc">${this.description || ''}</textarea>
+                    <label class="form-label" style="font-weight: 600; font-size: 14px; color: #333; margin-bottom: 6px; display: block;">
+                        Описание
+                    </label>
+                    <textarea class="form-control node-desc" 
+                              style="width: 100%; border-radius: 8px; border: 1px solid #e0e0e0; padding: 10px 14px; margin-bottom: 14px; min-height: 90px; transition: all 0.2s ease; resize: vertical; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">${this.description || ''}</textarea>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Высота (Z)</label>
-                    <input type="number" 
-                            class="form-control node-z_cord" 
-                            name="z_coordinate"
-                            step="any" value="${this.z_coordinate}">
+                    <label class="form-label" style="font-weight: 600; font-size: 14px; color: #333; margin-bottom: 6px; display: block;">
+                        Высота (Z)
+                    </label>
+                    <input type="number" class="form-control node-z_cord" name="z_coordinate" step="any" value="${this.z_coordinate}"
+                           style="width: 100%; border-radius: 8px; border: 1px solid #e0e0e0; padding: 10px 14px; margin-bottom: 18px; transition: all 0.2s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
                 </div>
                 
-                <button type="button" class="btn btn-primary btn-sm node_save">Сохранить</button>
-                <button type="button" class="delete btn btn-danger btn-sm">Удалить</button>
+                <div style="display: flex; justify-content: space-between; gap: 12px;">
+                    <button type="button" class="btn btn-primary btn-sm node_save" 
+                            style="flex: 1; background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);">
+                        Сохранить
+                    </button>
+                    <button type="button" class="delete btn btn-danger btn-sm" 
+                            style="flex: 1; background: linear-gradient(135deg, #ef233c, #d90429); color: white; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(239, 35, 60, 0.2);">
+                        Удалить
+                    </button>
+                </div>
             </form>
         `;
-        menu.style.display = 'none';
+        
+        // Добавляем стили при наведении для полей ввода и кнопок
+        const styleElement = document.createElement('style');
+        styleElement.textContent = `
+            .node-menu input:hover, .node-menu textarea:hover {
+                border-color: #4361ee !important;
+            }
+            
+            .node-menu input:focus, .node-menu textarea:focus {
+                border-color: #4361ee !important;
+                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25) !important;
+                outline: none !important;
+            }
+            
+            .node-menu .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 10px rgba(67, 97, 238, 0.3) !important;
+            }
+            
+            .node-menu .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 10px rgba(239, 35, 60, 0.3) !important;
+            }
+            
+            .node-menu .btn-primary:active, .node-menu .btn-danger:active {
+                transform: translateY(0);
+            }
+        `;
+        document.head.appendChild(styleElement);
+        
+        menu.style.cssText = `
+            display: none;
+            position: absolute;
+            top: -15px;
+            left: 50px;
+            z-index: 1000;
+            min-width: 280px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.08);
+        `;
         menu.className = 'node-menu';
+        
+        // Плавное появление меню при отображении
+        const originalDisplay = menu.style.display;
+        Object.defineProperty(menu.style, 'display', {
+            set: function(value) {
+                this.cssText = this.cssText.replace(/display:.*?;/, `display: ${value};`);
+                if (value !== 'none') {
+                    setTimeout(() => {
+                        menu.style.opacity = '1';
+                        menu.style.transform = 'translateY(0)';
+                    }, 10);
+                } else {
+                    menu.style.opacity = '0';
+                    menu.style.transform = 'translateY(10px)';
+                }
+            }
+        });
+        
         menu.querySelector(`.node_save`).addEventListener('click', (e) => {
             //e.stopPropagation();
             console.log('Сохранение данных о вершине...')
+            
+            // Добавляем визуальную обратную связь при сохранении
+            const saveBtn = menu.querySelector('.node_save');
+            const originalText = saveBtn.innerText;
+            saveBtn.innerText = '✓ Сохранено';
+            saveBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            
+            setTimeout(() => {
+                saveBtn.innerText = originalText;
+                saveBtn.style.background = 'linear-gradient(135deg, #4361ee, #3a0ca3)';
+            }, 1500);
             
             // Сохраняем старые значения для проверки изменений
             const oldName = this.name;
@@ -184,7 +277,22 @@ class Node {
         
         menu.querySelector('.delete').addEventListener('click', (e) => {
             e.stopPropagation();
-            this.delete();
+            
+            // Добавляем подтверждение удаления
+            const deleteBtn = menu.querySelector('.delete');
+            if (deleteBtn.classList.contains('confirm')) {
+                this.delete();
+            } else {
+                deleteBtn.innerText = 'Подтвердить';
+                deleteBtn.classList.add('confirm');
+                deleteBtn.style.background = 'linear-gradient(135deg, #000000, #333333)';
+                
+                setTimeout(() => {
+                    deleteBtn.innerText = 'Удалить';
+                    deleteBtn.classList.remove('confirm');
+                    deleteBtn.style.background = 'linear-gradient(135deg, #ef233c, #d90429)';
+                }, 3000);
+            }
         });
         
         return menu;
@@ -210,8 +318,6 @@ class Node {
             edge.delete(); // Используем новый метод delete
         });
         this.map.removeChild(this.marker);
-        // const index = nodes.findIndex(n => n.id === this.id);
-        // if (index !== -1) nodes.splice(index, 1);
         delete nodes[this.id]; // Модифицируем nodes из store
         // Очищаем поля формы если удаляемый ID был в них
         this.formHandler.removeNodeOption(this.id);
