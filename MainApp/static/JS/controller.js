@@ -83,6 +83,17 @@ class DatabaseController {
                         this.ymaps3,
                         this.formHandler
                     );
+                    
+                    // Применяем стили ребра, если они есть
+                    if (edge.style) {
+                        newEdge.style = edge.style;
+                        // Обновляем dashStyle на основе lineStyle из полученных данных
+                        newEdge.updateDashStyle();
+                        // Обновляем отображение ребра с новыми стилями
+                        newEdge.updateStyle();
+                        console.log(`Стили применены к ребру ${edge.id}:`, edge.style);
+                    }
+                    
                     edges[edge.id] = newEdge;
                     console.log(`Ребро ${edge.id} загружено из базы данных`);
                 } else {
@@ -133,7 +144,13 @@ class DatabaseController {
             edges: Object.values(edges).map(edge => ({
                 id: edge.id,
                 node1: edge.node1.id,
-                node2: edge.node2.id
+                node2: edge.node2.id,
+                style: edge.style || {
+                    color: "#1DA1F2",
+                    width: 3,
+                    lineStyle: "solid",
+                    opacity: 1
+                }
             }))
         };
 
@@ -253,23 +270,74 @@ class DatabaseController {
             console.log(`Подготовка ${this.changes.newEdges.length} новых ребер`);
             mapData.new_edges = this.changes.newEdges.map(edge => ({
                 node1: typeof edge.node1 === 'object' ? edge.node1.id : edge.node1,
-                node2: typeof edge.node2 === 'object' ? edge.node2.id : edge.node2
+                node2: typeof edge.node2 === 'object' ? edge.node2.id : edge.node2,
+                style: edge.style || {
+                    color: "#1DA1F2",
+                    width: 3,
+                    lineStyle: "solid",
+                    opacity: 1
+                }
             }));
         }
         
         if (Object.keys(this.changes.changedEdges).length > 0) {
             console.log(`Подготовка ${Object.keys(this.changes.changedEdges).length} измененных ребер`);
-            mapData.changed_edges = Object.values(this.changes.changedEdges).map(edge => ({
-                id: edge.id,
-                node1: edge.node1.id,
-                node2: edge.node2.id
-            }));
+            
+            // Выводим текущие объекты для отладки
+            console.log('Объекты измененных ребер:', this.changes.changedEdges);
+            
+            mapData.changed_edges = Object.values(this.changes.changedEdges).map(edge => {
+                // Создаем промежуточный объект для отладки
+                const edgeData = {
+                    id: edge.id,
+                    node1: typeof edge.node1 === 'object' ? edge.node1.id : edge.node1,
+                    node2: typeof edge.node2 === 'object' ? edge.node2.id : edge.node2,
+                    style: edge.style || {
+                        color: "#1DA1F2",
+                        width: 3,
+                        lineStyle: "solid",
+                        opacity: 1
+                    }
+                };
+                
+                // Логируем подготовленные данные для каждого ребра
+                console.log(`Подготовленное измененное ребро #${edge.id}:`, edgeData);
+                
+                return edgeData;
+            });
         }
         
         if (this.changes.deletedEdgeIds.length > 0) {
             console.log(`Подготовка ${this.changes.deletedEdgeIds.length} удаленных ребер: ${JSON.stringify(this.changes.deletedEdgeIds)}`);
             mapData.deleted_edge_ids = this.changes.deletedEdgeIds;
         }
+
+        // Проверяем и исправляем данные ребер перед отправкой
+        if (mapData.changed_edges && mapData.changed_edges.length > 0) {
+            // Для каждого ребра проверяем наличие полей node1 и node2
+            mapData.changed_edges.forEach(edge => {
+                const edgeObj = getEdges()[edge.id];
+                if (edgeObj) {
+                    // Если поля отсутствуют, извлекаем их из объекта Edge
+                    if (!edge.node1 && edgeObj.node1) {
+                        edge.node1 = edgeObj.node1.id;
+                        console.log(`Восстановлено поле node1 для ребра ${edge.id}: ${edge.node1}`);
+                    }
+                    if (!edge.node2 && edgeObj.node2) {
+                        edge.node2 = edgeObj.node2.id;
+                        console.log(`Восстановлено поле node2 для ребра ${edge.id}: ${edge.node2}`);
+                    }
+                }
+            });
+            console.log('Проверка и исправление данных завершены:', mapData.changed_edges);
+        }
+
+        // Расширенное логирование перед отправкой запроса
+        console.group('Содержимое запроса');
+        console.log('Полные данные измененных ребер:', this.changes.changedEdges);
+        console.log('Преобразованные данные для запроса:', mapData.changed_edges);
+        console.log('Строка JSON для отправки:', JSON.stringify(mapData, null, 2));
+        console.groupEnd();
 
         console.log('Итоговые данные для PATCH-запроса:', JSON.stringify(mapData, null, 2));
         
@@ -406,6 +474,11 @@ class DatabaseController {
                 node2: node2ServerId,
                 temp_id: edge.id
             };
+
+            // Добавляем поле style, если оно есть
+            if (edge.style) {
+                result.style = edge.style;
+            }
 
             console.log(`Итоговое ребро для отправки:`, result);
             return result;
@@ -561,7 +634,13 @@ class DatabaseController {
                 const newEdgeData = {
                     id: edge.id,
                     node1: edge.node1.id,
-                    node2: edge.node2.id
+                    node2: edge.node2.id,
+                    style: edge.style || {
+                        color: "#1DA1F2",
+                        width: 3,
+                        lineStyle: "solid",
+                        opacity: 1
+                    }
                 };
                 if (newEdgeData.node1 === newEdgeData.node2) {
                     console.error(`ОШИБКА: Попытка добавить некорректное ребро ${edge.id} с совпадающими узлами (node1=${newEdgeData.node1}, node2=${newEdgeData.node2})`);
@@ -604,17 +683,39 @@ class DatabaseController {
     markEdgeChanged(edge) {
         if (this.initialEdgeIds.has(edge.id)) {
             console.log(`Ребро ${edge.id} отмечено как измененное`)
+            console.log(`Детали ребра:`, {
+                id: edge.id,
+                node1: edge.node1.id,
+                node2: edge.node2.id,
+                style: edge.style
+            });
+            
             if (!this.changes.changedEdges[edge.id]) {
                 this.changes.changedEdges[edge.id] = {
                     id: edge.id,
                     node1: edge.node1.id,
-                    node2: edge.node2.id
+                    node2: edge.node2.id,
+                    style: edge.style || {
+                        color: "#1DA1F2",
+                        width: 3,
+                        lineStyle: "solid",
+                        opacity: 1
+                    }
                 };
+                console.log(`Создан новый объект в changedEdges[${edge.id}]:`, this.changes.changedEdges[edge.id]);
             } else {
+                console.log(`Обновляется существующий объект changedEdges[${edge.id}]:`, this.changes.changedEdges[edge.id]);
                 Object.assign(this.changes.changedEdges[edge.id], {
                     node1: edge.node1.id,
-                    node2: edge.node2.id
+                    node2: edge.node2.id,
+                    style: edge.style || {
+                        color: "#1DA1F2",
+                        width: 3,
+                        lineStyle: "solid",
+                        opacity: 1
+                    }
                 });
+                console.log(`После обновления changedEdges[${edge.id}]:`, this.changes.changedEdges[edge.id]);
             }
         } else {
             this.addNewEdge(edge);

@@ -44,6 +44,14 @@ class EdgeSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         if hasattr(instance, 'temp_id'):
             data['temp_id'] = instance.temp_id
+        
+        # Проверяем и устанавливаем значения по умолчанию для style, если он отсутствует
+        if not data.get('style'):
+            data['style'] = {
+                'color': '#1DA1F2',
+                'width': 3,
+                'lineStyle': 'solid'
+            }
         return data
 
 
@@ -53,10 +61,38 @@ class EdgeWriteSerializer(serializers.Serializer):
     temp_id = serializers.IntegerField(required=False)
     node1 = serializers.IntegerField()
     node2 = serializers.IntegerField()
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    style = serializers.JSONField(required=False)
     
     def validate(self, data):
         if data['node1'] == data['node2']:
             raise serializers.ValidationError("Узлы не могут ссылаться сами на себя")
+        
+        # Проверяем структуру и значения поля style, если оно есть
+        if 'style' in data and data['style']:
+            style = data['style']
+            if not isinstance(style, dict):
+                raise serializers.ValidationError({'style': 'Должно быть объектом JSON'})
+            
+            # Проверка цвета
+            if 'color' in style and not isinstance(style['color'], str):
+                raise serializers.ValidationError({'style.color': 'Должен быть строкой'})
+            
+            # Проверка ширины
+            if 'width' in style:
+                try:
+                    width = int(style['width'])
+                    if not (1 <= width <= 10):
+                        raise serializers.ValidationError({'style.width': 'Должен быть числом от 1 до 10'})
+                except (ValueError, TypeError):
+                    raise serializers.ValidationError({'style.width': 'Должен быть числом'})
+            
+            # Проверка стиля линии
+            if 'lineStyle' in style and style['lineStyle'] not in ['solid', 'dashed', 'dotted']:
+                raise serializers.ValidationError({
+                    'style.lineStyle': 'Должен быть одним из: solid, dashed, dotted'
+                })
+        
         return data
 
 
@@ -276,7 +312,12 @@ class MapSerializer(serializers.ModelSerializer):
                     edge_payload = {
                         'node1': existing_nodes[str(node1_id)].id,
                         'node2': existing_nodes[str(node2_id)].id,
-                        'description': edge_data.get('description', '')
+                        'description': edge_data.get('description', ''),
+                        'style': edge_data.get('style', {
+                            'color': '#1DA1F2',
+                            'width': 3,
+                            'lineStyle': 'solid'
+                        })
                     }
                     edge_serializer = EdgeSerializer(data=edge_payload)
                     if edge_serializer.is_valid():

@@ -85,11 +85,13 @@ class Edge(models.Model):
         node1 (ForeignKey): Ссылка на начальный узел связи
         node2 (ForeignKey): Ссылка на конечный узел связи
         description (TextField): Описание связи (опционально)
+        style (JSONField): JSON с параметрами стиля ребра (цвет, ширина, тип линии и т.д.)
         temp_id (IntegerField): Временный идентификатор для операций с фронтендом (опционально)
     """
     node1 = models.ForeignKey(Node, related_name='edges_from', on_delete=models.CASCADE)
     node2 = models.ForeignKey(Node, related_name='edges_to', on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
+    style = models.JSONField(blank=True, null=True, default=dict)
     temp_id = models.IntegerField(null=True, blank=True, db_index=True)
     
     def __str__(self):

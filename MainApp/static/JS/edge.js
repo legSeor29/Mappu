@@ -34,12 +34,16 @@ class Edge {
         this.listener = null;
         this.id = id;
         
-        // Параметры стиля ребра
-        this.color = "#1DA1F2";      // Цвет по умолчанию
-        this.width = 3;              // Ширина по умолчанию
-        this.lineStyle = "solid";    // Стиль линии: solid, dashed, dotted
-        this.dashStyle = [];         // Пунктирная линия (если нужно)
-        this.opacity = 1;            // Прозрачность
+        // Параметры стиля ребра (теперь в одном объекте)
+        this.style = {
+            color: "#1DA1F2",      // Цвет по умолчанию
+            width: 3,              // Ширина по умолчанию
+            lineStyle: "solid",    // Стиль линии: solid, dashed, dotted
+            opacity: 1             // Прозрачность
+        };
+        
+        // Вычисляемое свойство для dashStyle на основе lineStyle
+        this.dashStyle = []; // Будет рассчитываться в updateDashStyle()
         
         // Кэширование последних координат для оптимизации
         this._lastStart = null;
@@ -49,6 +53,9 @@ class Edge {
         // Создаем глобальное модальное меню при инициализации класса
         this.createGlobalMenu();
         
+        // Обновляем dashStyle на основе lineStyle
+        this.updateDashStyle();
+        
         // Создаем графический элемент ребра
         this.createFeature();
         
@@ -57,6 +64,18 @@ class Edge {
             (!controller.initialEdgeIds || !controller.initialEdgeIds.has(id))) {
             controller.addNewEdge(this);
         }
+    }
+    
+    // Метод для обновления dashStyle на основе lineStyle
+    updateDashStyle() {
+        if (this.style.lineStyle === 'dashed') {
+            this.dashStyle = [4, 4]; // Пунктирная линия: 4px штрих, 4px пробел
+        } else if (this.style.lineStyle === 'dotted') {
+            this.dashStyle = [2, 2]; // Точечная линия: 2px штрих, 2px пробел
+        } else {
+            this.dashStyle = []; // Сплошная линия (пустой массив)
+        }
+        return this.dashStyle;
     }
 
     createFeature() {
@@ -71,9 +90,9 @@ class Edge {
             },
             style: {
                 stroke: [{
-                    width: this.width, 
-                    color: this.color,
-                    opacity: this.opacity,
+                    width: this.style.width, 
+                    color: this.style.color,
+                    opacity: this.style.opacity,
                     dashStyle: this.dashStyle
                 }],
                 cursor: 'pointer',
@@ -184,22 +203,16 @@ class Edge {
     }
 
     updateStyle() {
-        // Устанавливаем правильный dashStyle на основе lineStyle
-        if (this.lineStyle === 'dashed') {
-            this.dashStyle = [4, 4]; // Пунктирная линия: 4px штрих, 4px пробел
-        } else if (this.lineStyle === 'dotted') {
-            this.dashStyle = [2, 2]; // Точечная линия: 2px штрих, 2px пробел
-        } else {
-            this.dashStyle = []; // Сплошная линия (пустой массив)
-        }
+        // Обновляем dashStyle на основе lineStyle
+        this.updateDashStyle();
         
         // Обновляем только стили без изменения геометрии
         this.feature.update({
             style: {
                 stroke: [{
-                    width: this.width, 
-                    color: this.color,
-                    opacity: this.opacity,
+                    width: this.style.width, 
+                    color: this.style.color,
+                    opacity: this.style.opacity,
                     dashStyle: this.dashStyle
                 }],
                 cursor: 'pointer',
@@ -207,12 +220,7 @@ class Edge {
             }
         });
         
-        console.log(`[DEBUG] Обновлены стили ребра ${this.id}:`, {
-            color: this.color,
-            width: this.width,
-            lineStyle: this.lineStyle,
-            dashStyle: this.dashStyle
-        });
+        console.log(`[DEBUG] Обновлены стили ребра ${this.id}:`, this.style);
         
         const controller = getController();
         if (controller && controller.markEdgeChanged) {
@@ -390,14 +398,14 @@ class Edge {
             <div class="edge-menu">
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">Цвет:</label>
-                    <input type="color" id="edge-color-${this.id}" class="form-control edge-color-input" value="${this.color}" 
+                    <input type="color" id="edge-color-${this.id}" class="form-control edge-color-input" value="${this.style.color}" 
                            style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s ease;">
                 </div>
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">
-                        Ширина: <span id="width-value-${this.id}" style="font-weight: 500; color: #4361ee;">${this.width}px</span>
+                        Ширина: <span id="width-value-${this.id}" style="font-weight: 500; color: #4361ee;">${this.style.width}px</span>
                     </label>
-                    <input type="range" id="edge-width-${this.id}" min="1" max="10" value="${this.width}" 
+                    <input type="range" id="edge-width-${this.id}" min="1" max="10" value="${this.style.width}" 
                            style="width: 100%; height: 6px; border-radius: 3px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #4361ee, #3a0ca3); outline: none; transition: all 0.2s ease;">
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
@@ -526,19 +534,15 @@ class Edge {
                 const styleSelect = document.getElementById(`edge-style-${this.id}`);
                 
                 if (colorInput && widthInput && styleSelect) {
-                    this.color = colorInput.value;
-                    this.width = parseInt(widthInput.value);
-                    this.lineStyle = styleSelect.value;
+                    // Обновляем объект стиля
+                    this.style.color = colorInput.value;
+                    this.style.width = parseInt(widthInput.value);
+                    this.style.lineStyle = styleSelect.value;
                     
                     // Обновляем стиль ребра
                     this.updateStyle();
                     
-                    console.log(`[DEBUG] Сохранены настройки для ребра ${this.id}:`, {
-                        color: this.color,
-                        width: this.width,
-                        lineStyle: this.lineStyle,
-                        dashStyle: this.dashStyle
-                    });
+                    console.log(`[DEBUG] Сохранены настройки для ребра ${this.id}:`, this.style);
                     
                     // Добавляем визуальную обратную связь при сохранении
                     const originalText = saveButton.innerText;
@@ -592,13 +596,13 @@ class Edge {
             const styleSelect = document.getElementById(`edge-style-${this.id}`);
             const widthValue = document.getElementById(`width-value-${this.id}`);
             
-            if (colorInput) colorInput.value = this.color;
-            if (widthInput) widthInput.value = this.width;
-            if (widthValue) widthValue.textContent = `${this.width}px`;
+            if (colorInput) colorInput.value = this.style.color;
+            if (widthInput) widthInput.value = this.style.width;
+            if (widthValue) widthValue.textContent = `${this.style.width}px`;
             
             // Установка правильного значения стиля линии
             if (styleSelect) {
-                styleSelect.value = this.lineStyle;
+                styleSelect.value = this.style.lineStyle;
             }
             
             // Устанавливаем display: flex для центрирования содержимого
