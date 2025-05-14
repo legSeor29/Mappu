@@ -18,7 +18,7 @@ class FormHandler {
     addNodeOption(node) {
         const option = document.createElement('option');
         option.value = node.id;
-        option.textContent = node.name || `Узел ${node.id}`;
+        option.textContent = node.name;
         
         this.node1Select.appendChild(option.cloneNode(true));
         this.node2Select.appendChild(option);
@@ -52,8 +52,8 @@ class FormHandler {
                     // Use the existing addNodeOption logic but apply it per node
                     const option = document.createElement('option');
                     option.value = node.id; 
-                    // Ensure text content is set correctly, handling potential undefined names
-                    option.textContent = node.name ? node.name : `Узел ${node.id}`; 
+                    // Теперь просто используем имя узла, так как оно всегда задано
+                    option.textContent = node.name; 
                     
                     this.node1Select.appendChild(option.cloneNode(true));
                     this.node2Select.appendChild(option);
@@ -62,7 +62,6 @@ class FormHandler {
         } else {
             console.error("Nodes data is not an object:", nodes);
         }
-
 
         // Restore previous selections if they still exist (optional)
         if (this.node1Select.querySelector(`option[value="${selectedNode1}"]`)) {
@@ -81,10 +80,10 @@ class FormHandler {
 
     updateNodeOptions(node) {
         const options = this.node1Select.querySelectorAll(`option[value="${node.id}"]`);
-        options.forEach(option => option.textContent = node.name || `Узел ${node.id}`);
+        options.forEach(option => option.textContent = node.name);
 
         const options2 = this.node2Select.querySelectorAll(`option[value="${node.id}"]`);
-        options2.forEach(option => option.textContent = node.name || `Узел ${node.id}`);
+        options2.forEach(option => option.textContent = node.name);
     }
 
     setFirstAvailableNode(nodeId) {

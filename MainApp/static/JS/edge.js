@@ -1,9 +1,9 @@
 export { Edge }
-import { getEdges, getController } from './store.js';
+import { getEdges, getController, getNextDisplayId } from './store.js';
  
 
 class Edge {
-    constructor(id, node1, node2, map, ymaps3, formHandler) {
+    constructor(id, node1, node2, map, ymaps3, formHandler, temp_id = null) {
         
         // Проверка, что не создаем ребро от узла к самому себе
         if (!node1 || !node2) {
@@ -33,7 +33,10 @@ class Edge {
         this.feature = null;
         this.listener = null;
         this.id = id;
-        
+        this.temp_id = temp_id;
+        // Get a guaranteed sequential display ID from the store
+        this.displayId = getNextDisplayId('edge');
+
         // Параметры стиля ребра (теперь в одном объекте)
         this.style = {
             color: "#1DA1F2",      // Цвет по умолчанию
@@ -391,7 +394,7 @@ class Edge {
         modalContent.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 15px;">
                 <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #4361ee; letter-spacing: 0.5px;">
-                    <i style="margin-right: 8px; font-size: 16px;">🔗</i>Настройка ребра #${this.id}
+                    <i style="margin-right: 8px; font-size: 16px;">🔗</i>Настройка ребра #${this.displayId}
                 </h3>
                 <button id="close-modal-${this.id}" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888; transition: color 0.2s ease;">×</button>
             </div>

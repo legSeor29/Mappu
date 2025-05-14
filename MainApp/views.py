@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.response import Response
 from rest_framework import status
-from .forms import UserRegistrationForm, NodeForm, EdgeForm, CreateMapForm, UserProfileForm, AvatarUpdateForm
+from .forms import UserRegistrationForm, NodeForm, EdgeForm, CreateMapForm, UserProfileForm, AvatarUpdateForm, MapImportForm
 from .models import Node, Edge, Map, CustomUser, HashTag
 from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Max
@@ -14,6 +14,7 @@ from rest_framework import generics
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+import json
 
 
 import logging
@@ -396,3 +397,74 @@ def docs_index(request):
         HttpResponse: Перенаправление на главную страницу документации Sphinx
     """
     return redirect('/static/index.html')
+
+@login_required
+def import_map(request):
+    """
+    Представление для импорта карты через JSON файл.
+    
+    Args:
+        request: Объект HttpRequest
+        
+    Returns:
+        HttpResponse: При GET-запросе - форма импорта,
+                      При POST-запросе с валидной формой - перенаправление на страницу редактирования карты
+    """
+    if request.method == 'POST':
+        form = MapImportForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                # Читаем и парсим JSON
+                json_data = json.loads(request.FILES['json_file'].read().decode('utf-8'))
+                
+                # Создаем новую карту
+                map_obj = Map.objects.create(
+                    title=form.cleaned_data['title'] or json_data.get('title', 'Новая карта'),
+                    description=form.cleaned_data['description'] or json_data.get('description', ''),
+                    owner=request.user,
+                    center_latitude=json_data.get('center', {}).get('latitude', 55.921708),
+                    center_longitude=json_data.get('center', {}).get('longitude', 37.814387)
+                )
+                
+                # Создаем узлы
+                node_map = {}  # Для хранения соответствия имен узлов и их объектов
+                for node_data in json_data.get('nodes', []):
+                    node = Node.objects.create(
+                        name=node_data['name'],
+                        latitude=node_data['latitude'],
+                        longitude=node_data['longitude'],
+                        description=node_data.get('description', ''),
+                        z_coordinate=node_data.get('z_coordinate')
+                    )
+                    node_map[node_data['name']] = node
+                    map_obj.nodes.add(node)
+                
+                # Создаем связи
+                for edge_data in json_data.get('edges', []):
+                    node1 = node_map.get(edge_data['from'])
+                    node2 = node_map.get(edge_data['to'])
+                    if node1 and node2:
+                        edge = Edge.objects.create(
+                            node1=node1,
+                            node2=node2,
+                            description=edge_data.get('description', ''),
+                            style=edge_data.get('style', {})
+                        )
+                        map_obj.edges.add(edge)
+                
+                # Добавляем хештеги
+                for tag_name in json_data.get('hashtags', []):
+                    tag, _ = HashTag.objects.get_or_create(name=tag_name)
+                    map_obj.hashtags.add(tag)
+                
+                messages.success(request, 'Карта успешно импортирована!')
+                return redirect('edit_map', map_id=map_obj.id)
+                
+            except json.JSONDecodeError:
+                messages.error(request, 'Ошибка в формате JSON файла')
+            except Exception as e:
+                messages.error(request, f'Ошибка при импорте карты: {str(e)}')
+    else:
+        form = MapImportForm()
+    
+    return render(request, 'import_map.html', {'form': form})

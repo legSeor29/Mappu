@@ -5,6 +5,7 @@ import {
     getEdges, 
     getMapId, 
     resetNodesAndEdges, 
+    resetDisplayIdCounters,
     getController 
 } from './store.js';
 import { Node } from './node.js';
@@ -56,6 +57,26 @@ class DatabaseController {
         document.getElementById('mapId')._loadingData = true;
 
         try {
+            // Find highest temp_id for proper display ID counter initialization
+            let maxNodeTempId = 0;
+            let maxEdgeTempId = 0;
+            
+            // First pass to find max temp_ids for proper display ID initialization
+            for (const node of data.nodes) {
+                if (node.temp_id && parseInt(node.temp_id) > maxNodeTempId) {
+                    maxNodeTempId = parseInt(node.temp_id);
+                }
+            }
+            
+            for (const edge of data.edges) {
+                if (edge.temp_id && parseInt(edge.temp_id) > maxEdgeTempId) {
+                    maxEdgeTempId = parseInt(edge.temp_id);
+                }
+            }
+            
+            // Reset display ID counters to ensure they start after the highest loaded values
+            resetDisplayIdCounters(maxNodeTempId, maxEdgeTempId);
+            
             for (const node of data.nodes) {
                 this.initialNodeIds.add(node.id);
                 const newNode = new Node(
@@ -66,7 +87,8 @@ class DatabaseController {
                     this.formHandler,
                     node.name,
                     node.description,
-                    node.z_coordinate
+                    node.z_coordinate,
+                    node.temp_id
                 );
                 nodes[node.id] = newNode;
                 console.log(`Узел ${node.id} загружен из базы данных`);
@@ -81,7 +103,8 @@ class DatabaseController {
                         nodes[edge.node2],
                         this.map,
                         this.ymaps3,
-                        this.formHandler
+                        this.formHandler,
+                        edge.temp_id
                     );
                     
                     // Применяем стили ребра, если они есть

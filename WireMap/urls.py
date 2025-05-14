@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.urls import path
-from MainApp.views import main_page, register, edit_map, create_map, MapDetailAPI, custom_logout, profile, docs_index
+from MainApp.views import main_page, register, edit_map, create_map, MapDetailAPI, custom_logout, profile, docs_index, import_map
 from MainApp import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -15,6 +15,7 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
     path('edit_map/<int:map_id>', edit_map, name='edit_map'),
     path('create_map/', create_map, name='create_map'),
+    path('maps/import/', import_map, name='import_map'),
     path('api/v1/maps/<int:pk>/', MapDetailAPI.as_view(), name='map-detail'),
     path('maps/my-maps/', views.user_maps, name='user_maps'),
     path('delete-map/<int:map_id>/', views.delete_map, name='delete_map'),

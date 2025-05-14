@@ -40,6 +40,11 @@
                         <i class="fas fa-plus-circle me-1"></i>Создать карту
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'import_map' %}">
+                        <i class="fas fa-file-import me-1"></i>Импорт карты
+                    </a>
+                </li>
                 {% else %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Регистрация</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Войти</a></li>

@@ -3,6 +3,11 @@ let _edges = {};
 let _selectedNodes = [];
 let _mapId = null;
 let _controller = null;
+// Add counters for sequential display IDs
+let _displayIdCounters = {
+    node: 1,
+    edge: 1
+};
 
 export const getNodes = () => _nodes;
 export const setNodes = (newNodes) => {
@@ -23,6 +28,20 @@ export const addSelectedNode = (node) => {
 };
 export const clearSelectedNodes = () => {
     _selectedNodes = [];
+};
+
+// Get the next sequential display ID for a given type
+export const getNextDisplayId = (type) => {
+    if (!_displayIdCounters[type]) {
+        _displayIdCounters[type] = 1;
+    }
+    return _displayIdCounters[type]++;
+};
+
+// Reset the display ID counters (useful when loading from backend)
+export const resetDisplayIdCounters = (maxNodeId = 0, maxEdgeId = 0) => {
+    _displayIdCounters.node = maxNodeId + 1;
+    _displayIdCounters.edge = maxEdgeId + 1;
 };
 
 export const getMapId = () => _mapId;

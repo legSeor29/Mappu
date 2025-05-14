@@ -6,24 +6,30 @@ import {
     addSelectedNode, 
     clearSelectedNodes, 
     getSelectedNodes, 
-    getController 
+    getController,
+    getNextDisplayId
 } from './store.js';
 import { Edge } from './edge.js';
 
 class Node {
-    constructor(coordinates, id, map, ymaps3, formHandler, name = null, description = null, z_coordinate = 0) {  
+    constructor(coordinates, id, map, ymaps3, formHandler, name = null, description = null, z_coordinate = 0, temp_id = null) {  
         this.id = id;
         this.coordinates = coordinates;
-        this.name = name 
+        // Get a guaranteed sequential display ID from the store
+        this.displayId = getNextDisplayId('node');
+        
+        // Установка имени по умолчанию, если оно не было передано
+        this.name = name || `Вершина ${this.displayId}`;
         this.description = description
         this.z_coordinate = z_coordinate
+        this.temp_id = temp_id
         this.map = map;
         this.ymaps3 = ymaps3; // Сохраняем ссылку на API
         this.formHandler = formHandler;
         this.marker = null;
         this.menuVisible = false; // Добавляем флаг видимости меню
         this.formHandler.addNodeOption(this); // Добавляем в список
-        this.placeholderUrl = 'https://cdn.animaapp.com/projects/6761c31b315a42798e3ee7e6/releases/67db012a45e0bcae5c95cfd1/img/placeholder-1.png'
+        this.placeholderUrl = '/static/placeholder.png'
         this.createMarker();
         
         const controller = getController(); // Получаем контроллер из store
@@ -140,7 +146,7 @@ class Node {
         menu.innerHTML = `
             <div class="node-header" style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; padding: 12px 16px; border-radius: 12px 12px 0 0;">
                 <h5 style="margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-                    <i class="fa fa-map-marker" style="margin-right: 6px; font-size: 14px;">📍</i>Вершина #${this.id}
+                    <i class="fa fa-map-marker" style="margin-right: 6px; font-size: 14px;">📍</i>Вершина #${this.displayId}
                 </h5>
             </div>
             <form class="node-form" style="background-color: white; padding: 18px; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
