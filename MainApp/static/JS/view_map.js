@@ -1,6 +1,11 @@
+import { Edge } from './edge.js';
+import { Node } from './node.js';
+ 
+
 let nodes = {};
 let edges = {};
 const mapId = document.getElementById('mapId').innerText;
+let Controller;
 
 class DatabaseController {
     constructor() {   
@@ -41,9 +46,12 @@ class DatabaseController {
                     node.id,
                     this.map,
                     this.ymaps3,
+                    null, // formHandler не нужен для view
                     node.name,
                     node.description,
-                    node.z_coordinate
+                    node.z_coordinate,
+                    node.temp_id, // если есть
+                    true // isViewOnly
                 );
                 
                 // Добавляем в глобальный объект узлов
@@ -56,18 +64,25 @@ class DatabaseController {
             for (const edge of data.edges) {
                 // Проверяем, есть ли оба узла
                 if (nodes[edge.node1] && nodes[edge.node2]) {
-                    // Создаем ребро
+                    // Создаем ребро через импортируемый Edge
                     const newEdge = new Edge(
                         edge.id,
                         nodes[edge.node1],
                         nodes[edge.node2],
+                        edge.description,
                         this.map,
-                        this.ymaps3
+                        this.ymaps3,
+                        null, // formHandler не нужен для view
+                        edge.temp_id, // если есть
+                        true // isViewOnly
                     );
-                    
-                    // Добавляем в глобальный объект ребер
+                    // Применяем стили, если они есть
+                    if (edge.style) {
+                        newEdge.style = edge.style;
+                        if (typeof newEdge.updateDashStyle === 'function') newEdge.updateDashStyle();
+                        if (typeof newEdge.updateStyle === 'function') newEdge.updateStyle();
+                    }
                     edges[edge.id] = newEdge;
-                    
                     console.log(`Ребро ${edge.id} загружено из базы данных`);
                 } else {
                     console.warn(`Невозможно загрузить ребро ${edge.id}: один или оба узла не найдены`);
@@ -79,161 +94,6 @@ class DatabaseController {
         } catch (error) {
             console.error("Ошибка при получении данных:", error);
         }
-    }
-}
-
-class Node {
-    constructor(coordinates, id, map, ymaps3, name = null, description = null, z_coordinate = 0) {  
-        this.id = id;
-        this.coordinates = coordinates;
-        this.name = name;
-        this.description = description;
-        this.z_coordinate = z_coordinate;
-        this.map = map;
-        this.ymaps3 = ymaps3;
-        this.marker = null;
-        this.placeholderUrl = 'https://cdn.animaapp.com/projects/6761c31b315a42798e3ee7e6/releases/67db012a45e0bcae5c95cfd1/img/placeholder-1.png';
-        this.createMarker();
-    }
-
-    createMarker() {
-        const markerElement = this.createImageMarker(this.placeholderUrl);
-        const infoElement = this.createInfoWindow();
-        const container = document.createElement('div');
-        
-        container.style.pointerEvents = 'auto';
-        container.append(markerElement, infoElement);
-
-        // Только просмотр информации при клике
-        markerElement.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleInfoWindow(infoElement);
-        });
-
-        // Закрытие информации при клике вне элемента
-        document.addEventListener('click', (e) => {
-            if (!container.contains(e.target)) {
-                infoElement.style.display = 'none';
-            }
-        });
-
-        // Создание маркера
-        this.marker = new this.ymaps3.YMapMarker({
-            coordinates: this.coordinates,
-            source: 'my-markers'
-        }, container);
-        
-        this.map.addChild(this.marker);
-    }
-
-    createImageMarker(src) {
-        const element = document.createElement('img');
-        element.src = src;
-        element.style.cssText = `
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            transform: translate(-50%, -100%);
-            pointer-events: auto;
-        `;
-        return element;
-    }
-
-    createInfoWindow() {
-        const info = document.createElement('div');
-        info.innerHTML = `
-            <div class="card border-0">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">${this.name || 'Без названия'}</span>
-                    <i class="fas fa-times-circle close-info" style="cursor: pointer;"></i>
-                </div>
-                <div class="card-body">
-                    ${this.description ? `<p class="mb-2">${this.description}</p>` : 
-                      '<p class="text-muted mb-2 fst-italic">Нет описания</p>'}
-                    <div class="d-flex justify-content-between border-top pt-2 mt-2">
-                        <span class="badge bg-light text-dark">
-                            <i class="fas fa-arrows-alt-v me-1"></i> ${this.z_coordinate} м
-                        </span>
-                        <span class="badge bg-light text-dark">
-                            <i class="fas fa-map-marker-alt me-1"></i> ${this.coordinates[1].toFixed(4)}, ${this.coordinates[0].toFixed(4)}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        `;
-        info.style.cssText = `
-            display: none;
-            position: absolute;
-            z-index: 1000;
-            width: 250px;
-            transform: translate(20px, -100%);
-            box-shadow: 0 3px 14px rgba(0,0,0,0.3);
-            border-radius: 8px;
-            overflow: hidden;
-        `;
-        info.className = 'node-info-window';
-        
-        // Add close button functionality
-        const closeBtn = info.querySelector('.close-info');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                info.style.display = 'none';
-            });
-        }
-        
-        return info;
-    }
-    
-    toggleInfoWindow(infoElement) {
-        // Close all other info windows first
-        document.querySelectorAll('.node-info-window').forEach(el => {
-            if (el !== infoElement) el.style.display = 'none';
-        });
-        
-        // Toggle this info window
-        if (infoElement.style.display === 'none') {
-            infoElement.style.display = 'block';
-        } else {
-            infoElement.style.display = 'none';
-        }
-    }
-}
-
-class Edge {
-    constructor(id, node1, node2, map, ymaps3) {
-        this.node1 = node1;
-        this.node2 = node2;
-        this.map = map;
-        this.ymaps3 = ymaps3;
-        this.feature = null;
-        this.id = id;
-       
-        this.createFeature();
-    }
-
-    createFeature() {
-        const coordinates = [
-            this.node1.coordinates,
-            this.node2.coordinates
-        ];
-
-        // Создаем элемент линии
-        const lineElement = document.createElement('div');
-        
-        // Создаем саму линию
-        this.feature = new this.ymaps3.YMapFeature({
-            geometry: {
-                type: 'LineString',
-                coordinates: coordinates
-            },
-            style: {
-                stroke: [{width: 3, color: "#1DA1F2"}]
-            },
-            source: 'edges'
-        }, lineElement);
-
-        this.map.addChild(this.feature);
     }
 }
 

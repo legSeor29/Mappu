@@ -3,7 +3,7 @@ import { getEdges, getController, getNextDisplayId } from './store.js';
  
 
 class Edge {
-    constructor(id, node1, node2, map, ymaps3, formHandler, temp_id = null) {
+    constructor(id, node1, node2, description, map, ymaps3, formHandler, temp_id = null, isViewOnly = false) {
         
         // Проверка, что не создаем ребро от узла к самому себе
         if (!node1 || !node2) {
@@ -34,9 +34,13 @@ class Edge {
         this.listener = null;
         this.id = id;
         this.temp_id = temp_id;
-        // Get a guaranteed sequential display ID from the store
-        this.displayId = getNextDisplayId('edge');
-
+        this.isViewOnly = isViewOnly;
+        this.description = description;
+        // Корректная генерация displayId
+        this.displayId = this.temp_id || this.id || getNextDisplayId('edge');
+        if (this.isViewOnly) {
+            this.infoMenu = this.createGlobalMenu();
+        }
         // Параметры стиля ребра (теперь в одном объекте)
         this.style = {
             color: "#1DA1F2",      // Цвет по умолчанию
@@ -52,9 +56,6 @@ class Edge {
         this._lastStart = null;
         this._lastEnd = null;
         this._cachedCoordinates = null;
-        
-        // Создаем глобальное модальное меню при инициализации класса
-        this.createGlobalMenu();
         
         // Обновляем dashStyle на основе lineStyle
         this.updateDashStyle();
@@ -119,31 +120,34 @@ class Edge {
     // Создает слушатель событий для ребра
     createEdgeListener() {
         // Обработчик клика на ребро
-        const clickHandler = (object) => {
-            // Проверяем, что клик был на наше ребро
+        const clickHandler = (object, event) => {
             if (object && object.type === 'feature' && object.entity === this.feature) {
                 console.log(`[DEBUG] Клик на ребро ${this.id} через YMapListener`);
-                this.showGlobalMenu();
+                this.showGlobalMenu(event);
                 return true; // Предотвращаем всплытие события
             }
             return false;
         };
         
         // Обработчик правого клика
-        const contextMenuHandler = (object) => {
+        const contextMenuHandler = (object, event) => {
             if (object && object.type === 'feature' && object.entity === this.feature) {
                 console.log(`[DEBUG] Контекстное меню на ребре ${this.id} через YMapListener`);
-                this.showGlobalMenu();
+                if (event && event.domEvent && event.domEvent.originalEvent) {
+                    event.domEvent.originalEvent.preventDefault();
+                    event.domEvent.originalEvent.stopPropagation();
+                }
+                this.showGlobalMenu(event);
                 return true; // Предотвращаем всплытие события
             }
             return false;
         };
         
         // Обработчик двойного клика
-        const dblClickHandler = (object) => {
+        const dblClickHandler = (object, event) => {
             if (object && object.type === 'feature' && object.entity === this.feature) {
                 console.log(`[DEBUG] Двойной клик на ребре ${this.id} через YMapListener`);
-                this.showGlobalMenu();
+                this.showGlobalMenu(event);
                 return true; // Предотвращаем всплытие события
             }
             return false;
@@ -173,9 +177,11 @@ class Edge {
         }
         
         // Удаляем глобальное меню
-        const globalMenu = document.getElementById(`edge-global-menu-${this.id}`);
-        if (globalMenu) {
-            document.body.removeChild(globalMenu);
+        if (!this.isViewOnly) {
+            const globalMenu = document.getElementById(`edge-global-menu-${this.id}`);
+            if (globalMenu) {
+                document.body.removeChild(globalMenu);
+            }
         }
         
         const edges = getEdges(); // Получаем edges из store
@@ -349,248 +355,355 @@ class Edge {
 
     // Метод для создания глобального модального меню
     createGlobalMenu() {
-        // Удаляем существующее меню если оно уже есть
-        const existingMenu = document.getElementById(`edge-global-menu-${this.id}`);
-        if (existingMenu) {
-            document.body.removeChild(existingMenu);
-        }
-        
-        // Создаем контейнер для модального окна
-        const modalContainer = document.createElement('div');
-        modalContainer.id = `edge-global-menu-${this.id}`;
-        modalContainer.className = 'edge-global-menu-container';
-        modalContainer.style.cssText = `
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 100000;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
-        
-        // Создаем содержимое модального окна
-        const modalContent = document.createElement('div');
-        modalContent.className = 'edge-modal-content';
-        modalContent.style.cssText = `
-            background-color: white;
-            padding: 24px;
-            border-radius: 12px;
-            min-width: 320px;
-            max-width: 500px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
-        `;
-        
-        // Заголовок с ID ребра и кнопкой закрытия
-        modalContent.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 15px;">
-                <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #4361ee; letter-spacing: 0.5px;">
-                    <i style="margin-right: 8px; font-size: 16px;">🔗</i>Настройка ребра #${this.displayId}
-                </h3>
-                <button id="close-modal-${this.id}" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888; transition: color 0.2s ease;">×</button>
-            </div>
-            <div class="edge-menu">
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">Цвет:</label>
-                    <input type="color" id="edge-color-${this.id}" class="form-control edge-color-input" value="${this.style.color}" 
-                           style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s ease;">
-                </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">
-                        Ширина: <span id="width-value-${this.id}" style="font-weight: 500; color: #4361ee;">${this.style.width}px</span>
-                    </label>
-                    <input type="range" id="edge-width-${this.id}" min="1" max="10" value="${this.style.width}" 
-                           style="width: 100%; height: 6px; border-radius: 3px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #4361ee, #3a0ca3); outline: none; transition: all 0.2s ease;">
-                </div>
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">Стиль линии:</label>
-                    <select id="edge-style-${this.id}" 
-                            style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e0e0; font-size: 14px; color: #333; background-color: white; cursor: pointer; outline: none; transition: all 0.2s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
-                        <option value="solid">Сплошная</option>
-                        <option value="dashed">Пунктирная</option>
-                        <option value="dotted">Точечная</option>
-                    </select>
-                </div>
-                <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px;">
-                    <button id="edge-save-${this.id}" style="flex: 1; background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; border: none; padding: 12px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);">
-                        Сохранить
-                    </button>
-                    <button id="edge-delete-${this.id}" style="flex: 1; background: linear-gradient(135deg, #ef233c, #d90429); color: white; border: none; padding: 12px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(239, 35, 60, 0.2);">
-                        Удалить связь
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        // Добавляем содержимое в контейнер
-        modalContainer.appendChild(modalContent);
-        
-        // Добавляем модальное окно в body
-        document.body.appendChild(modalContainer);
-        
-        // Добавляем стили для расширенных стилей элементов формы
-        const styleElement = document.createElement('style');
-        styleElement.textContent = `
-            /* Стили для ползунка в разных браузерах */
-            #edge-width-${this.id}::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                appearance: none;
-                width: 18px;
-                height: 18px;
-                border-radius: 50%;
-                background: #4361ee;
+        if (this.isViewOnly) {
+            // Создаём overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'edge-modal-overlay';
+            overlay.style.cssText = `
+                display: none;
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(0,0,0,0.45);
+                z-index: 9999;
+                justify-content: center;
+                align-items: center;
+                transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+                opacity: 0;
+            `;
+
+            // Модальное окно
+            const modal = document.createElement('div');
+            modal.className = 'edge-modal-card';
+            modal.style.cssText = `
+                background: #fff;
+                border-radius: 16px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+                max-width: 480px;
+                width: 90vw;
+                padding: 32px 28px 24px 28px;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                animation: edge-modal-in 0.3s cubic-bezier(.4,0,.2,1);
+            `;
+
+            // Кнопка закрытия
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '&times;';
+            closeBtn.setAttribute('aria-label', 'Закрыть');
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 18px; right: 18px;
+                background: none;
+                border: none;
+                font-size: 2rem;
+                color: #888;
                 cursor: pointer;
-                border: 2px solid white;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-                transition: all 0.2s ease;
-            }
-            
-            #edge-width-${this.id}::-webkit-slider-thumb:hover {
-                transform: scale(1.2);
-                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            }
-            
-            #edge-width-${this.id}::-moz-range-thumb {
-                width: 18px;
-                height: 18px;
-                border-radius: 50%;
-                background: #4361ee;
-                cursor: pointer;
-                border: 2px solid white;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-                transition: all 0.2s ease;
-            }
-            
-            #edge-width-${this.id}::-moz-range-thumb:hover {
-                transform: scale(1.2);
-                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            }
-            
-            /* Стили для hover эффектов */
-            #close-modal-${this.id}:hover {
-                color: #000;
-            }
-            
-            #edge-save-${this.id}:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 10px rgba(67, 97, 238, 0.3);
-            }
-            
-            #edge-delete-${this.id}:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 10px rgba(239, 35, 60, 0.3);
-            }
-            
-            #edge-save-${this.id}:active, #edge-delete-${this.id}:active {
-                transform: translateY(0);
-            }
-            
-            /* Стили для фокуса элементов формы */
-            select#edge-style-${this.id}:hover, select#edge-style-${this.id}:focus, input#edge-color-${this.id}:hover, input#edge-color-${this.id}:focus {
-                border-color: #4361ee;
-                box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
-            }
-        `;
-        document.head.appendChild(styleElement);
-        
-        // Добавляем обработчики событий
-        
-        // Обновление значения ширины при изменении ползунка
-        const widthInput = document.getElementById(`edge-width-${this.id}`);
-        const widthValue = document.getElementById(`width-value-${this.id}`);
-        if (widthInput && widthValue) {
-            widthInput.addEventListener('input', () => {
-                widthValue.textContent = `${widthInput.value}px`;
+                transition: color 0.2s;
+            `;
+            closeBtn.addEventListener('mouseenter', () => closeBtn.style.color = '#222');
+            closeBtn.addEventListener('mouseleave', () => closeBtn.style.color = '#888');
+            closeBtn.addEventListener('click', () => this.hideGlobalMenu());
+
+            // Контент карточки
+            modal.innerHTML = `
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                    <div style="font-size:2.1rem;">🔗</div>
+                    <div style="font-size:1.25rem;font-weight:600;color:#4361ee;">Связь #${this.displayId}</div>
+                </div>
+                <div style="margin-bottom:14px;">
+                    <b>Узел 1:</b> ${this.node1.name || this.node1.id}
+                </div>
+                <div style="margin-bottom:14px;">
+                    <b>Узел 2:</b> ${this.node2.name || this.node2.id}
+                </div>
+                <div style="margin-bottom:14px;">
+                    <b>Описание:</b> ${this.description ? JSON.stringify(this.description) : 'отсутсвует'}
+                </div>
+            `;
+            modal.appendChild(closeBtn);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            // Стили для анимации
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes edge-modal-in {
+                    from { opacity: 0; transform: translateY(40px) scale(0.98); }
+                    to   { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                .edge-modal-overlay[show] {
+                    display: flex !important;
+                    opacity: 1 !important;
+                }
+                .edge-modal-overlay {
+                    transition: opacity 0.3s cubic-bezier(.4,0,.2,1);
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Закрытие по клику вне окна
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) this.hideGlobalMenu();
             });
-        }
-        
-        // Закрытие модального окна
-        const closeButton = document.getElementById(`close-modal-${this.id}`);
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                this.hideGlobalMenu();
-            });
-        }
-        
-        // Закрытие по клику вне модального окна
-        modalContainer.addEventListener('click', (e) => {
-            if (e.target === modalContainer) {
-                this.hideGlobalMenu();
+
+            return overlay;
+        } else {
+            // Удаляем существующее меню если оно уже есть
+            const existingMenu = document.getElementById(`edge-global-menu-${this.id}`);
+            if (existingMenu) {
+                document.body.removeChild(existingMenu);
             }
-        });
-        
-        // Сохранение настроек
-        const saveButton = document.getElementById(`edge-save-${this.id}`);
-        if (saveButton) {
-            saveButton.addEventListener('click', () => {
-                const colorInput = document.getElementById(`edge-color-${this.id}`);
-                const widthInput = document.getElementById(`edge-width-${this.id}`);
-                const styleSelect = document.getElementById(`edge-style-${this.id}`);
-                
-                if (colorInput && widthInput && styleSelect) {
-                    // Обновляем объект стиля
-                    this.style.color = colorInput.value;
-                    this.style.width = parseInt(widthInput.value);
-                    this.style.lineStyle = styleSelect.value;
-                    
-                    // Обновляем стиль ребра
-                    this.updateStyle();
-                    
-                    console.log(`[DEBUG] Сохранены настройки для ребра ${this.id}:`, this.style);
-                    
-                    // Добавляем визуальную обратную связь при сохранении
-                    const originalText = saveButton.innerText;
-                    const originalBackground = saveButton.style.background;
-                    saveButton.innerText = '✓ Сохранено';
-                    saveButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                    
-                    setTimeout(() => {
-                        saveButton.innerText = originalText;
-                        saveButton.style.background = originalBackground;
-                    }, 1500);
+            
+            // Создаем контейнер для модального окна
+            const modalContainer = document.createElement('div');
+            modalContainer.id = `edge-global-menu-${this.id}`;
+            modalContainer.className = 'edge-global-menu-container';
+            modalContainer.style.cssText = `
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 100000;
+                justify-content: center;
+                align-items: center;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            
+            // Создаем содержимое модального окна
+            const modalContent = document.createElement('div');
+            modalContent.className = 'edge-modal-content';
+            modalContent.style.cssText = `
+                background-color: white;
+                padding: 24px;
+                border-radius: 12px;
+                min-width: 320px;
+                max-width: 500px;
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
+                position: relative;
+                transform: translateY(20px);
+                transition: transform 0.3s ease;
+            `;
+            
+            // Заголовок с ID ребра и кнопкой закрытия
+            modalContent.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #4361ee; letter-spacing: 0.5px;">
+                        <i style="margin-right: 8px; font-size: 16px;">🔗</i>Настройка ребра #${this.displayId}
+                    </h3>
+                    <button id="close-modal-${this.id}" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #888; transition: color 0.2s ease;">×</button>
+                </div>
+                <div class="edge-menu">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">Цвет:</label>
+                        <input type="color" id="edge-color-${this.id}" class="form-control edge-color-input" value="${this.style.color}" 
+                               style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s ease;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">
+                            Ширина: <span id="width-value-${this.id}" style="font-weight: 500; color: #4361ee;">${this.style.width}px</span>
+                        </label>
+                        <input type="range" id="edge-width-${this.id}" min="1" max="10" value="${this.style.width}" 
+                               style="width: 100%; height: 6px; border-radius: 3px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, #4361ee, #3a0ca3); outline: none; transition: all 0.2s ease;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 24px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #333;">Стиль линии:</label>
+                        <select id="edge-style-${this.id}" 
+                                style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #e0e0e0; font-size: 14px; color: #333; background-color: white; cursor: pointer; outline: none; transition: all 0.2s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+                            <option value="solid">Сплошная</option>
+                            <option value="dashed">Пунктирная</option>
+                            <option value="dotted">Точечная</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px;">
+                        <button id="edge-save-${this.id}" style="flex: 1; background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; border: none; padding: 12px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);">
+                            Сохранить
+                        </button>
+                        <button id="edge-delete-${this.id}" style="flex: 1; background: linear-gradient(135deg, #ef233c, #d90429); color: white; border: none; padding: 12px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(239, 35, 60, 0.2);">
+                            Удалить связь
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Добавляем содержимое в контейнер
+            modalContainer.appendChild(modalContent);
+            
+            // Добавляем модальное окно в body
+            document.body.appendChild(modalContainer);
+            
+            // Добавляем стили для расширенных стилей элементов формы
+            const styleElement = document.createElement('style');
+            styleElement.textContent = `
+                /* Стили для ползунка в разных браузерах */
+                #edge-width-${this.id}::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    background: #4361ee;
+                    cursor: pointer;
+                    border: 2px solid white;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                    transition: all 0.2s ease;
                 }
                 
-                this.hideGlobalMenu();
-            });
-        }
-        
-        // Удаление ребра
-        const deleteButton = document.getElementById(`edge-delete-${this.id}`);
-        if (deleteButton) {
-            deleteButton.addEventListener('click', () => {
-                // Добавляем подтверждение удаления
-                if (deleteButton.classList.contains('confirm')) {
-                    console.log(`[DEBUG] Удаление ребра ${this.id} через глобальное меню`);
+                #edge-width-${this.id}::-webkit-slider-thumb:hover {
+                    transform: scale(1.2);
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                }
+                
+                #edge-width-${this.id}::-moz-range-thumb {
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    background: #4361ee;
+                    cursor: pointer;
+                    border: 2px solid white;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                    transition: all 0.2s ease;
+                }
+                
+                #edge-width-${this.id}::-moz-range-thumb:hover {
+                    transform: scale(1.2);
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                }
+                
+                /* Стили для hover эффектов */
+                #close-modal-${this.id}:hover {
+                    color: #000;
+                }
+                
+                #edge-save-${this.id}:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 10px rgba(67, 97, 238, 0.3);
+                }
+                
+                #edge-delete-${this.id}:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 10px rgba(239, 35, 60, 0.3);
+                }
+                
+                #edge-save-${this.id}:active, #edge-delete-${this.id}:active {
+                    transform: translateY(0);
+                }
+                
+                /* Стили для фокуса элементов формы */
+                select#edge-style-${this.id}:hover, select#edge-style-${this.id}:focus, input#edge-color-${this.id}:hover, input#edge-color-${this.id}:focus {
+                    border-color: #4361ee;
+                    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+                }
+            `;
+            document.head.appendChild(styleElement);
+            
+            // Добавляем обработчики событий
+            
+            // Обновление значения ширины при изменении ползунка
+            const widthInput = document.getElementById(`edge-width-${this.id}`);
+            const widthValue = document.getElementById(`width-value-${this.id}`);
+            if (widthInput && widthValue) {
+                widthInput.addEventListener('input', () => {
+                    widthValue.textContent = `${widthInput.value}px`;
+                });
+            }
+            
+            // Закрытие модального окна
+            const closeButton = document.getElementById(`close-modal-${this.id}`);
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
                     this.hideGlobalMenu();
-                    this.delete();
-                } else {
-                    deleteButton.innerText = 'Подтвердить';
-                    deleteButton.classList.add('confirm');
-                    deleteButton.style.background = 'linear-gradient(135deg, #000000, #333333)';
-                    
-                    setTimeout(() => {
-                        if (deleteButton && document.body.contains(deleteButton)) {
-                            deleteButton.innerText = 'Удалить связь';
-                            deleteButton.classList.remove('confirm');
-                            deleteButton.style.background = 'linear-gradient(135deg, #ef233c, #d90429)';
-                        }
-                    }, 3000);
+                });
+            }
+            
+            // Закрытие по клику вне модального окна
+            modalContainer.addEventListener('click', (e) => {
+                if (e.target === modalContainer) {
+                    this.hideGlobalMenu();
                 }
             });
+            
+            // Сохранение настроек
+            const saveButton = document.getElementById(`edge-save-${this.id}`);
+            if (saveButton) {
+                saveButton.addEventListener('click', () => {
+                    const colorInput = document.getElementById(`edge-color-${this.id}`);
+                    const widthInput = document.getElementById(`edge-width-${this.id}`);
+                    const styleSelect = document.getElementById(`edge-style-${this.id}`);
+                    
+                    if (colorInput && widthInput && styleSelect) {
+                        // Обновляем объект стиля
+                        this.style.color = colorInput.value;
+                        this.style.width = parseInt(widthInput.value);
+                        this.style.lineStyle = styleSelect.value;
+                        
+                        // Обновляем стиль ребра
+                        this.updateStyle();
+                        
+                        console.log(`[DEBUG] Сохранены настройки для ребра ${this.id}:`, this.style);
+                        
+                        // Добавляем визуальную обратную связь при сохранении
+                        const originalText = saveButton.innerText;
+                        const originalBackground = saveButton.style.background;
+                        saveButton.innerText = '✓ Сохранено';
+                        saveButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                        
+                        setTimeout(() => {
+                            saveButton.innerText = originalText;
+                            saveButton.style.background = originalBackground;
+                        }, 1500);
+                    }
+                    
+                    this.hideGlobalMenu();
+                });
+            }
+            
+            // Удаление ребра
+            const deleteButton = document.getElementById(`edge-delete-${this.id}`);
+            if (deleteButton) {
+                deleteButton.addEventListener('click', () => {
+                    // Добавляем подтверждение удаления
+                    if (deleteButton.classList.contains('confirm')) {
+                        console.log(`[DEBUG] Удаление ребра ${this.id} через глобальное меню`);
+                        this.hideGlobalMenu();
+                        this.delete();
+                    } else {
+                        deleteButton.innerText = 'Подтвердить';
+                        deleteButton.classList.add('confirm');
+                        deleteButton.style.background = 'linear-gradient(135deg, #000000, #333333)';
+                        
+                        setTimeout(() => {
+                            if (deleteButton && document.body.contains(deleteButton)) {
+                                deleteButton.innerText = 'Удалить связь';
+                                deleteButton.classList.remove('confirm');
+                                deleteButton.style.background = 'linear-gradient(135deg, #ef233c, #d90429)';
+                            }
+                        }, 3000);
+                    }
+                });
+            }
         }
     }
     
     // Показать глобальное меню
-    showGlobalMenu() {
+    showGlobalMenu(event) {
+        if (this.isViewOnly) {
+            if (this.infoMenu) {
+                this.infoMenu.setAttribute('show', '');
+                this.infoMenu.style.display = 'flex';
+                setTimeout(() => { this.infoMenu.style.opacity = '1'; }, 10);
+            }
+            // Debug displayId
+            console.log('[DEBUG] Edge displayId:', this.displayId, 'id:', this.id, 'temp_id:', this.temp_id);
+            // Закрытие при клике вне меню теперь реализовано через overlay
+            return;
+        }
         const menu = document.getElementById(`edge-global-menu-${this.id}`);
         if (menu) {
             // Сначала обновляем значения в форме, чтобы отразить текущие настройки ребра
@@ -631,6 +744,16 @@ class Edge {
     
     // Скрыть глобальное меню
     hideGlobalMenu() {
+        if (this.isViewOnly) {
+            if (this.infoMenu) {
+                this.infoMenu.style.opacity = '0';
+                setTimeout(() => {
+                    this.infoMenu.style.display = 'none';
+                    this.infoMenu.removeAttribute('show');
+                }, 250);
+            }
+            return;
+        }
         const menu = document.getElementById(`edge-global-menu-${this.id}`);
         if (menu) {
             // Анимация исчезновения
