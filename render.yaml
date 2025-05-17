@@ -1,15 +1,16 @@
 databases:
-  - name: mappu-db
+  - name: my-django-db
     plan: free
     databaseName: mydb_e5kg
     user: myuser
-    password: ${PGPASSWORD}
+    password: zyaKnE3WImuhsoElFThfN8asiArepbPc
 
 services:
   - type: web
     name: mappu
     runtime: python
     plan: free
+    region: frankfurt
     buildCommand: "./build.sh"
     startCommand: gunicorn WireMap.wsgi:application --bind 0.0.0.0:$PORT --log-level debug
     releaseCommand: "python manage.py migrate"
@@ -18,7 +19,7 @@ services:
         value: 3.12.0
       - key: DATABASE_URL
         fromDatabase:
-          name: mappu-db
+          name: my-django-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -26,8 +27,14 @@ services:
         value: "false"
       - key: WEB_CONCURRENCY
         value: "4"
-      - key: PGPASSWORD
-        generateValue: true
+      - key: POSTGRES_USER
+        value: myuser
+      - key: POSTGRES_DB
+        value: mydb_e5kg
+      - key: RENDER
+        value: "true"
+      - key: RENDER_EXTERNAL_HOSTNAME
+        sync: false
 
 # Используем существующую базу данных, не создаем новую
 # databases:
