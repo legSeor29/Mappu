@@ -3,6 +3,7 @@ databases:
     plan: free
     databaseName: mydb_e5kg
     user: myuser
+    password: ${PGPASSWORD}
 
 services:
   - type: web
@@ -25,6 +26,8 @@ services:
         value: "false"
       - key: WEB_CONCURRENCY
         value: "4"
+      - key: PGPASSWORD
+        generateValue: true
 
 # Используем существующую базу данных, не создаем новую
 # databases:
