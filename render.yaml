@@ -1,10 +1,3 @@
-databases:
-  - name: my-django-db
-    plan: free
-    databaseName: mydb_e5kg
-    user: myuser
-    password: zyaKnE3WImuhsoElFThfN8asiArepbPc
-
 services:
   - type: web
     name: mappu
@@ -18,23 +11,21 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: DATABASE_URL
-        fromDatabase:
-          name: my-django-db
-          property: connectionString
+        value: ${DATABASE_URL}
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
         value: "false"
       - key: WEB_CONCURRENCY
         value: "4"
-      - key: POSTGRES_USER
-        value: myuser
-      - key: POSTGRES_DB
-        value: mydb_e5kg
       - key: RENDER
         value: "true"
-      - key: RENDER_EXTERNAL_HOSTNAME
-        sync: false
+      - key: POSTGRES_USER
+        value: ${POSTGRES_USER}
+      - key: POSTGRES_DB
+        value: ${POSTGRES_DB}
+      - key: POSTGRES_PASSWORD
+        value: ${POSTGRES_PASSWORD}
 
 # Используем существующую базу данных, не создаем новую
 # databases:
