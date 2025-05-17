@@ -94,13 +94,6 @@ DATABASES = {
     )
 }
 
-# Проверка типа базы данных
-if DATABASES['default']['ENGINE'] != 'django.db.backends.postgresql':
-    raise ValueError(
-        "This application requires PostgreSQL. "
-        "Please set DATABASE_URL to a PostgreSQL connection string."
-    )
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
