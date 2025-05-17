@@ -86,48 +86,20 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Настройки базы данных
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-# ОТЛАДКА: Выводим DATABASE_URL (УБРАТЬ ПОСЛЕ ОТЛАДКИ!)
-if DATABASE_URL:
-    print(f"DEBUG: DATABASE_URL = {DATABASE_URL}") 
-
-# Базовая конфигурация для SQLite
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
-# Если есть DATABASE_URL, пробуем использовать PostgreSQL
-if DATABASE_URL and DATABASE_URL.startswith('postgres'):
-    try:
-        # Простой разбор URL с помощью регулярного выражения
-        match = re.match(r"postgres(?:ql)?://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>[^/]+)/(?P<dbname>.+)", DATABASE_URL)
-        if match:
-            db_info = match.groupdict()
-            DATABASES['default'] = {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': db_info['dbname'],
-                'USER': db_info['user'],
-                'PASSWORD': db_info['password'],
-                'HOST': db_info['host'],
-                'PORT': int(db_info['port']),
-                'CONN_MAX_AGE': 600,
-            }
-            print(f"DEBUG: Successfully configured PostgreSQL with: NAME={db_info['dbname']}, USER={db_info['user']}, HOST={db_info['host']}, PORT={db_info['port']}")
-        else:
-            print("DEBUG: DATABASE_URL did not match expected format. Falling back to SQLite.")
-            # Если не удалось разобрать, можно попробовать через dj_database_url как запасной вариант
-            DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
-            print("DEBUG: Attempted fallback to dj_database_url.")
-
-    except Exception as e:
-        print(f"DEBUG: Error configuring PostgreSQL: {str(e)}. Falling back to SQLite.")
-else:
-    print("DEBUG: DATABASE_URL not found or not PostgreSQL. Using SQLite.")
+# Проверка типа базы данных
+if DATABASES['default']['ENGINE'] != 'django.db.backends.postgresql':
+    raise ValueError(
+        "This application requires PostgreSQL. "
+        "Please set DATABASE_URL to a PostgreSQL connection string."
+    )
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

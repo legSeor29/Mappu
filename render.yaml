@@ -9,23 +9,21 @@ services:
     name: mappu
     runtime: python
     plan: free
-    buildCommand: "pytest && ./build.sh"
+    buildCommand: "./build.sh"
     startCommand: gunicorn WireMap.wsgi:application --bind 0.0.0.0:$PORT --log-level debug
-    releaseCommand: "python manage.py migrate"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: DATABASE_URL
-        value: "postgresql://myuser:zyaKnE3WImuhsoElFThfN8asiArepbPc@dpg-d0aghdh5pdvs73ecld00-a/mydb_e5kg"
+        fromDatabase:
+          name: mappu-db
+          property: connectionString
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
         value: "false"
-      - 
       - key: WEB_CONCURRENCY
         value: "4"
-      - key: INIT_DB
-        value: "true"
 
 # Используем существующую базу данных, не создаем новую
 # databases:

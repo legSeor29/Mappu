@@ -297,3 +297,73 @@ fabric.properties
 # Cache
 __pycache__/
 .pytest_cache/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# SSL certificates
+nginx/ssl/
+
+# Database
+*.sqlite3
+*.sqlite3-journal
+
+# Media files
+media/
+!media/.gitkeep
+
+# Static files
+staticfiles/
+!staticfiles/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+debug.log
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
