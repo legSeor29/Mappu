@@ -11,7 +11,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: DATABASE_URL
-        value: ${DATABASE_URL}
+        value: postgres://myuser:zyaKnE3WImuhsoElFThfN8asiArepbPc@dpg-d0aghdh5pdvs73ecld00-a:5432/mydb_e5kg
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
@@ -20,12 +20,6 @@ services:
         value: "4"
       - key: RENDER
         value: "true"
-      - key: POSTGRES_USER
-        value: ${POSTGRES_USER}
-      - key: POSTGRES_DB
-        value: ${POSTGRES_DB}
-      - key: POSTGRES_PASSWORD
-        value: ${POSTGRES_PASSWORD}
 
 # Используем существующую базу данных, не создаем новую
 # databases:

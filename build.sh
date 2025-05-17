@@ -1,6 +1,6 @@
 #!/bin/bash
 # Выход при ошибке
-set -o errexit
+set -e
 
 echo "Установка зависимостей..."
 pip install -r requirements.txt
