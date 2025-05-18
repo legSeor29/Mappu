@@ -1,0 +1,1113 @@
+{
+  "title": "Магистральная сеть телекоммуникаций России",
+  "description": "Карта магистральной телекоммуникационной инфраструктуры России, включающая основные центры обработки данных, узлы связи и магистральные линии. Отображает реальную топологию сети с учетом географического расположения городов и регионов.",
+  "center": {
+    "latitude": 55.7558,
+    "longitude": 37.6173
+  },
+  "nodes": [
+    {
+      "name": "Москва-ЦОД",
+      "latitude": 55.7558,
+      "longitude": 37.6173,
+      "description": "Основной центр обработки данных в Москве",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "datacenter",
+        "capacity": "400Gbps",
+        "status": "active",
+        "security_level": "maximum",
+        "backup_power": true,
+        "cooling_system": "redundant",
+        "rack_count": 500,
+        "maintenance_schedule": "24/7"
+      }
+    },
+    {
+      "name": "СПб-ЦОД",
+      "latitude": 59.9343,
+      "longitude": 30.3351,
+      "description": "Центр обработки данных в Санкт-Петербурге",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "datacenter",
+        "capacity": "200Gbps",
+        "status": "active",
+        "security_level": "high",
+        "backup_power": true,
+        "cooling_system": "redundant",
+        "rack_count": 300,
+        "maintenance_schedule": "24/7"
+      }
+    },
+    {
+      "name": "Екатеринбург-Узел",
+      "latitude": 56.8389,
+      "longitude": 60.6057,
+      "description": "Крупный узел связи в Екатеринбурге",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-15"
+      }
+    },
+    {
+      "name": "Новосибирск-Узел",
+      "latitude": 55.0084,
+      "longitude": 82.9357,
+      "description": "Узел связи в Новосибирске",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-10"
+      }
+    },
+    {
+      "name": "Казань-Узел",
+      "latitude": 55.7887,
+      "longitude": 49.1221,
+      "description": "Узел связи в Казани",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-18"
+      }
+    },
+    {
+      "name": "Ростов-Узел",
+      "latitude": 47.2357,
+      "longitude": 39.7015,
+      "description": "Узел связи в Ростове-на-Дону",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-12"
+      }
+    },
+    {
+      "name": "Краснодар-Узел",
+      "latitude": 45.0448,
+      "longitude": 38.9760,
+      "description": "Узел связи в Краснодаре",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-14"
+      }
+    },
+    {
+      "name": "Сочи-Узел",
+      "latitude": 43.6028,
+      "longitude": 39.7342,
+      "description": "Узел связи в Сочи",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-16"
+      }
+    },
+    {
+      "name": "Владивосток-Узел",
+      "latitude": 43.1198,
+      "longitude": 131.8869,
+      "description": "Узел связи во Владивостоке",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-17"
+      }
+    },
+    {
+      "name": "Хабаровск-Узел",
+      "latitude": 48.4814,
+      "longitude": 135.0728,
+      "description": "Узел связи в Хабаровске",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-19"
+      }
+    },
+    {
+      "name": "Нижний-Новгород-Узел",
+      "latitude": 56.3268,
+      "longitude": 44.0065,
+      "description": "Узел связи в Нижнем Новгороде",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-20"
+      }
+    },
+    {
+      "name": "Самара-Узел",
+      "latitude": 53.1959,
+      "longitude": 50.1002,
+      "description": "Узел связи в Самаре",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-21"
+      }
+    },
+    {
+      "name": "Волгоград-Узел",
+      "latitude": 48.7071,
+      "longitude": 44.5169,
+      "description": "Узел связи в Волгограде",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-22"
+      }
+    },
+    {
+      "name": "Калининград-Узел",
+      "latitude": 54.7074,
+      "longitude": 20.5072,
+      "description": "Узел связи в Калининграде",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-23"
+      }
+    },
+    {
+      "name": "Мурманск-Узел",
+      "latitude": 68.9792,
+      "longitude": 33.0925,
+      "description": "Узел связи в Мурманске",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-24"
+      }
+    },
+    {
+      "name": "Ярославль-Узел",
+      "latitude": 57.6261,
+      "longitude": 39.8875,
+      "description": "Узел связи в Ярославле",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-25"
+      }
+    },
+    {
+      "name": "Воронеж-Узел",
+      "latitude": 51.6720,
+      "longitude": 39.1843,
+      "description": "Узел связи в Воронеже",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-26"
+      }
+    },
+    {
+      "name": "Саратов-Узел",
+      "latitude": 51.5406,
+      "longitude": 46.0086,
+      "description": "Узел связи в Саратове",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-27"
+      }
+    },
+    {
+      "name": "Омск-Узел",
+      "latitude": 54.9914,
+      "longitude": 73.3645,
+      "description": "Узел связи в Омске",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-28"
+      }
+    },
+    {
+      "name": "Красноярск-Узел",
+      "latitude": 56.0084,
+      "longitude": 92.8707,
+      "description": "Узел связи в Красноярске",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-02-29"
+      }
+    },
+    {
+      "name": "Иркутск-Узел",
+      "latitude": 52.2864,
+      "longitude": 104.3050,
+      "description": "Узел связи в Иркутске",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-03-01"
+      }
+    },
+    {
+      "name": "Уфа-Узел",
+      "latitude": 54.7387,
+      "longitude": 55.9721,
+      "description": "Узел связи в Уфе",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-03-02"
+      }
+    },
+    {
+      "name": "Пермь-Узел",
+      "latitude": 58.0105,
+      "longitude": 56.2294,
+      "description": "Узел связи в Перми",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-03-03"
+      }
+    },
+    {
+      "name": "Тюмень-Узел",
+      "latitude": 57.1522,
+      "longitude": 65.5272,
+      "description": "Узел связи в Тюмени",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-03-04"
+      }
+    },
+    {
+      "name": "Челябинск-Узел",
+      "latitude": 55.1644,
+      "longitude": 61.4368,
+      "description": "Узел связи в Челябинске",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "model": "Cisco Nexus 9000",
+        "capacity": "100Gbps",
+        "status": "active",
+        "ports": 96,
+        "redundancy": true,
+        "last_maintenance": "2024-03-05"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "Москва-ЦОД",
+      "to": "СПб-ЦОД",
+      "description": "Магистральная линия Москва-Санкт-Петербург",
+      "style": {
+        "color": "#FF0000",
+        "width": 5,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "700km",
+        "capacity": "400Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly",
+        "last_check": "2024-02-20"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Нижний-Новгород-Узел",
+      "description": "Магистральная линия Москва-Нижний Новгород",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "400km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Нижний-Новгород-Узел",
+      "to": "Казань-Узел",
+      "description": "Магистральная линия Нижний Новгород-Казань",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "400km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Казань-Узел",
+      "to": "Самара-Узел",
+      "description": "Магистральная линия Казань-Самара",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "350km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Самара-Узел",
+      "to": "Екатеринбург-Узел",
+      "description": "Магистральная линия Самара-Екатеринбург",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "800km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Екатеринбург-Узел",
+      "to": "Новосибирск-Узел",
+      "description": "Магистральная линия Екатеринбург-Новосибирск",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "1500km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Новосибирск-Узел",
+      "to": "Хабаровск-Узел",
+      "description": "Магистральная линия Новосибирск-Хабаровск",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "4000km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Хабаровск-Узел",
+      "to": "Владивосток-Узел",
+      "description": "Магистральная линия Хабаровск-Владивосток",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "750km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Волгоград-Узел",
+      "description": "Магистральная линия Москва-Волгоград",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "1000km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Волгоград-Узел",
+      "to": "Ростов-Узел",
+      "description": "Магистральная линия Волгоград-Ростов",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "500km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Ростов-Узел",
+      "to": "Краснодар-Узел",
+      "description": "Магистральная линия Ростов-Краснодар",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "300km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Краснодар-Узел",
+      "to": "Сочи-Узел",
+      "description": "Магистральная линия Краснодар-Сочи",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "300km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "СПб-ЦОД",
+      "to": "Мурманск-Узел",
+      "description": "Магистральная линия Санкт-Петербург-Мурманск",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "1000km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Калининград-Узел",
+      "description": "Магистральная линия Москва-Калининград",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "1200km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Новосибирск-Узел",
+      "description": "Резервная магистральная линия Москва-Новосибирск",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "2800km",
+        "capacity": "200Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "СПб-ЦОД",
+      "to": "Москва-ЦОД",
+      "description": "Резервная магистральная линия Санкт-Петербург-Москва",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "700km",
+        "capacity": "400Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Самара-Узел",
+      "description": "Резервная магистральная линия Москва-Самара",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "1000km",
+        "capacity": "200Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Волгоград-Узел",
+      "description": "Резервная магистральная линия Москва-Волгоград",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "1000km",
+        "capacity": "200Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Ярославль-Узел",
+      "description": "Магистральная линия Москва-Ярославль",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "250km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Ярославль-Узел",
+      "to": "Нижний-Новгород-Узел",
+      "description": "Магистральная линия Ярославль-Нижний Новгород",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "300km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Воронеж-Узел",
+      "description": "Магистральная линия Москва-Воронеж",
+      "style": {
+        "color": "#FF0000",
+        "width": 4,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "500km",
+        "capacity": "200Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Воронеж-Узел",
+      "to": "Волгоград-Узел",
+      "description": "Магистральная линия Воронеж-Волгоград",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "600km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Самара-Узел",
+      "to": "Саратов-Узел",
+      "description": "Магистральная линия Самара-Саратов",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "400km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Саратов-Узел",
+      "to": "Волгоград-Узел",
+      "description": "Магистральная линия Саратов-Волгоград",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "350km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Екатеринбург-Узел",
+      "to": "Пермь-Узел",
+      "description": "Магистральная линия Екатеринбург-Пермь",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "350km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Пермь-Узел",
+      "to": "Уфа-Узел",
+      "description": "Магистральная линия Пермь-Уфа",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "400km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Уфа-Узел",
+      "to": "Челябинск-Узел",
+      "description": "Магистральная линия Уфа-Челябинск",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "350km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Челябинск-Узел",
+      "to": "Екатеринбург-Узел",
+      "description": "Магистральная линия Челябинск-Екатеринбург",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "200km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Екатеринбург-Узел",
+      "to": "Тюмень-Узел",
+      "description": "Магистральная линия Екатеринбург-Тюмень",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "300km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Тюмень-Узел",
+      "to": "Омск-Узел",
+      "description": "Магистральная линия Тюмень-Омск",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "600km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Омск-Узел",
+      "to": "Новосибирск-Узел",
+      "description": "Магистральная линия Омск-Новосибирск",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "600km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Новосибирск-Узел",
+      "to": "Красноярск-Узел",
+      "description": "Магистральная линия Новосибирск-Красноярск",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "800km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Красноярск-Узел",
+      "to": "Иркутск-Узел",
+      "description": "Магистральная линия Красноярск-Иркутск",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "1000km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Иркутск-Узел",
+      "to": "Хабаровск-Узел",
+      "description": "Магистральная линия Иркутск-Хабаровск",
+      "style": {
+        "color": "#FF0000",
+        "width": 3,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "2000km",
+        "capacity": "100Gbps",
+        "status": "active",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Ярославль-Узел",
+      "description": "Резервная магистральная линия Москва-Ярославль",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "250km",
+        "capacity": "200Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Москва-ЦОД",
+      "to": "Воронеж-Узел",
+      "description": "Резервная магистральная линия Москва-Воронеж",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "500km",
+        "capacity": "200Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Екатеринбург-Узел",
+      "to": "Челябинск-Узел",
+      "description": "Резервная магистральная линия Екатеринбург-Челябинск",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "200km",
+        "capacity": "100Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    },
+    {
+      "from": "Новосибирск-Узел",
+      "to": "Омск-Узел",
+      "description": "Резервная магистральная линия Новосибирск-Омск",
+      "style": {
+        "color": "#FFA500",
+        "width": 3,
+        "type": "dashed"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "600km",
+        "capacity": "100Gbps",
+        "status": "standby",
+        "redundancy": true,
+        "maintenance_schedule": "monthly"
+      }
+    }
+  ],
+  "hashtags": [
+    "telecom",
+    "infrastructure",
+    "datacenter",
+    "network",
+    "fiber",
+    "redundancy",
+    "high-availability",
+    "business-critical",
+    "russia",
+    "enterprise",
+    "backbone",
+    "intercity"
+  ]
+} 

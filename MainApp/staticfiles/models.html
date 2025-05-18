@@ -1,0 +1,842 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ru" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Модели (Models) &mdash; документация Mappu 1.0.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e35015f7"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=cd1d70c9"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+    <link rel="next" title="Представления (Views)" href="views.html" />
+    <link rel="prev" title="Документация проекта Mappu" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Mappu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Поиск в документации" aria-label="Поиск в документации" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Меню навигации">
+              <p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Модели (Models)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#customuser">CustomUser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.models.CustomUser"><code class="docutils literal notranslate"><span class="pre">CustomUser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.CustomUser.phone"><code class="docutils literal notranslate"><span class="pre">CustomUser.phone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.CustomUser.image"><code class="docutils literal notranslate"><span class="pre">CustomUser.image</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.CustomUser.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">CustomUser.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.CustomUser.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">CustomUser.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.CustomUser.__str__"><code class="docutils literal notranslate"><span class="pre">CustomUser.__str__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#hashtag">HashTag</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.models.HashTag"><code class="docutils literal notranslate"><span class="pre">HashTag</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.HashTag.name"><code class="docutils literal notranslate"><span class="pre">HashTag.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.HashTag.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">HashTag.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.HashTag.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">HashTag.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.HashTag.__str__"><code class="docutils literal notranslate"><span class="pre">HashTag.__str__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.HashTag.save"><code class="docutils literal notranslate"><span class="pre">HashTag.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#node">Node</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.models.Node"><code class="docutils literal notranslate"><span class="pre">Node</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.name"><code class="docutils literal notranslate"><span class="pre">Node.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.latitude"><code class="docutils literal notranslate"><span class="pre">Node.latitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.longitude"><code class="docutils literal notranslate"><span class="pre">Node.longitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.description"><code class="docutils literal notranslate"><span class="pre">Node.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.z_coordinate"><code class="docutils literal notranslate"><span class="pre">Node.z_coordinate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.temp_id"><code class="docutils literal notranslate"><span class="pre">Node.temp_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">Node.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">Node.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Node.__str__"><code class="docutils literal notranslate"><span class="pre">Node.__str__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#edge">Edge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.models.Edge"><code class="docutils literal notranslate"><span class="pre">Edge</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Edge.node1"><code class="docutils literal notranslate"><span class="pre">Edge.node1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Edge.node2"><code class="docutils literal notranslate"><span class="pre">Edge.node2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Edge.description"><code class="docutils literal notranslate"><span class="pre">Edge.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Edge.temp_id"><code class="docutils literal notranslate"><span class="pre">Edge.temp_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Edge.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">Edge.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Edge.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">Edge.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Edge.__str__"><code class="docutils literal notranslate"><span class="pre">Edge.__str__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#map">Map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.models.Map"><code class="docutils literal notranslate"><span class="pre">Map</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.title"><code class="docutils literal notranslate"><span class="pre">Map.title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.owner"><code class="docutils literal notranslate"><span class="pre">Map.owner</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.description"><code class="docutils literal notranslate"><span class="pre">Map.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.center_latitude"><code class="docutils literal notranslate"><span class="pre">Map.center_latitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.center_longitude"><code class="docutils literal notranslate"><span class="pre">Map.center_longitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.nodes"><code class="docutils literal notranslate"><span class="pre">Map.nodes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.edges"><code class="docutils literal notranslate"><span class="pre">Map.edges</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.hashtags"><code class="docutils literal notranslate"><span class="pre">Map.hashtags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.is_published"><code class="docutils literal notranslate"><span class="pre">Map.is_published</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.created_at"><code class="docutils literal notranslate"><span class="pre">Map.created_at</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.updated_at"><code class="docutils literal notranslate"><span class="pre">Map.updated_at</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">Map.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">Map.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.Map.__str__"><code class="docutils literal notranslate"><span class="pre">Map.__str__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mapnode">MapNode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.models.MapNode"><code class="docutils literal notranslate"><span class="pre">MapNode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.map"><code class="docutils literal notranslate"><span class="pre">MapNode.map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.node"><code class="docutils literal notranslate"><span class="pre">MapNode.node</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.name"><code class="docutils literal notranslate"><span class="pre">MapNode.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.latitude"><code class="docutils literal notranslate"><span class="pre">MapNode.latitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.longitude"><code class="docutils literal notranslate"><span class="pre">MapNode.longitude</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.description"><code class="docutils literal notranslate"><span class="pre">MapNode.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.z_coordinate"><code class="docutils literal notranslate"><span class="pre">MapNode.z_coordinate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.temp_id"><code class="docutils literal notranslate"><span class="pre">MapNode.temp_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">MapNode.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">MapNode.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapNode.__str__"><code class="docutils literal notranslate"><span class="pre">MapNode.__str__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mapedge">MapEdge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.models.MapEdge"><code class="docutils literal notranslate"><span class="pre">MapEdge</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.map"><code class="docutils literal notranslate"><span class="pre">MapEdge.map</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.node1"><code class="docutils literal notranslate"><span class="pre">MapEdge.node1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.node2"><code class="docutils literal notranslate"><span class="pre">MapEdge.node2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.description"><code class="docutils literal notranslate"><span class="pre">MapEdge.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.temp_id"><code class="docutils literal notranslate"><span class="pre">MapEdge.temp_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.DoesNotExist"><code class="docutils literal notranslate"><span class="pre">MapEdge.DoesNotExist</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.MultipleObjectsReturned"><code class="docutils literal notranslate"><span class="pre">MapEdge.MultipleObjectsReturned</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.models.MapEdge.__str__"><code class="docutils literal notranslate"><span class="pre">MapEdge.__str__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="views.html">Представления (Views)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="forms.html">Формы (Forms)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serializers.html">Сериализаторы (Serializers)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Разрешения (Permissions)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin.html">Админка (Admin)</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Меню навигации для мобильных устройств" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Mappu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Навигация по страницам">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Модели (Models)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/models.rst.txt" rel="nofollow"> Просмотреть исходный код страницы</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="models">
+<h1>Модели (Models)<a class="headerlink" href="#models" title="Ссылка на этот заголовок"></a></h1>
+<p>В этом разделе описаны модели данных приложения, представляющие структуру базы данных.</p>
+<section id="customuser">
+<h2>CustomUser<a class="headerlink" href="#customuser" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.models.CustomUser">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.models.</span></span><span class="sig-name descname"><span class="pre">CustomUser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#CustomUser"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.CustomUser" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/topics/auth/customizing/#django.contrib.auth.models.AbstractUser" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractUser</span></code></a></p>
+<p>Расширенная модель пользователя Django с дополнительными полями.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.CustomUser.phone">
+<span class="sig-name descname"><span class="pre">phone</span></span><a class="headerlink" href="#MainApp.models.CustomUser.phone" title="Ссылка на это определение"></a></dt>
+<dd><p>Телефонный номер пользователя (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CharField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.CustomUser.image">
+<span class="sig-name descname"><span class="pre">image</span></span><a class="headerlink" href="#MainApp.models.CustomUser.image" title="Ссылка на это определение"></a></dt>
+<dd><p>Изображение профиля пользователя</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ImageField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.CustomUser.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#MainApp.models.CustomUser.DoesNotExist" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.ObjectDoesNotExist" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.CustomUser.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#MainApp.models.CustomUser.MultipleObjectsReturned" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.MultipleObjectsReturned" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.CustomUser.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#CustomUser.__str__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.CustomUser.__str__" title="Ссылка на это определение"></a></dt>
+<dd><p>Возвращает имя пользователя как строковое представление.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="hashtag">
+<h2>HashTag<a class="headerlink" href="#hashtag" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.models.HashTag">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.models.</span></span><span class="sig-name descname"><span class="pre">HashTag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#HashTag"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.HashTag" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Модель хештега для категоризации карт.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.HashTag.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#MainApp.models.HashTag.name" title="Ссылка на это определение"></a></dt>
+<dd><p>Название хештега (уникальное)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CharField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.HashTag.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#MainApp.models.HashTag.DoesNotExist" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.ObjectDoesNotExist" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.HashTag.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#MainApp.models.HashTag.MultipleObjectsReturned" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.MultipleObjectsReturned" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.HashTag.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#HashTag.__str__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.HashTag.__str__" title="Ссылка на это определение"></a></dt>
+<dd><p>Возвращает название хештега как строковое представление.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.HashTag.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#HashTag.save"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.HashTag.save" title="Ссылка на это определение"></a></dt>
+<dd><p>Переопределение метода сохранения для преобразования названия в нижний регистр.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – Позиционные аргументы</p></li>
+<li><p><strong>**kwargs</strong> – Именованные аргументы</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Сохраненный объект модели</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="node">
+<h2>Node<a class="headerlink" href="#node" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.models.Node">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.models.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#Node"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.Node" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Модель узла карты с географическими координатами.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Node.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#MainApp.models.Node.name" title="Ссылка на это определение"></a></dt>
+<dd><p>Название узла</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CharField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Node.latitude">
+<span class="sig-name descname"><span class="pre">latitude</span></span><a class="headerlink" href="#MainApp.models.Node.latitude" title="Ссылка на это определение"></a></dt>
+<dd><p>Широта</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Node.longitude">
+<span class="sig-name descname"><span class="pre">longitude</span></span><a class="headerlink" href="#MainApp.models.Node.longitude" title="Ссылка на это определение"></a></dt>
+<dd><p>Долгота</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Node.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#MainApp.models.Node.description" title="Ссылка на это определение"></a></dt>
+<dd><p>Описание узла (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TextField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Node.z_coordinate">
+<span class="sig-name descname"><span class="pre">z_coordinate</span></span><a class="headerlink" href="#MainApp.models.Node.z_coordinate" title="Ссылка на это определение"></a></dt>
+<dd><p>Z-координата для трехмерных карт (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Node.temp_id">
+<span class="sig-name descname"><span class="pre">temp_id</span></span><a class="headerlink" href="#MainApp.models.Node.temp_id" title="Ссылка на это определение"></a></dt>
+<dd><p>Временный идентификатор для операций с фронтендом (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>IntegerField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.Node.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#MainApp.models.Node.DoesNotExist" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.ObjectDoesNotExist" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.Node.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#MainApp.models.Node.MultipleObjectsReturned" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.MultipleObjectsReturned" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.Node.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#Node.__str__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.Node.__str__" title="Ссылка на это определение"></a></dt>
+<dd><p>Возвращает название узла как строковое представление.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="edge">
+<h2>Edge<a class="headerlink" href="#edge" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.models.Edge">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.models.</span></span><span class="sig-name descname"><span class="pre">Edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#Edge"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.Edge" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Модель связи между узлами карты.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Edge.node1">
+<span class="sig-name descname"><span class="pre">node1</span></span><a class="headerlink" href="#MainApp.models.Edge.node1" title="Ссылка на это определение"></a></dt>
+<dd><p>Ссылка на начальный узел связи</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Edge.node2">
+<span class="sig-name descname"><span class="pre">node2</span></span><a class="headerlink" href="#MainApp.models.Edge.node2" title="Ссылка на это определение"></a></dt>
+<dd><p>Ссылка на конечный узел связи</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Edge.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#MainApp.models.Edge.description" title="Ссылка на это определение"></a></dt>
+<dd><p>Описание связи (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TextField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Edge.temp_id">
+<span class="sig-name descname"><span class="pre">temp_id</span></span><a class="headerlink" href="#MainApp.models.Edge.temp_id" title="Ссылка на это определение"></a></dt>
+<dd><p>Временный идентификатор для операций с фронтендом (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>IntegerField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.Edge.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#MainApp.models.Edge.DoesNotExist" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.ObjectDoesNotExist" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.Edge.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#MainApp.models.Edge.MultipleObjectsReturned" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.MultipleObjectsReturned" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.Edge.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#Edge.__str__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.Edge.__str__" title="Ссылка на это определение"></a></dt>
+<dd><p>Возвращает строковое представление связи в формате „узел1 -&gt; узел2“.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="map">
+<h2>Map<a class="headerlink" href="#map" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.models.Map">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.models.</span></span><span class="sig-name descname"><span class="pre">Map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#Map"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.Map" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Модель карты с узлами и связями между ними.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#MainApp.models.Map.title" title="Ссылка на это определение"></a></dt>
+<dd><p>Название карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CharField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.owner">
+<span class="sig-name descname"><span class="pre">owner</span></span><a class="headerlink" href="#MainApp.models.Map.owner" title="Ссылка на это определение"></a></dt>
+<dd><p>Владелец карты (ссылка на CustomUser)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#MainApp.models.Map.description" title="Ссылка на это определение"></a></dt>
+<dd><p>Описание карты (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TextField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.center_latitude">
+<span class="sig-name descname"><span class="pre">center_latitude</span></span><a class="headerlink" href="#MainApp.models.Map.center_latitude" title="Ссылка на это определение"></a></dt>
+<dd><p>Широта центра карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.center_longitude">
+<span class="sig-name descname"><span class="pre">center_longitude</span></span><a class="headerlink" href="#MainApp.models.Map.center_longitude" title="Ссылка на это определение"></a></dt>
+<dd><p>Долгота центра карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.nodes">
+<span class="sig-name descname"><span class="pre">nodes</span></span><a class="headerlink" href="#MainApp.models.Map.nodes" title="Ссылка на это определение"></a></dt>
+<dd><p>Узлы карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ManyToManyField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.edges">
+<span class="sig-name descname"><span class="pre">edges</span></span><a class="headerlink" href="#MainApp.models.Map.edges" title="Ссылка на это определение"></a></dt>
+<dd><p>Связи карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ManyToManyField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.hashtags">
+<span class="sig-name descname"><span class="pre">hashtags</span></span><a class="headerlink" href="#MainApp.models.Map.hashtags" title="Ссылка на это определение"></a></dt>
+<dd><p>Хештеги карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ManyToManyField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.is_published">
+<span class="sig-name descname"><span class="pre">is_published</span></span><a class="headerlink" href="#MainApp.models.Map.is_published" title="Ссылка на это определение"></a></dt>
+<dd><p>Флаг публикации карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>BooleanField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.created_at">
+<span class="sig-name descname"><span class="pre">created_at</span></span><a class="headerlink" href="#MainApp.models.Map.created_at" title="Ссылка на это определение"></a></dt>
+<dd><p>Дата создания карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DateTimeField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.Map.updated_at">
+<span class="sig-name descname"><span class="pre">updated_at</span></span><a class="headerlink" href="#MainApp.models.Map.updated_at" title="Ссылка на это определение"></a></dt>
+<dd><p>Дата последнего обновления карты</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DateTimeField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.Map.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#MainApp.models.Map.DoesNotExist" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.ObjectDoesNotExist" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.Map.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#MainApp.models.Map.MultipleObjectsReturned" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.MultipleObjectsReturned" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.Map.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#Map.__str__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.Map.__str__" title="Ссылка на это определение"></a></dt>
+<dd><p>Возвращает название карты как строковое представление.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="mapnode">
+<h2>MapNode<a class="headerlink" href="#mapnode" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.models.MapNode">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.models.</span></span><span class="sig-name descname"><span class="pre">MapNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#MapNode"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.MapNode" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Модель связи узла с определенной картой (для отслеживания позиций узлов в разных картах).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.map">
+<span class="sig-name descname"><span class="pre">map</span></span><a class="headerlink" href="#MainApp.models.MapNode.map" title="Ссылка на это определение"></a></dt>
+<dd><p>Ссылка на карту</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.node">
+<span class="sig-name descname"><span class="pre">node</span></span><a class="headerlink" href="#MainApp.models.MapNode.node" title="Ссылка на это определение"></a></dt>
+<dd><p>Ссылка на узел</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#MainApp.models.MapNode.name" title="Ссылка на это определение"></a></dt>
+<dd><p>Название узла на этой карте</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CharField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.latitude">
+<span class="sig-name descname"><span class="pre">latitude</span></span><a class="headerlink" href="#MainApp.models.MapNode.latitude" title="Ссылка на это определение"></a></dt>
+<dd><p>Широта узла на этой карте</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.longitude">
+<span class="sig-name descname"><span class="pre">longitude</span></span><a class="headerlink" href="#MainApp.models.MapNode.longitude" title="Ссылка на это определение"></a></dt>
+<dd><p>Долгота узла на этой карте</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#MainApp.models.MapNode.description" title="Ссылка на это определение"></a></dt>
+<dd><p>Описание узла на этой карте (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TextField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.z_coordinate">
+<span class="sig-name descname"><span class="pre">z_coordinate</span></span><a class="headerlink" href="#MainApp.models.MapNode.z_coordinate" title="Ссылка на это определение"></a></dt>
+<dd><p>Z-координата узла на этой карте (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FloatField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.temp_id">
+<span class="sig-name descname"><span class="pre">temp_id</span></span><a class="headerlink" href="#MainApp.models.MapNode.temp_id" title="Ссылка на это определение"></a></dt>
+<dd><p>Временный идентификатор для операций с фронтендом (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>IntegerField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#MainApp.models.MapNode.DoesNotExist" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.ObjectDoesNotExist" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#MainApp.models.MapNode.MultipleObjectsReturned" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.MultipleObjectsReturned" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.MapNode.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#MapNode.__str__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.MapNode.__str__" title="Ссылка на это определение"></a></dt>
+<dd><p>Возвращает строковое представление в формате „карта - название“.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="mapedge">
+<h2>MapEdge<a class="headerlink" href="#mapedge" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.models.</span></span><span class="sig-name descname"><span class="pre">MapEdge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#MapEdge"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.MapEdge" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>Модель связи между узлами в контексте определенной карты.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.map">
+<span class="sig-name descname"><span class="pre">map</span></span><a class="headerlink" href="#MainApp.models.MapEdge.map" title="Ссылка на это определение"></a></dt>
+<dd><p>Ссылка на карту</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.node1">
+<span class="sig-name descname"><span class="pre">node1</span></span><a class="headerlink" href="#MainApp.models.MapEdge.node1" title="Ссылка на это определение"></a></dt>
+<dd><p>Ссылка на начальный узел связи</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.node2">
+<span class="sig-name descname"><span class="pre">node2</span></span><a class="headerlink" href="#MainApp.models.MapEdge.node2" title="Ссылка на это определение"></a></dt>
+<dd><p>Ссылка на конечный узел связи</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ForeignKey</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#MainApp.models.MapEdge.description" title="Ссылка на это определение"></a></dt>
+<dd><p>Описание связи (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>TextField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.temp_id">
+<span class="sig-name descname"><span class="pre">temp_id</span></span><a class="headerlink" href="#MainApp.models.MapEdge.temp_id" title="Ссылка на это определение"></a></dt>
+<dd><p>Временный идентификатор для операций с фронтендом (опционально)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>IntegerField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.DoesNotExist">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#MainApp.models.MapEdge.DoesNotExist" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.ObjectDoesNotExist" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.MultipleObjectsReturned">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#MainApp.models.MapEdge.MultipleObjectsReturned" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <a class="reference external" href="https://docs.djangoproject.com/en/stable/ref/exceptions/#django.core.exceptions.MultipleObjectsReturned" title="(в Django v5.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.models.MapEdge.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/models.html#MapEdge.__str__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.models.MapEdge.__str__" title="Ссылка на это определение"></a></dt>
+<dd><p>Возвращает строковое представление связи в формате „узел1 -&gt; узел2“.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Нижняя область">
+        <a href="index.html" class="btn btn-neutral float-left" title="Документация проекта Mappu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Предыдущая</a>
+        <a href="views.html" class="btn btn-neutral float-right" title="Представления (Views)" accesskey="n" rel="next">Следующая <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Авторские права 2025, Kalinin Team. </p>
+  </div>
+
+  Собрано при помощи <a href="https://www.sphinx-doc.org/">Sphinx</a> с использованием
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">темы,</a>
+    предоставленной <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

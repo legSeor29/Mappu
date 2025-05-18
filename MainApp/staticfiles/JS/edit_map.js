@@ -1,67 +1,52 @@
-async function initMap() {
-    await ymaps3.ready;
+import { DatabaseController } from './controller.js';
+import { MapInteraction } from './interaction.js';
+import { FormHandler } from './form_handler.js';
+import { 
+    getNodes, 
+    getEdges, 
+    getSelectedNodes, 
+    clearSelectedNodes,
+    setMapId, 
+    getController, 
+    setController,
+    getMapId
+} from './store.js';
 
-    const {
-        YMap,
-        YMapDefaultSchemeLayer,
-        YMapDefaultFeaturesLayer,
-        YMapLayer,
-        YMapFeatureDataSource, // Добавляем класс для создания источника данных
-        YMapListener,
-        YMapMarker
-    } = ymaps3;
-
-    const map = new YMap(document.getElementById('map'), {
-        location: {
-            center: [37.6176, 55.7558],
-            zoom: 12
-        }
-    });
-
-    // 1. Создаем источник данных
-    const dataSource = new YMapFeatureDataSource({
-        id: 'my-markers' // Идентификатор должен совпадать с source слоя и маркеров
-    });
-
-    // 2. Создаем слой, связанный с источником
-    const markerLayer = new YMapLayer({
-        type: 'markers',
-        source: 'my-markers', // Ссылаемся на созданный источник
-        zIndex: 3500
-    });
-
-    // 3. Добавляем всё на карту в правильном порядке
-    map.addChild(new YMapDefaultSchemeLayer());
-    map.addChild(new YMapDefaultFeaturesLayer());
-    map.addChild(dataSource); // Источник данных должен быть добавлен перед слоем
-    map.addChild(markerLayer);
-
-    // 4. Обработчик клика
-    map.addChild(new YMapListener({
-        layer: 'any',
-        onClick: (_, event) => {
-            if (!event) return;
-            console.log(event.coordinates)
-            const marker = new YMapMarker({
-                coordinates: event.coordinates,
-                source: 'my-markers' // Используем тот же источник
-            }, createImageMarker('/static/IMAGES/image.png'));
-
-            map.addChild(marker);
-        }
-    }));
+// Устанавливаем mapId из DOM в хранилище
+// Это нужно сделать до того, как Controller попытается его использовать
+if (typeof document !== 'undefined') {
+    const mapIdElement = document.getElementById('mapId');
+    if (mapIdElement) {
+        setMapId(mapIdElement.innerText);
+    }
 }
 
-function createImageMarker(src) {
-    const element = document.createElement('img');
-    element.src = src;
-    element.style.cssText = `
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-        transform: translate(-50%, -100%); /* Центрирование */
-    `;
-    return element;
+
+async function initMap() {
+    console.log("initMap called");
+    await ymaps3.ready;
+     
+    const formHandler = new FormHandler();
+    
+    const interaction = new MapInteraction(ymaps3, formHandler);
+    interaction.init();
+    
+    const newController = new DatabaseController(formHandler);
+    setController(newController);
+
+    getController().map = interaction.map;
+    getController().ymaps3 = interaction.ymaps3;
+    
+    getController().GetCurrentData();
+    
+    document.querySelector('button[name="save_changes"]').addEventListener('click', (e) => {
+        getController().UpdateData();
+    })
 }
 
 initMap();
+
+// Экспортировать напрямую переменные больше не нужно, 
+// так как они управляются через store.js
+// Если какой-то части приложения нужны эти значения, она должна импортировать геттеры из store.js
+// export { nodes, edges, selectedNodes, mapId, Controller } // Удаляем этот экспорт

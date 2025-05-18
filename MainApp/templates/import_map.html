@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Основная карточка с формой -->
+            <div class="card shadow-lg border-0 rounded-3 mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-file-import fa-2x me-3"></i>
+                        <div>
+                            <h4 class="mb-0">Импорт карты</h4>
+                            <p class="mb-0 text-white-50">Загрузите JSON файл с описанием вашей карты</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Поле загрузки файла -->
+                        <div class="mb-4">
+                            <div class="card border-2 border-dashed rounded-3 p-4 mb-3">
+                                <div class="text-center">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                    <h5 class="mb-2">Перетащите файл сюда</h5>
+                                    <p class="text-muted mb-3">или</p>
+                                    <label for="{{ form.json_file.id_for_label }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-folder-open me-2"></i>Выберите файл
+                                    </label>
+                                    {{ form.json_file }}
+                                    <div id="selected-file" class="mt-2 text-muted small"></div>
+                                </div>
+                            </div>
+                            {% if form.json_file.help_text %}
+                                <div class="form-text">{{ form.json_file.help_text }}</div>
+                            {% endif %}
+                            {% if form.json_file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.json_file.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле названия -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="fas fa-heading me-2 text-primary"></i>{{ form.title.label }}
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-map-marked-alt"></i></span>
+                                {{ form.title }}
+                            </div>
+                            {% if form.title.help_text %}
+                                <div class="form-text">{{ form.title.help_text }}</div>
+                            {% endif %}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.title.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле описания -->
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left me-2 text-primary"></i>{{ form.description.label }}
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                {{ form.description }}
+                            </div>
+                            {% if form.description.help_text %}
+                                <div class="form-text">{{ form.description.help_text }}</div>
+                            {% endif %}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Кнопки действий -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'main' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Назад
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>Импортировать карту
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Карточка с примером формата -->
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-info text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="mb-0">Формат JSON файла</h5>
+                            <p class="mb-0 text-white-50">Пример структуры данных для импорта</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="bg-dark rounded-3 p-3">
+                        <pre class="text-light mb-0"><code>{
+  "title": "Название карты",
+  "description": "Описание карты",
+  "center": {
+    "latitude": 55.921708,
+    "longitude": 37.814387
+  },
+  "nodes": [
+    {
+      "name": "Название узла",
+      "latitude": 55.921708,
+      "longitude": 37.814387,
+      "description": "Описание узла",
+      "z_coordinate": 0,
+      "properties": {
+        "type": "switch",
+        "capacity": "10Gbps",
+        "status": "active"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "Название узла 1",
+      "to": "Название узла 2",
+      "description": "Описание связи",
+      "style": {
+        "color": "#FF0000",
+        "width": 2,
+        "type": "solid"
+      },
+      "properties": {
+        "type": "fiber",
+        "length": "100m",
+        "status": "active"
+      }
+    }
+  ],
+  "hashtags": ["network", "infrastructure"]
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Добавляем стили для улучшения внешнего вида -->
+<style>
+    .border-dashed {
+        border-style: dashed !important;
+    }
+    
+    .form-control {
+        border-radius: 0.375rem;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+    
+    pre {
+        margin: 0;
+        white-space: pre-wrap;
+    }
+    
+    .card {
+        transition: transform 0.2s;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Стили для drag & drop */
+    .border-dashed.dragover {
+        background-color: rgba(13, 110, 253, 0.1);
+        border-color: #0d6efd !important;
+    }
+
+    /* Скрываем стандартное поле ввода файла */
+    input[type="file"] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+</style>
+
+<!-- Добавляем JavaScript для улучшения UX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.querySelector('.border-dashed');
+    const fileInput = document.querySelector('input[type="file"]');
+    const selectedFileDiv = document.getElementById('selected-file');
+    
+    // Обработка выбора файла
+    fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const fileName = this.files[0].name;
+            selectedFileDiv.innerHTML = `<i class="fas fa-check-circle text-success me-1"></i>Выбран файл: ${fileName}`;
+        } else {
+            selectedFileDiv.innerHTML = '';
+        }
+    });
+    
+    // Обработка drag & drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight(e) {
+        dropZone.classList.add('dragover');
+    }
+    
+    function unhighlight(e) {
+        dropZone.classList.remove('dragover');
+    }
+    
+    dropZone.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        if (files && files[0]) {
+            const fileName = files[0].name;
+            selectedFileDiv.innerHTML = `<i class="fas fa-check-circle text-success me-1"></i>Выбран файл: ${fileName}`;
+        }
+    }
+    
+    // Валидация формы
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %} 

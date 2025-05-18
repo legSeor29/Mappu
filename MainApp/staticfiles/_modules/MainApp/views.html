@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ru" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MainApp.views &mdash; документация Mappu 1.0.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=e35015f7"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/translations.js?v=cd1d70c9"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="../../genindex.html" />
+    <link rel="search" title="Поиск" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Mappu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Поиск в документации" aria-label="Поиск в документации" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Меню навигации">
+              <p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Модели (Models)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../views.html">Представления (Views)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../forms.html">Формы (Forms)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../serializers.html">Сериализаторы (Serializers)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../permissions.html">Разрешения (Permissions)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../admin.html">Админка (Admin)</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Меню навигации для мобильных устройств" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Mappu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Навигация по страницам">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Код модуля</a></li>
+      <li class="breadcrumb-item active">MainApp.views</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Исходный код MainApp.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib</span><span class="w"> </span><span class="kn">import</span> <span class="n">messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">get_object_or_404</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PermissionDenied</span><span class="p">,</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">status</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserRegistrationForm</span><span class="p">,</span> <span class="n">NodeForm</span><span class="p">,</span> <span class="n">EdgeForm</span><span class="p">,</span> <span class="n">CreateMapForm</span><span class="p">,</span> <span class="n">UserProfileForm</span><span class="p">,</span> <span class="n">AvatarUpdateForm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">Map</span><span class="p">,</span> <span class="n">CustomUser</span><span class="p">,</span> <span class="n">HashTag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">JsonResponse</span><span class="p">,</span> <span class="n">HttpResponseForbidden</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Max</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapSerializer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsMapOwner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">generics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_object_or_404</span><span class="p">,</span> <span class="n">redirect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">logout</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MapDetailAPI">
+<a class="viewcode-back" href="../../views.html#MainApp.views.MapDetailAPI">[документация]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MapDetailAPI</span><span class="p">(</span><span class="n">generics</span><span class="o">.</span><span class="n">RetrieveUpdateDestroyAPIView</span><span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MapSerializer</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span><span class="n">IsMapOwner</span><span class="p">]</span>
+    <span class="n">http_method_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get&#39;</span><span class="p">,</span> <span class="s1">&#39;patch&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">,</span> <span class="s1">&#39;options&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_object</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Запрос на обновление карты ID: </span><span class="si">{</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Данные запроса: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Проверка прав доступа</span>
+            <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">owner</span> <span class="o">!=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Отказ в доступе: пользователь </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2"> пытается редактировать карту пользователя </span><span class="si">{</span><span class="n">instance</span><span class="o">.</span><span class="n">owner</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="s2">&quot;Вы не можете изменять эту карту&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Всегда используем partial=True, так как используется только PATCH</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">partial</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">serializer</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ошибка валидации: </span><span class="si">{</span><span class="n">serializer</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">perform_update</span><span class="p">(</span><span class="n">serializer</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Карта ID: </span><span class="si">{</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> успешно обновлена&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Ошибка при обновлении карты&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)},</span> 
+                <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_500_INTERNAL_SERVER_ERROR</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">perform_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">):</span>
+        <span class="n">serializer</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="main_page">
+<a class="viewcode-back" href="../../views.html#MainApp.views.main_page">[документация]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main_page</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Представление главной страницы сайта.</span>
+<span class="sd">    </span>
+<span class="sd">    Отображает списки карт пользователя и публичных карт других пользователей.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        request: Объект HttpRequest</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        HttpResponse: Ответ с отрендеренным шаблоном</span>
+<span class="sd">    </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        Exception: При ошибке получения публичных карт</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Main page accessed&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;User: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">))</span>
+    
+    <span class="c1"># Получаем все карты пользователя</span>
+    <span class="n">user_maps</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Получаем публичные карты других пользователей</span>
+        <span class="n">public_maps</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_published</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found </span><span class="si">{0}</span><span class="s2"> public maps&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">public_maps</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error fetching public maps: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="n">public_maps</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found </span><span class="si">{0}</span><span class="s2"> user maps&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">user_maps</span><span class="p">)))</span>
+    
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;user_maps&#39;</span><span class="p">:</span> <span class="n">user_maps</span><span class="p">,</span>
+        <span class="s1">&#39;public_maps&#39;</span><span class="p">:</span> <span class="n">public_maps</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;MainApp/main_page.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="register">
+<a class="viewcode-back" href="../../views.html#MainApp.views.register">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Представление для регистрации новых пользователей.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        request: Объект HttpRequest</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        HttpResponse: При GET-запросе - форма регистрации,</span>
+<span class="sd">                      При POST-запросе с валидной формой - перенаправление на страницу входа</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">UserRegistrationForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Регистрация успешна! Теперь вы можете войти в систему.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>  <span class="c1"># перенаправляем на страницу входа</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">UserRegistrationForm</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;registration/register.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="profile">
+<a class="viewcode-back" href="../../views.html#MainApp.views.profile">[документация]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">profile</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Представление страницы профиля пользователя.</span>
+<span class="sd">    </span>
+<span class="sd">    Отображает информацию о пользователе, количество его карт и последнюю редактируемую карту.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        request: Объект HttpRequest с аутентифицированным пользователем</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        HttpResponse: Ответ с отрендеренным шаблоном профиля</span>
+<span class="sd">    </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        Exception: При ошибке получения последней карты</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="n">maps_count</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">latest_map</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;-updated_at&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">latest_map</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Ошибка при получении последней карты: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+    
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span>
+        <span class="s1">&#39;maps_count&#39;</span><span class="p">:</span> <span class="n">maps_count</span><span class="p">,</span>
+        <span class="s1">&#39;latest_map&#39;</span><span class="p">:</span> <span class="n">latest_map</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;MainApp/profile.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_map">
+<a class="viewcode-back" href="../../views.html#MainApp.views.create_map">[документация]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_map</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Представление для создания новой карты.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        request: Объект HttpRequest с аутентифицированным пользователем</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        HttpResponse: При GET-запросе - форма создания карты,</span>
+<span class="sd">                      При POST-запросе с валидной формой - перенаправление на страницу редактирования карты</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CreateMapForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">map_instance</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">map_instance</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+            <span class="n">map_instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            
+            <span class="c1"># Сохраняем хэштеги и отношения многие-ко-многим</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save_m2m</span><span class="p">()</span>
+            
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Карта успешно создана!&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;edit_map&#39;</span><span class="p">,</span> <span class="n">map_id</span><span class="o">=</span><span class="n">map_instance</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">CreateMapForm</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;MainApp/create_map.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="edit_map">
+<a class="viewcode-back" href="../../views.html#MainApp.views.edit_map">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">edit_map</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">map_id</span><span class="p">):</span>
+    <span class="n">map_obj</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Map</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">map_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">owner</span> <span class="o">!=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponseForbidden</span><span class="p">()</span>
+    <span class="n">node_form</span> <span class="o">=</span> <span class="n">NodeForm</span><span class="p">()</span>
+    <span class="n">edge_form</span> <span class="o">=</span> <span class="n">EdgeForm</span><span class="p">()</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Initial hashtags string for the form</span>
+    <span class="n">hashtags_str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;node_submit&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">:</span>
+            <span class="n">node_form</span> <span class="o">=</span> <span class="n">NodeForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">node_form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+                <span class="n">new_node</span> <span class="o">=</span> <span class="n">node_form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="n">map_instance</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">map_id</span><span class="p">)</span>
+                <span class="n">map_instance</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_node</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Node save error.&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="s1">&#39;edge_submit&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">:</span>
+            <span class="n">edge_form</span> <span class="o">=</span> <span class="n">EdgeForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">edge_form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+                <span class="n">new_edge</span> <span class="o">=</span> <span class="n">edge_form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="n">map_instance</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">map_id</span><span class="p">)</span>
+                <span class="n">map_instance</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">new_edge</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Edge save error.&quot;</span><span class="p">)</span>
+                
+        <span class="k">elif</span> <span class="s1">&#39;hashtags_submit&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">:</span>
+            <span class="n">hashtags_text</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hashtags_input&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            
+            <span class="c1"># Clear existing hashtags</span>
+            <span class="n">map_obj</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            
+            <span class="c1"># Process the hashtags</span>
+            <span class="n">hashtag_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">hashtags_text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+            <span class="c1"># Remove # symbol if present</span>
+            <span class="n">hashtag_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">hashtag_names</span><span class="p">]</span>
+            
+            <span class="c1"># Add hashtags to the map</span>
+            <span class="k">for</span> <span class="n">tag_name</span> <span class="ow">in</span> <span class="n">hashtag_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">tag_name</span><span class="p">:</span>  <span class="c1"># Skip empty tags</span>
+                    <span class="n">tag</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">HashTag</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">tag_name</span><span class="p">)</span>
+                    <span class="n">map_obj</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            
+            <span class="c1"># Update the hashtags string for the form</span>
+            <span class="n">hashtags_str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Хештеги успешно обновлены!&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;edit_map.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;node_form&#39;</span><span class="p">:</span> <span class="n">node_form</span><span class="p">,</span>
+        <span class="s1">&#39;edge_form&#39;</span><span class="p">:</span> <span class="n">edge_form</span><span class="p">,</span>
+        <span class="s1">&#39;map_id&#39;</span><span class="p">:</span> <span class="n">map_id</span><span class="p">,</span>
+        <span class="s1">&#39;errors&#39;</span><span class="p">:</span> <span class="n">errors</span><span class="p">,</span>
+        <span class="s1">&#39;map&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="p">,</span>
+        <span class="s1">&#39;hashtags_str&#39;</span><span class="p">:</span> <span class="n">hashtags_str</span><span class="p">,</span>
+    <span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="user_maps">
+<a class="viewcode-back" href="../../views.html#MainApp.views.user_maps">[документация]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">user_maps</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">maps</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">owner</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;edges&#39;</span><span class="p">,</span> <span class="s1">&#39;hashtags&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Создаем список карт с дополнительной информацией</span>
+    <span class="n">maps_with_stats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">map_obj</span> <span class="ow">in</span> <span class="n">maps</span><span class="p">:</span>
+        <span class="n">maps_with_stats</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="s1">&#39;center_latitude&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">center_latitude</span><span class="p">,</span>
+            <span class="s1">&#39;center_longitude&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">center_longitude</span><span class="p">,</span>
+            <span class="s1">&#39;nodes_count&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+            <span class="s1">&#39;edges_count&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+            <span class="s1">&#39;created_at&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">created_at</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">map_obj</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;is_published&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">is_published</span><span class="p">,</span>
+            <span class="s1">&#39;hashtags&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="p">})</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;maps&#39;</span><span class="p">:</span> <span class="n">maps_with_stats</span><span class="p">,</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Мои карты&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;my_maps.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="delete_map">
+<a class="viewcode-back" href="../../views.html#MainApp.views.delete_map">[документация]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_map</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">map_id</span><span class="p">):</span>
+    <span class="n">map_obj</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Map</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">map_id</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">map_obj</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_maps&#39;</span><span class="p">)</span>  <span class="c1"># Перенаправляем обратно на список карт</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_maps&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="maps_gallery">
+<a class="viewcode-back" href="../../views.html#MainApp.views.maps_gallery">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">maps_gallery</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Get hashtag filter parameter</span>
+    <span class="n">hashtag_filter</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hashtag&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    
+    <span class="c1"># Base queryset - published maps</span>
+    <span class="n">maps_queryset</span> <span class="o">=</span> <span class="n">Map</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_published</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># Apply hashtag filtering if provided</span>
+    <span class="n">active_hashtag</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">hashtag_filter</span><span class="p">:</span>
+        <span class="c1"># Remove # if present</span>
+        <span class="k">if</span> <span class="n">hashtag_filter</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">):</span>
+            <span class="n">hashtag_filter</span> <span class="o">=</span> <span class="n">hashtag_filter</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        
+        <span class="c1"># Store active hashtag for template</span>
+        <span class="n">active_hashtag</span> <span class="o">=</span> <span class="n">hashtag_filter</span>
+        
+        <span class="c1"># Filter maps by hashtag</span>
+        <span class="n">maps_queryset</span> <span class="o">=</span> <span class="n">maps_queryset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">hashtags__name</span><span class="o">=</span><span class="n">hashtag_filter</span><span class="p">)</span>
+    
+    <span class="c1"># Prefetch related data for performance</span>
+    <span class="n">maps</span> <span class="o">=</span> <span class="n">maps_queryset</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;edges&#39;</span><span class="p">,</span> <span class="s1">&#39;owner&#39;</span><span class="p">,</span> <span class="s1">&#39;hashtags&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+    
+    <span class="c1"># Create a list of maps with additional information</span>
+    <span class="n">maps_with_stats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">map_obj</span> <span class="ow">in</span> <span class="n">maps</span><span class="p">:</span>
+        <span class="n">maps_with_stats</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+            <span class="s1">&#39;center_latitude&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">center_latitude</span><span class="p">,</span>
+            <span class="s1">&#39;center_longitude&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">center_longitude</span><span class="p">,</span>
+            <span class="s1">&#39;nodes_count&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+            <span class="s1">&#39;edges_count&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+            <span class="s1">&#39;owner&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">owner</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
+            <span class="s1">&#39;created_at&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">created_at</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">map_obj</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;hashtags&#39;</span><span class="p">:</span> <span class="n">map_obj</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span>
+        <span class="p">})</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;maps&#39;</span><span class="p">:</span> <span class="n">maps_with_stats</span><span class="p">,</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Галерея карт&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;active_hashtag&#39;</span><span class="p">:</span> <span class="n">active_hashtag</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;maps_gallery.html&#39;</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="custom_logout">
+<a class="viewcode-back" href="../../views.html#MainApp.views.custom_logout">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_logout</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">logout</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="publish_map">
+<a class="viewcode-back" href="../../views.html#MainApp.views.publish_map">[документация]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">publish_map</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">map_id</span><span class="p">):</span>
+    <span class="n">map_obj</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Map</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">map_id</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">map_obj</span><span class="o">.</span><span class="n">is_published</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">map_obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Карта успешно опубликована!&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_maps&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="unpublish_map">
+<a class="viewcode-back" href="../../views.html#MainApp.views.unpublish_map">[документация]</a>
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">unpublish_map</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">map_id</span><span class="p">):</span>
+    <span class="n">map_obj</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Map</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">map_id</span><span class="p">,</span> <span class="n">owner</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">map_obj</span><span class="o">.</span><span class="n">is_published</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">map_obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;Карта снята с публикации!&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;user_maps&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="view_map">
+<a class="viewcode-back" href="../../views.html#MainApp.views.view_map">[документация]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">view_map</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">map_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Представление для просмотра карты без возможности редактирования.</span>
+<span class="sd">    </span>
+<span class="sd">    Проверяет права доступа к карте и отображает карту с её деталями.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        request: Объект HttpRequest</span>
+<span class="sd">        map_id: Идентификатор карты для просмотра</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        HttpResponse: Ответ с отрендеренным шаблоном просмотра карты</span>
+<span class="sd">                      или перенаправление на главную страницу при отсутствии прав доступа</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">map_instance</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Map</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">map_id</span><span class="p">)</span>
+    
+    <span class="c1"># Проверяем, что карта опубликована или пользователь ее владелец</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">map_instance</span><span class="o">.</span><span class="n">is_published</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span> <span class="ow">or</span> <span class="n">map_instance</span><span class="o">.</span><span class="n">owner</span> <span class="o">!=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">):</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;У вас нет доступа к этой карте&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;main_page&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;MainApp/view_map.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;map&#39;</span><span class="p">:</span> <span class="n">map_instance</span><span class="p">,</span>
+        <span class="s1">&#39;is_owner&#39;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span> <span class="ow">and</span> <span class="n">map_instance</span><span class="o">.</span><span class="n">owner</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="p">})</span></div>
+
+
+<span class="nd">@login_required</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">docs_index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Представление для перенаправления на главную страницу документации.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        request: Объект HttpRequest с аутентифицированным пользователем</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        HttpResponse: Перенаправление на главную страницу документации Sphinx</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/static/index.html&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Авторские права 2025, Kalinin Team. </p>
+  </div>
+
+  Собрано при помощи <a href="https://www.sphinx-doc.org/">Sphinx</a> с использованием
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">темы,</a>
+    предоставленной <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

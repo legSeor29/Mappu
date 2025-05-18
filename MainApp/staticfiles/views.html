@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="ru" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Представления (Views) &mdash; документация Mappu 1.0.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e35015f7"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=cd1d70c9"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Алфавитный указатель" href="genindex.html" />
+    <link rel="search" title="Поиск" href="search.html" />
+    <link rel="next" title="Формы (Forms)" href="forms.html" />
+    <link rel="prev" title="Модели (Models)" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Mappu
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Поиск в документации" aria-label="Поиск в документации" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Меню навигации">
+              <p class="caption" role="heading"><span class="caption-text">Содержание:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="models.html">Модели (Models)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Представления (Views)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Основные представления</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.main_page"><code class="docutils literal notranslate"><span class="pre">main_page()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.register"><code class="docutils literal notranslate"><span class="pre">register()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.profile"><code class="docutils literal notranslate"><span class="pre">profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.custom_logout"><code class="docutils literal notranslate"><span class="pre">custom_logout()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Работа с картами</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.create_map"><code class="docutils literal notranslate"><span class="pre">create_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.edit_map"><code class="docutils literal notranslate"><span class="pre">edit_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.view_map"><code class="docutils literal notranslate"><span class="pre">view_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.user_maps"><code class="docutils literal notranslate"><span class="pre">user_maps()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.maps_gallery"><code class="docutils literal notranslate"><span class="pre">maps_gallery()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.delete_map"><code class="docutils literal notranslate"><span class="pre">delete_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.publish_map"><code class="docutils literal notranslate"><span class="pre">publish_map()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.unpublish_map"><code class="docutils literal notranslate"><span class="pre">unpublish_map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#api">API-представления</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#MainApp.views.MapDetailAPI"><code class="docutils literal notranslate"><span class="pre">MapDetailAPI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.views.MapDetailAPI.serializer_class"><code class="docutils literal notranslate"><span class="pre">MapDetailAPI.serializer_class</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="forms.html">Формы (Forms)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serializers.html">Сериализаторы (Serializers)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Разрешения (Permissions)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin.html">Админка (Admin)</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Меню навигации для мобильных устройств" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Mappu</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Навигация по страницам">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Представления (Views)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/views.rst.txt" rel="nofollow"> Просмотреть исходный код страницы</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="views">
+<h1>Представления (Views)<a class="headerlink" href="#views" title="Ссылка на этот заголовок"></a></h1>
+<p>В этом разделе описаны представления (views) приложения, обрабатывающие запросы пользователей.</p>
+<section id="id1">
+<h2>Основные представления<a class="headerlink" href="#id1" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.main_page">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">main_page</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#main_page"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.main_page" title="Ссылка на это определение"></a></dt>
+<dd><p>Представление главной страницы сайта.</p>
+<p>Отображает списки карт пользователя и публичных карт других пользователей.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – Объект HttpRequest</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Ответ с отрендеренным шаблоном</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+<dt class="field-even">Исключение<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(в Python v3.13)"><strong>Exception</strong></a> – При ошибке получения публичных карт</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.register">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#register"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.register" title="Ссылка на это определение"></a></dt>
+<dd><p>Представление для регистрации новых пользователей.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – Объект HttpRequest</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>При GET-запросе - форма регистрации,</dt><dd><p>При POST-запросе с валидной формой - перенаправление на страницу входа</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.profile">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#profile"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.profile" title="Ссылка на это определение"></a></dt>
+<dd><p>Представление страницы профиля пользователя.</p>
+<p>Отображает информацию о пользователе, количество его карт и последнюю редактируемую карту.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – Объект HttpRequest с аутентифицированным пользователем</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p>Ответ с отрендеренным шаблоном профиля</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+<dt class="field-even">Исключение<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(в Python v3.13)"><strong>Exception</strong></a> – При ошибке получения последней карты</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.custom_logout">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">custom_logout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#custom_logout"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.custom_logout" title="Ссылка на это определение"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="id2">
+<h2>Работа с картами<a class="headerlink" href="#id2" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.create_map">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">create_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#create_map"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.create_map" title="Ссылка на это определение"></a></dt>
+<dd><p>Представление для создания новой карты.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>request</strong> – Объект HttpRequest с аутентифицированным пользователем</p>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>При GET-запросе - форма создания карты,</dt><dd><p>При POST-запросе с валидной формой - перенаправление на страницу редактирования карты</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.edit_map">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">edit_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#edit_map"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.edit_map" title="Ссылка на это определение"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.view_map">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">view_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#view_map"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.view_map" title="Ссылка на это определение"></a></dt>
+<dd><p>Представление для просмотра карты без возможности редактирования.</p>
+<p>Проверяет права доступа к карте и отображает карту с её деталями.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Параметры<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>request</strong> – Объект HttpRequest</p></li>
+<li><p><strong>map_id</strong> – Идентификатор карты для просмотра</p></li>
+</ul>
+</dd>
+<dt class="field-even">Результат<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Ответ с отрендеренным шаблоном просмотра карты</dt><dd><p>или перенаправление на главную страницу при отсутствии прав доступа</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Тип результата<span class="colon">:</span></dt>
+<dd class="field-odd"><p>HttpResponse</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.user_maps">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">user_maps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#user_maps"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.user_maps" title="Ссылка на это определение"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.maps_gallery">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">maps_gallery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#maps_gallery"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.maps_gallery" title="Ссылка на это определение"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.delete_map">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">delete_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#delete_map"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.delete_map" title="Ссылка на это определение"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.publish_map">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">publish_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#publish_map"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.publish_map" title="Ссылка на это определение"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MainApp.views.unpublish_map">
+<span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">unpublish_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#unpublish_map"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.unpublish_map" title="Ссылка на это определение"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="api">
+<h2>API-представления<a class="headerlink" href="#api" title="Ссылка на этот заголовок"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MainApp.views.MapDetailAPI">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.views.</span></span><span class="sig-name descname"><span class="pre">MapDetailAPI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/views.html#MapDetailAPI"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.views.MapDetailAPI" title="Ссылка на это определение"></a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">RetrieveUpdateDestroyAPIView</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="MainApp.views.MapDetailAPI.serializer_class">
+<span class="sig-name descname"><span class="pre">serializer_class</span></span><a class="headerlink" href="#MainApp.views.MapDetailAPI.serializer_class" title="Ссылка на это определение"></a></dt>
+<dd><p>псевдоним для <a class="reference internal" href="serializers.html#MainApp.serializers.MapSerializer" title="MainApp.serializers.MapSerializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">MapSerializer</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Нижняя область">
+        <a href="models.html" class="btn btn-neutral float-left" title="Модели (Models)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Предыдущая</a>
+        <a href="forms.html" class="btn btn-neutral float-right" title="Формы (Forms)" accesskey="n" rel="next">Следующая <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Авторские права 2025, Kalinin Team. </p>
+  </div>
+
+  Собрано при помощи <a href="https://www.sphinx-doc.org/">Sphinx</a> с использованием
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">темы,</a>
+    предоставленной <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

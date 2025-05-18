@@ -187,6 +187,9 @@ class AvatarUpdateForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'})
+        }
         
     def clean_image(self):
         """
@@ -207,3 +210,30 @@ class AvatarUpdateForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             return self.instance.image
         return None
+
+class MapImportForm(forms.Form):
+    """
+    Форма для импорта карты через JSON.
+    
+    Attributes:
+        json_file (FileField): JSON файл с описанием карты
+        title (CharField): Название карты (опционально, может быть взято из JSON)
+        description (TextField): Описание карты (опционально, может быть взято из JSON)
+    """
+    json_file = forms.FileField(
+        label='JSON файл',
+        help_text='Загрузите JSON файл с описанием карты',
+        widget=forms.FileInput(attrs={'accept': '.json'})
+    )
+    title = forms.CharField(
+        max_length=100,
+        required=False,
+        label='Название карты',
+        help_text='Если не указано, будет использовано название из JSON'
+    )
+    description = forms.CharField(
+        widget=forms.Textarea,
+        required=False,
+        label='Описание карты',
+        help_text='Если не указано, будет использовано описание из JSON'
+    )
