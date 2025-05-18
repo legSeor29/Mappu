@@ -154,6 +154,7 @@ class MapInteraction {
                 newEdgeId,
                 node1,
                 node2,
+                this.formHandler.edgeDesc ? this.formHandler.edgeDesc.value : '',
                 this.map,
                 this.ymaps3,
                 this.formHandler

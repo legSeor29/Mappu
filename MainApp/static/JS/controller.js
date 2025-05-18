@@ -101,6 +101,7 @@ class DatabaseController {
                         edge.id,
                         nodes[edge.node1],
                         nodes[edge.node2],
+                        edge.description || '',
                         this.map,
                         this.ymaps3,
                         this.formHandler,
