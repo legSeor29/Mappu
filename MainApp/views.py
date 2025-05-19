@@ -396,3 +396,6 @@ def docs_index(request):
         HttpResponse: Перенаправление на главную страницу документации Sphinx
     """
     return redirect('/static/index.html')
+
+def video_lesson_view(request):
+    return render(request, 'video_lesson.html')
