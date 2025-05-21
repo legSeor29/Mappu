@@ -399,3 +399,6 @@ def docs_index(request):
 
 def video_lesson_view(request):
     return render(request, 'video_lesson.html')
+
+def help_view(request):
+    return render(request, 'help.html')

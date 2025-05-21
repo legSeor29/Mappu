@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.views import LoginView
 from django.urls import path
-from MainApp.views import main_page, register, edit_map, create_map, MapDetailAPI, custom_logout, profile, docs_index, video_lesson_view
+from MainApp.views import main_page, register, edit_map, create_map, MapDetailAPI, custom_logout, profile, docs_index, video_lesson_view, help_view
 from MainApp import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -24,6 +24,7 @@ urlpatterns = [
     path('view-map/<int:map_id>/', views.view_map, name='view_map'),
     path('docs/', docs_index, name='docs'),
     path('video-lesson/', views.video_lesson_view, name='video_lesson'),
+    path('help/', views.help_view, name='help'),
 ]
 
 # Serving media files in development
