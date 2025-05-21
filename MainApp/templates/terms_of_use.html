@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+{% load static %}
+<head>
+  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'CSS/base.css' %}">
+    {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Условия пользования Mappu</title>
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #f8f9fa;
+            --accent-color: #ff6b6b;
+            --text-color: #333;
+            --light-text: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f5f7ff;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: white;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .last-updated {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 1.8rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        ul {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        li:before {
+            content: "•";
+            color: var(--accent-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .contact-email {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .contact-email:hover {
+            background-color: #e9ecef;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Подсветка разделов при наведении */
+        section {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        section:hover {
+            background-color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'main' %}">
+            <i class="fas fa-project-diagram text-primary me-2"></i>
+            Mappu
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        </div>
+    </nav>
+    <div class="container">
+        <header>
+            <h1>Условия пользования приложением Mappu</h1>
+            <p class="last-updated"><strong>Дата последнего обновления:</strong> 21.05.2025</p>
+        </header>
+
+        <section>
+            <h2>1. Принятие условий</h2>
+            <p>Используя приложение Mappu, вы соглашаетесь с настоящими Условиями пользования. Если вы не согласны, не используйте Приложение.</p>
+        </section>
+
+        <section>
+            <h2>2. Права и ограничения</h2>
+            <p><strong>2.1. Лицензия:</strong> Мы предоставляем вам ограниченную, неисключительную, непередаваемую лицензию на использование Приложения в личных целях.</p>
+            <p><strong>2.2. Запрещено:</strong></p>
+            <ul>
+                <li>Взламывать, декомпилировать или модифицировать Приложение.</li>
+                <li>Использовать Приложение для незаконных целей.</li>
+                <li>Создавать помехи работе Приложения или серверов.</li>
+                <li>Распространять Приложение без нашего разрешения.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Контент и ответственность</h2>
+            <p><strong>3.1. Пользовательский контент:</strong> Вы несете ответственность за любой контент, который публикуете через Приложение.</p>
+            <p><strong>3.2. Данные карт:</strong> Mappu использует данные карт от третьих сторон. Мы не гарантируем их точность и актуальность.</p>
+        </section>
+
+        <section>
+            <h2>4. Отказ от гарантий</h2>
+            <p>Приложение предоставляется "как есть". Мы не гарантируем, что оно будет работать бесперебойно или без ошибок.</p>
+        </section>
+
+        <section>
+            <h2>5. Ограничение ответственности</h2>
+            <p>Мы не несем ответственности за:</p>
+            <ul>
+                <li>Любые убытки или ущерб, вызванные использованием Приложения.</li>
+                <li>Неточности в данных карт или навигации.</li>
+                <li>Действия третьих лиц, связанные с Приложением.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>6. Изменения условий</h2>
+            <p>Мы можем изменять эти Условия. Уведомления об изменениях будут размещены в Приложении или на нашем сайте.</p>
+        </section>
+
+        <section>
+            <h2>7. Прекращение доступа</h2>
+            <p>Мы можем заблокировать ваш доступ к Приложению в случае нарушения этих Условий.</p>
+        </section>
+
+        <section>
+            <h2>8. Применимое право</h2>
+            <p>Настоящие Условия регулируются законодательством Российской Федерации.</p>
+        </section>
+
+        <section>
+            <h2>9. Контакты</h2>
+            <p>По вопросам, связанным с Условиями, пишите на: <a href="mailto:contact@mappu.ru" class="contact-email">contact@mappu.ru</a>.</p>
+        </section>
+    </div>
+</body>
+</html>

@@ -402,3 +402,6 @@ def video_lesson_view(request):
 
 def help_view(request):
     return render(request, 'help.html')
+
+def terms_of_use_view(request):
+    return render(request, 'terms_of_use.html')
