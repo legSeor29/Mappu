@@ -19,6 +19,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$!52o53%$p2^%r1fhia35ie#7z
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 CSRF_TRUSTED_ORIGINS = [
     'https://mappu.ru',
+    'http://mappu.ru'
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
@@ -88,7 +89,7 @@ WSGI_APPLICATION = 'WireMap.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',
+        default='postgres://root@localhost/wiremap',
         conn_max_age=600,
         conn_health_checks=True,
     )
