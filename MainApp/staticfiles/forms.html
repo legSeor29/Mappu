@@ -72,6 +72,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#createmapform">CreateMapForm</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#MainApp.forms.CreateMapForm"><code class="docutils literal notranslate"><span class="pre">CreateMapForm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.forms.CreateMapForm.__init__"><code class="docutils literal notranslate"><span class="pre">CreateMapForm.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#MainApp.forms.CreateMapForm.media"><code class="docutils literal notranslate"><span class="pre">CreateMapForm.media</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#MainApp.forms.CreateMapForm.save"><code class="docutils literal notranslate"><span class="pre">CreateMapForm.save()</span></code></a></li>
 </ul>
@@ -87,6 +88,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#edgeform">EdgeForm</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#MainApp.forms.EdgeForm"><code class="docutils literal notranslate"><span class="pre">EdgeForm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#MainApp.forms.EdgeForm.clean"><code class="docutils literal notranslate"><span class="pre">EdgeForm.clean()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#MainApp.forms.EdgeForm.media"><code class="docutils literal notranslate"><span class="pre">EdgeForm.media</span></code></a></li>
 </ul>
 </li>
@@ -210,9 +212,15 @@
 <h2>CreateMapForm<a class="headerlink" href="#createmapform" title="Ссылка на этот заголовок"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="MainApp.forms.CreateMapForm">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.forms.</span></span><span class="sig-name descname"><span class="pre">CreateMapForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_id='id_%s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_suffix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empty_permitted=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_required_attribute=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/forms.html#CreateMapForm"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.forms.CreateMapForm" title="Ссылка на это определение"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.forms.</span></span><span class="sig-name descname"><span class="pre">CreateMapForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/forms.html#CreateMapForm"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.forms.CreateMapForm" title="Ссылка на это определение"></a></dt>
 <dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelForm</span></code></p>
 <p>Форма для создания новой карты с возможностью добавления хештегов.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.forms.CreateMapForm.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/forms.html#CreateMapForm.__init__"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.forms.CreateMapForm.__init__" title="Ссылка на это определение"></a></dt>
+<dd><p>Store the user passed in kwargs.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="MainApp.forms.CreateMapForm.media">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#MainApp.forms.CreateMapForm.media" title="Ссылка на это определение"></a></dt>
@@ -262,6 +270,12 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MainApp.forms.</span></span><span class="sig-name descname"><span class="pre">EdgeForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_id='id_%s'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_suffix=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">empty_permitted=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_required_attribute=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">renderer=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/forms.html#EdgeForm"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.forms.EdgeForm" title="Ссылка на это определение"></a></dt>
 <dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelForm</span></code></p>
 <p>Форма для создания и редактирования связи между узлами.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="MainApp.forms.EdgeForm.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/MainApp/forms.html#EdgeForm.clean"><span class="viewcode-link"><span class="pre">[исходный</span> <span class="pre">код]</span></span></a><a class="headerlink" href="#MainApp.forms.EdgeForm.clean" title="Ссылка на это определение"></a></dt>
+<dd><p>Add validation to prevent edge connecting a node to itself.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="MainApp.forms.EdgeForm.media">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#MainApp.forms.EdgeForm.media" title="Ссылка на это определение"></a></dt>
