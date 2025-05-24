@@ -78,7 +78,9 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django</span><span class="w"> </span><span class="kn">import</span> <span class="n">forms</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth.forms</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserCreationForm</span><span class="p">,</span> <span class="n">UserChangeForm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomUser</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">Map</span><span class="p">,</span> <span class="n">HashTag</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CustomUserCreationForm">
 <a class="viewcode-back" href="../../forms.html#MainApp.forms.CustomUserCreationForm">[документация]</a>
@@ -157,8 +159,16 @@
     
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Map</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;center_latitude&#39;</span><span class="p">,</span> <span class="s1">&#39;center_longitude&#39;</span><span class="p">,</span> <span class="s1">&#39;hashtags_input&#39;</span><span class="p">]</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;center_latitude&#39;</span><span class="p">,</span> <span class="s1">&#39;center_longitude&#39;</span><span class="p">]</span>
         
+<div class="viewcode-block" id="CreateMapForm.__init__">
+<a class="viewcode-back" href="../../forms.html#MainApp.forms.CreateMapForm.__init__">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Store the user passed in kwargs.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="c1"># Get user from kwargs</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="CreateMapForm.save">
 <a class="viewcode-back" href="../../forms.html#MainApp.forms.CreateMapForm.save">[документация]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">commit</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -171,33 +181,38 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Map: Созданный объект карты</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> 
         
-        <span class="k">if</span> <span class="n">commit</span><span class="p">:</span>
-            <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="c1"># Set owner if user was passed to the form</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span> 
             
-            <span class="c1"># Handle hashtags</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hashtags_input&#39;</span><span class="p">):</span>
-                <span class="c1"># Clear existing hashtags</span>
-                <span class="n">instance</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-                
-                <span class="c1"># Process hashtags</span>
-                <span class="n">hashtags_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="p">[</span><span class="s1">&#39;hashtags_input&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="n">hashtag_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">hashtags_text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
-                
-                <span class="c1"># Remove # symbol if present</span>
-                <span class="n">hashtag_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">hashtag_names</span><span class="p">]</span>
-                
-                <span class="c1"># Add hashtags to the map</span>
-                <span class="k">for</span> <span class="n">tag_name</span> <span class="ow">in</span> <span class="n">hashtag_names</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">tag_name</span><span class="p">:</span>  <span class="c1"># Skip empty tags</span>
-                        <span class="n">tag</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">HashTag</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">tag_name</span><span class="p">)</span>
-                        <span class="n">instance</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
-                        
-            <span class="bp">self</span><span class="o">.</span><span class="n">save_m2m</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">commit</span><span class="p">:</span>
+            <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> <span class="c1"># Save instance first</span>
+            
+            <span class="n">hashtags_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hashtags_input&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">hashtags_text</span><span class="p">:</span>
+                <span class="n">instance</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process_hashtags</span><span class="p">(</span><span class="n">hashtags_text</span><span class="p">))</span> 
+            <span class="k">else</span><span class="p">:</span>
+                 <span class="n">instance</span><span class="o">.</span><span class="n">hashtags</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
             
         <span class="k">return</span> <span class="n">instance</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_hashtags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hashtags_text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper method to process hashtag input string into HashTag objects.&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing hashtags_input: &#39;</span><span class="si">{</span><span class="n">hashtags_text</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">tags_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">hashtags_text</span><span class="p">:</span>
+            <span class="n">hashtag_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">hashtags_text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+            <span class="n">hashtag_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">hashtag_names</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found hashtag names: </span><span class="si">{</span><span class="n">hashtag_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tag_name</span> <span class="ow">in</span> <span class="n">hashtag_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">tag_name</span><span class="p">:</span> 
+                    <span class="n">tag</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">HashTag</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">tag_name</span><span class="p">)</span>
+                    <span class="n">tags_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processed hashtag &#39;</span><span class="si">{</span><span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tags_to_add</span></div>
 
 
 <div class="viewcode-block" id="NodeForm">
@@ -219,7 +234,22 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">Edge</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">,</span> <span class="s1">&#39;node2&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">]</span></div>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;node1&#39;</span><span class="p">,</span> <span class="s1">&#39;node2&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="EdgeForm.clean">
+<a class="viewcode-back" href="../../forms.html#MainApp.forms.EdgeForm.clean">[документация]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add validation to prevent edge connecting a node to itself.&quot;&quot;&quot;</span>
+        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="n">node1</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">)</span>
+        <span class="n">node2</span> <span class="o">=</span> <span class="n">cleaned_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">node1</span> <span class="ow">and</span> <span class="n">node2</span> <span class="ow">and</span> <span class="n">node1</span> <span class="o">==</span> <span class="n">node2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">forms</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;Ребро не может соединять узел сам с собой.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">cleaned_data</span></div>
+</div>
 
 
 <div class="viewcode-block" id="UserProfileForm">
@@ -272,6 +302,9 @@
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">CustomUser</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">]</span>
+        <span class="n">widgets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">forms</span><span class="o">.</span><span class="n">FileInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;form-control&#39;</span><span class="p">,</span> <span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="s1">&#39;image/*&#39;</span><span class="p">})</span>
+        <span class="p">}</span>
         
 <div class="viewcode-block" id="AvatarUpdateForm.clean_image">
 <a class="viewcode-back" href="../../forms.html#MainApp.forms.AvatarUpdateForm.clean_image">[документация]</a>
@@ -296,6 +329,33 @@
         <span class="k">return</span> <span class="kc">None</span></div>
 </div>
 
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MapImportForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Форма для импорта карты через JSON.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        json_file (FileField): JSON файл с описанием карты</span>
+<span class="sd">        title (CharField): Название карты (опционально, может быть взято из JSON)</span>
+<span class="sd">        description (TextField): Описание карты (опционально, может быть взято из JSON)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">json_file</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">FileField</span><span class="p">(</span>
+        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;JSON файл&#39;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Загрузите JSON файл с описанием карты&#39;</span><span class="p">,</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">FileInput</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="s1">&#39;.json&#39;</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Название карты&#39;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Если не указано, будет использовано название из JSON&#39;</span>
+    <span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">Textarea</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Описание карты&#39;</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Если не указано, будет использовано описание из JSON&#39;</span>
+    <span class="p">)</span>
 </pre></div>
 
            </div>

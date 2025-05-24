@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Помощь | Mappu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'CSS/base.css' %}">
+    {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #4285f4;
+            --dark-color: #202124;
+            --light-color: #f8f9fa;
+            --border-color: #dadce0;
+        }
+
+        footer {
+            height: 30px;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .sidebar {
+            width: 250px;
+            padding-right: 30px;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        .content {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 50px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h3 {
+            color: var(--dark-color);
+            margin-top: 25px;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 15px;
+            color: var(--dark-color);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(66, 133, 244, 0.1);
+            color: var(--primary-color);
+        }
+
+
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-bottom: 30px;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'main' %}">
+            <i class="fas fa-project-diagram text-primary me-2"></i>
+            Mappu
+        </a>
+      </div>
+    </nav>
+    
+    <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#overview" class="nav-link active">Обзор приложения</a></li>
+                    <li class="nav-item"><a href="#basics" class="nav-link">Основные функции</a></li>
+                    <li class="nav-item"><a href="#editing" class="nav-link">Редактирование карт</a></li>
+                    <li class="nav-item"><a href="#faq" class="nav-link">Частые вопросы (FAQ)</a></li>
+                    <li class="nav-item"><a href="#feedback" class="nav-link">Обратная связь</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="content">
+            <h1>Справка по приложению Mappu</h1>
+            
+            <section id="overview">
+                <h2>Обзор приложения</h2>
+                <p>Mappu — это веб-приложение для создания, редактирования и публикации интерактивных карт-графов. С его помощью вы можете:</p>
+                <ul>
+                    <li>Создавать и редактировать точки и линии</li>
+                    <li>Настраивать внешний вид карт</li>
+                    <li>Смотреть работы других пользователей</li>
+                    <li>Сохранять и загружать ваши проекты</li>
+                </ul>
+            </section>
+            
+            <section id="basics">
+                <h2>Основные функции</h2>
+                
+                <h3>Интерфейс</h3>
+                <p>Главный экран приложения состоит из:</p>
+                <ol>
+                    <li>Панели инструментов слева</li>
+                    <li>Основной области карты в центре</li>
+                    
+                </ol>
+            </section>
+            
+            <section id="editing">
+                <h2>Редактирование карт</h2>
+                
+                <h3>Добавление точек</h3>
+                <p>Чтобы добавить новый точку на карту:</p>
+                <p>Без боковой панели:</p>
+                <ol>
+                    <li>Наведите мышкой на то место, куда вы хотите поставить точку</li>
+                    <li>Нажмите ЛКМ, чтобы разместить точку</li>
+                    
+                </ol>
+<p>Через боковую панель:</p>
+                <ol>
+                    <li>Введите параметры для точки (название, описание, координаты и тд.)</li>
+                    <li>Нажмите кнопку, чтобы разместить точку</li>
+                    
+                </ol>
+<h3>Добавление рёбер</h3>
+<p>Без боковой панели:</p>
+                <ol>
+                    Нажмите на точку начала и точку конца ребра, чтобы отрисовать его
+                    
+                </ol>
+<p>Через боковую панель:</p>
+                <ol>
+                    <li>Введите параметры для ребра (начальный и конечный узлы, и описание)</li>
+                    <li>Нажмите кнопку, чтобы сохранить ребро </li>
+                    
+                </ol>
+                <h3>Редактирование свойств точек</h3>
+                <p>Для изменения свойств точки:</p>
+                <ol>
+                    <li>Выбирете точку, которую нужно изменить</li>
+                    <li>В появившейся панели измените те поля, которые хотели</li>
+                    <li>Сохраните изменения</li>
+                </ol>
+            </section>
+            
+            <section id="faq">
+                <h2>Частые вопросы (FAQ)</h2>
+                
+                <div class="faq-item">
+                    <div class="faq-question">Можно ли работать с картами без регистрации?</div>
+                    <p>Для работ с картами на нашем сайте ОБЯЗАТЕЛЬНО НУЖНО иметь аккаунт.</p>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">Как посмотреть карты других пользователей?</div>
+                    <p>Чтобы посмотреть карты других пользователей, вам нужно перейти в раздел галереи карт, где вы можете найти работы других пользователей.</p>
+                </div>
+                
+                
+        
+            </section>
+            
+            <section id="feedback">
+                <h2>Обратная связь</h2>
+                
+                <p>Если вы не нашли ответ на свой вопрос, свяжитесь с нами:</p>
+                
+                
+                <h3>Контакты</h3>
+                <p>Email: <a href="mailto:contact@mappu.ru">contact@mappu.ru</a></p>
+                <p>Телефон: +7 (977) 850-80-43</p>
+                <p>Часы работы поддержки: Пн-Пт, 9:00-18:00</p>
+            </section>
+        </main>
+    </div>
+
+
+    
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                document.querySelectorAll('.nav-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                this.classList.add('active');
+
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section');
+            let currentSection = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+
+                if (pageYOffset >= sectionTop - 100) {
+                    currentSection = '#' + section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

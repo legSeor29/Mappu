@@ -398,6 +398,7 @@ def docs_index(request):
     """
     return redirect('/static/index.html')
 
+ 
 @login_required
 def import_map(request):
     """
@@ -468,3 +469,16 @@ def import_map(request):
         form = MapImportForm()
     
     return render(request, 'import_map.html', {'form': form})
+ 
+def video_lesson_view(request):
+    return render(request, 'video_lesson.html')
+
+def help_view(request):
+    return render(request, 'help.html')
+
+def terms_of_use_view(request):
+    return render(request, 'terms_of_use.html')
+
+def privacy_policy_view(request):
+    return render(request, 'privacy_policy.html')
+ 

@@ -227,13 +227,13 @@ class DatabaseController {
             
             console.timeEnd('PUT запрос');
             console.groupEnd();
-            alert('Карта успешно сохранена!');
+            console.log('Карта успешно сохранена!');
         })
         .catch(error => {
             console.error('Ошибка при обновлении:', error);
             console.timeEnd('PUT запрос');
             console.groupEnd();
-            alert('Ошибка при сохранении карты: ' + error.message);
+            console.error('Ошибка при сохранении карты: ' + error.message);
         });
     }
     
@@ -369,7 +369,7 @@ class DatabaseController {
             console.warn('Нет изменений для отправки в PATCH-запросе');
             console.timeEnd('PATCH запрос');
             console.groupEnd();
-            alert('Нет изменений для сохранения.');
+            console.log('Нет изменений для сохранения.');
             return;
         }
 
@@ -423,7 +423,7 @@ class DatabaseController {
             this.pendingEdges = [];
             console.timeEnd('PATCH запрос');
             console.groupEnd();
-            alert('Ошибка при сохранении узлов: ' + error.message);
+            console.error('Ошибка при сохранении узлов: ' + error.message);
         });
     }
 
@@ -553,6 +553,7 @@ class DatabaseController {
              console.log(`Создано ребер на сервере: ${edgeUpdateResponse.edges ? edgeUpdateResponse.edges.length : 0}`);
              this.finalizeUpdate(); // Finalize after successful edge creation
              console.groupEnd();
+             console.log('Карта успешно сохранена!');
         })
         .catch(error => {
             console.error('Ошибка при создании ребер (PATCH):', error);
@@ -560,7 +561,7 @@ class DatabaseController {
             // For now, just log and finalize to avoid inconsistent state.
             this.finalizeUpdate(); 
             console.groupEnd();
-            alert('Ошибка при сохранении ребер: ' + error.message);
+            console.error('Ошибка при сохранении ребер: ' + error.message);
         });
     }
 
@@ -581,7 +582,7 @@ class DatabaseController {
         });
         console.timeEnd('PATCH запрос');
         console.groupEnd();
-        alert('Карта успешно сохранена!');
+        console.log('Карта успешно сохранена!');
     }
 
     updateLocalIdsAfterSave(serverData) {

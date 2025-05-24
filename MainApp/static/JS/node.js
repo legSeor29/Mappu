@@ -100,6 +100,7 @@ class Node {
                         newEdgeId,
                         selectedNodes[0],
                         selectedNodes[1],
+                        '', // Пустое описание
                         this.map,
                         this.ymaps3,
                         this.formHandler
