@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Видеоуроки | Mappu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'CSS/base.css' %}">
+    {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #4285f4;
+            --dark-color: #202124;
+            --light-color: #f8f9fa;
+            --border-color: #dadce0;
+        }
+
+        footer {
+            height: 30px;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .sidebar {
+            width: 250px;
+            padding-right: 30px;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        .content {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 50px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h3 {
+            color: var(--dark-color);
+            margin-top: 25px;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 15px;
+            color: var(--dark-color);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(66, 133, 244, 0.1);
+            color: var(--primary-color);
+        }
+
+        .video-category {
+            margin-bottom: 40px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .video-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+
+        .video-thumbnail iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-icon::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 15px solid var(--primary-color);
+            margin-left: 5px;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: 500;
+            margin: 0 0 8px 0;
+            color: var(--dark-color);
+        }
+
+        .video-duration {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .video-description {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #555;
+        }
+
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+                margin-bottom: 30px;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'main' %}">
+            <i class="fas fa-project-diagram text-primary me-2"></i>
+            Mappu
+        </a>
+      </div>
+    </nav>
+
+    
+    <div class="container">
+        <aside class="sidebar">
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#beginner" class="nav-link active">Для начинающих</a></li>
+                    <li class="nav-item"><a href="#editing" class="nav-link">Редактирование карт</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="content">
+            <h1>Видеоуроки по работе с Mappu</h1>
+            
+            <section id="beginner" class="video-category">
+                <h2>Для начинающих</h2>
+                <p>Обучающие материалы для новых пользователей Mappu</p>
+                
+                <div class="video-grid">
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <iframe src="https://vk.com/video_ext.php?oid=-230548375&id=456239017&hash=6c3e4b5f8a9d2c1b" allowfullscreen></iframe>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Создание первой карты</h3>
+                            <div class="video-duration">1:24</div>
+                            <p class="video-description">Как создать свою первую карту</p>
+                        </div>
+                    </div>
+                    
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <iframe src="https://vk.com/video_ext.php?oid=-230548375&id=456239018&hash=7d4e5f6a8b9c0d1e" allowfullscreen></iframe>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Просмотр других карт</h3>
+                            <div class="video-duration">1:18</div>
+                            <p class="video-description">Как смотреть работы других пользователей и выкладывать карты в общий доступ</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="editing" class="video-category">
+                <h2>Редактирование карт</h2>
+                <p>Техники работы с картами и объектами</p>
+                
+                <div class="video-grid">
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <iframe src="https://vk.com/video_ext.php?oid=-230548375&id=456239019&hash=8e9f0a1b2c3d4e5f" allowfullscreen></iframe>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">Редактирование карт</h3>
+                            <div class="video-duration">2:36</div>
+                            <p class="video-description">Руководство по редактированию карты</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                document.querySelectorAll('.nav-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                this.classList.add('active');
+
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.video-category');
+            let currentSection = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+
+                if (pageYOffset >= sectionTop - 100) {
+                    currentSection = '#' + section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
